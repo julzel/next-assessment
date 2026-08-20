@@ -1,35 +1,31 @@
-/**
- * Seeds the database with one example page (only if the table is empty,
- * so it's safe to run repeatedly). Run with `npm run db:seed`.
- */
-import { db } from "../src/db"
-import { pages } from "../src/db/schema"
+/** Seeds one reusable, valid Brand Blueprint when the library is empty. */
+import { listBlueprints, insertBlueprint } from "../src/db/blueprints"
+import { buildDeterministicContent } from "../src/lib/blueprint/content"
+import type { BrandAnswers } from "../src/lib/blueprint/types"
 
-const existing = db.select({ id: pages.id }).from(pages).all()
-
-if (existing.length > 0) {
-  console.log(`Database already has ${existing.length} page(s) — skipping seed.`)
+if (listBlueprints().length > 0) {
+  console.log("Blueprint library already has records — skipping seed.")
 } else {
-  db.insert(pages)
-    .values({
-      name: "Example page",
-      template: "starter",
-      config: [
-        {
-          type: "text",
-          text: "Hello from the database",
-          level: "h1",
-          align: "center",
-        },
-        {
-          type: "text",
-          text: "This element config was read from local.db and rendered by TextElement.",
-          level: "p",
-          align: "center",
-        },
-      ],
-    })
-    .run()
+  const answers: BrandAnswers = {
+    offerAudience: "Independent founders building thoughtful products",
+    personalityTraits: ["confident", "curious", "precise"],
+    visualDirection: "minimal",
+    colorDirection: "cool",
+    typographyDirection: "modern-sans",
+    voiceTraits: ["clear", "thoughtful"],
+    alwaysCommunicate: "calm, useful clarity",
+    avoid: "empty buzzwords",
+  }
 
-  console.log("Seeded 1 example page.")
+  insertBlueprint({
+    brandName: "Northstar Studio",
+    template: "editorial",
+    config: {
+      schemaVersion: 1,
+      answers,
+      content: buildDeterministicContent(answers),
+    },
+  })
+
+  console.log("Seeded 1 Brand Blueprint.")
 }

@@ -100,3 +100,14 @@ An implementation slice is `Complete` only after its completion check and requir
 - **Decisions/issues:** Runtime validation is dependency-free and derived from the same closed value constants as the TypeScript unions. It allows structurally valid incomplete configs for later save/revisit behavior while separately enforcing completion for later AI refinement. Persistence, routes, UI, and AI transport remain intentionally out of scope.
 - **Next logical step:** Implement Slice 2 — Create the durable blueprint repository — from `ai-implementation/implementation-plan.md`.
 - **Recommended model for next step:** GPT-5.6 Terra, medium reasoning, because the schema replacement and server-only SQLite repository require careful but bounded contract-preserving implementation and isolated persistence tests.
+
+## 2026-08-20 — Slice 2: Create the durable blueprint repository
+
+- **Status:** Complete
+- **Model:** GPT-5.6 Terra, medium
+- **Outcome:** Replaced the starter page persistence model with a typed `blueprints` repository. The server can now insert, list, retrieve, and update JSON-serializable Brand Blueprint records; a missing update returns `null`. The local development database contains one reusable seeded Brand Blueprint.
+- **Files/artifacts:** Updated `src/db/schema.ts` and `scripts/seed.ts`; added `src/db/blueprints.ts` and `src/db/blueprints.test.ts`; updated `ai-implementation/changelog.md`.
+- **Validation:** `npx vitest run src/db/blueprints.test.ts` passed (4 tests); `npx tsc --noEmit` passed; `npm run lint` passed; `npm test` passed (14 tests); `npm run db:reset` passed after verifying `local.db` contained only the disposable starter record, applying the forced schema push and seed; subsequent `npm run db:push` passed with no changes; `npm run build` passed. Repository tests use isolated in-memory SQLite and cover insert/list, DTO serialization/get-not-found, update/timestamp/config round-trip, and missing update. `git diff --check` passed.
+- **Decisions/issues:** The repository exposes only serializable DTOs, uses Drizzle parameterization, and explicitly writes `updatedAt` on updates. The seed deliberately creates one valid, complete `Northstar Studio` blueprint. The first ordinary `db:push` encountered the expected non-interactive table-replacement prompt; the verified-safe `db:reset` then applied the intended forced replacement, and a subsequent `db:push` confirmed no drift.
+- **Next logical step:** Implement Slice 3 — Deliver the thin saved-blueprint loop — from `ai-implementation/implementation-plan.md`.
+- **Recommended model for next step:** GPT-5.6 Terra, medium reasoning, because it is the first cross-boundary vertical slice joining the established domain and repository contracts to Next.js 16 routes, Server Actions, and a focused interactive workspace.
