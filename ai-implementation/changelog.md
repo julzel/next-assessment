@@ -89,3 +89,14 @@ An implementation slice is `Complete` only after its completion check and requir
 - **Decisions/issues:** The plan uses Server Actions rather than internal API routes, isolates the OpenAI dependency to Slice 6, and calls for a verified-safe database reset only after the schema change. It deliberately defers all scope-expanding features and treats a required contract change during implementation as a return to Stage 4 reasoning.
 - **Next logical step:** Implement Slice 1 — Establish the serializable blueprint domain kernel — from `ai-implementation/implementation-plan.md`.
 - **Recommended model for next step:** GPT-5.6 Terra, medium reasoning, because Slice 1 is a bounded but judgmentful implementation of the accepted domain invariants and their unit tests.
+
+## 2026-08-20 — Slice 1: Establish the serializable blueprint domain kernel
+
+- **Status:** Complete
+- **Model:** GPT-5.6 Terra, medium
+- **Outcome:** Added one tested, JSON-serializable Brand Blueprint domain contract with closed option vocabularies, empty draft defaults, deterministic presentation content, dependency-scoped manual recomputation, and runtime validation for client- and AI-shaped data. No user-facing UI changes are part of this slice.
+- **Files/artifacts:** `src/lib/blueprint/types.ts`, `src/lib/blueprint/options.ts`, `src/lib/blueprint/defaults.ts`, `src/lib/blueprint/content.ts`, `src/lib/blueprint/validation.ts`, `src/lib/blueprint/content.test.ts`, and `src/lib/blueprint/validation.test.ts`; updated `ai-implementation/changelog.md`.
+- **Validation:** `npx vitest run src/lib/blueprint/content.test.ts src/lib/blueprint/validation.test.ts` passed (8 tests); `npx tsc --noEmit` passed; `npm run lint` passed; `npm test` passed (10 tests); `git diff --check` passed. The focused tests verify plain-JSON defaults, deterministic content, every answer-to-content dependency, preservation of unrelated content, duplicate/unsupported/oversized input rejection, schema/version and unknown-key rejection, and complete versus incomplete records.
+- **Decisions/issues:** Runtime validation is dependency-free and derived from the same closed value constants as the TypeScript unions. It allows structurally valid incomplete configs for later save/revisit behavior while separately enforcing completion for later AI refinement. Persistence, routes, UI, and AI transport remain intentionally out of scope.
+- **Next logical step:** Implement Slice 2 — Create the durable blueprint repository — from `ai-implementation/implementation-plan.md`.
+- **Recommended model for next step:** GPT-5.6 Terra, medium reasoning, because the schema replacement and server-only SQLite repository require careful but bounded contract-preserving implementation and isolated persistence tests.
