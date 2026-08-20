@@ -85,6 +85,7 @@ describe("resolveBlueprintPresentation", () => {
       "color",
       "typography",
       "personality",
+      "voice",
     ])
   })
 

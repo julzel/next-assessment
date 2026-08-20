@@ -4,6 +4,7 @@ import {
   TEMPLATE_OPTIONS,
   TYPOGRAPHY_DIRECTION_OPTIONS,
   VISUAL_DIRECTION_OPTIONS,
+  VOICE_TRAIT_OPTIONS,
 } from "./options"
 import {
   type BlueprintDraft,
@@ -12,6 +13,7 @@ import {
   type TemplateId,
   type TypographyDirection,
   type VisualDirection,
+  type VoiceTrait,
 } from "./types"
 
 type PaletteTokens = {
@@ -52,7 +54,7 @@ type TemplateTokens = {
 }
 
 export type PresentationRationaleItem = {
-  dimension: "template" | "visual" | "color" | "typography" | "personality"
+  dimension: "template" | "visual" | "color" | "typography" | "personality" | "voice"
   label: string
   effect: string
   fallback: boolean
@@ -65,6 +67,12 @@ export type BlueprintPresentationProfile = {
   geometry: GeometryTokens & { id: VisualDirection; fallback: boolean }
   personality: {
     modifiers: readonly (PersonalityTokens & { id: PersonalityTrait; label: string })[]
+    fallback: boolean
+  }
+  voice: {
+    traits: readonly { id: VoiceTrait; label: string }[]
+    alwaysCommunicate: string
+    avoid: string
     fallback: boolean
   }
   rationale: readonly PresentationRationaleItem[]
@@ -250,6 +258,13 @@ function rationaleLabel<T extends string>(
   return options.find((option) => option.id === value)?.label ?? value
 }
 
+function rationaleEffect<T extends string>(
+  options: readonly { id: T; effect: string }[],
+  value: T,
+) {
+  return options.find((option) => option.id === value)?.effect ?? "Applies the selected direction."
+}
+
 export function resolveBlueprintPresentation(draft: BlueprintDraft): BlueprintPresentationProfile {
   const { answers } = draft.config
   const colorId = answers.colorDirection ?? "neutral"
@@ -268,6 +283,12 @@ export function resolveBlueprintPresentation(draft: BlueprintDraft): BlueprintPr
     label: rationaleLabel(PERSONALITY_TRAIT_OPTIONS, id),
     ...PERSONALITY_TOKENS[id],
   }))
+  const voiceTraits = answers.voiceTraits.map((id) => ({
+    id,
+    label: rationaleLabel(VOICE_TRAIT_OPTIONS, id),
+  }))
+  const voiceFallback =
+    voiceTraits.length === 0 && answers.alwaysCommunicate.trim() === "" && answers.avoid.trim() === ""
 
   return {
     template: { id: draft.template, ...template },
@@ -275,6 +296,12 @@ export function resolveBlueprintPresentation(draft: BlueprintDraft): BlueprintPr
     typography: { id: typographyId, fallback: typographyFallback, ...typography },
     geometry: { id: visualId, fallback: visualFallback, ...geometry },
     personality: { modifiers, fallback: personalityFallback },
+    voice: {
+      traits: voiceTraits,
+      alwaysCommunicate: answers.alwaysCommunicate,
+      avoid: answers.avoid,
+      fallback: voiceFallback,
+    },
     rationale: [
       {
         dimension: "template",
@@ -315,6 +342,44 @@ export function resolveBlueprintPresentation(draft: BlueprintDraft): BlueprintPr
               fallback: true,
             },
           ]),
+      ...(voiceTraits.length > 0
+        ? voiceTraits.map((trait) => ({
+            dimension: "voice" as const,
+            label: trait.label,
+            effect: rationaleEffect(VOICE_TRAIT_OPTIONS, trait.id),
+            fallback: false,
+          }))
+        : []),
+      ...(answers.alwaysCommunicate.trim()
+        ? [
+            {
+              dimension: "voice" as const,
+              label: `Message priority: ${answers.alwaysCommunicate.trim()}`,
+              effect: "Makes this idea a recurring promise in the audience and voice modules.",
+              fallback: false,
+            },
+          ]
+        : []),
+      ...(answers.avoid.trim()
+        ? [
+            {
+              dimension: "voice" as const,
+              label: `Guardrail: avoid ${answers.avoid.trim()}`,
+              effect: "Turns the stated boundary into a visible brand guardrail.",
+              fallback: false,
+            },
+          ]
+        : []),
+      ...(voiceFallback
+        ? [
+            {
+              dimension: "voice" as const,
+              label: "Neutral voice guidance",
+              effect: "Keeps messaging guidance open until voice decisions are selected.",
+              fallback: true,
+            },
+          ]
+        : []),
     ],
   }
 }

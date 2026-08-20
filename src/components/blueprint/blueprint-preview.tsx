@@ -10,10 +10,14 @@ export function BlueprintPreview({ draft, fullPreview = false }: { draft: Bluepr
 
   switch (draft.template) {
     case "studio":
-      template = <StudioTemplate draft={draft} fullPreview={fullPreview} />
+      template = (
+        <StudioTemplate draft={draft} fullPreview={fullPreview} presentation={presentation} />
+      )
       break
     case "warm":
-      template = <WarmTemplate draft={draft} fullPreview={fullPreview} />
+      template = (
+        <WarmTemplate draft={draft} fullPreview={fullPreview} presentation={presentation} />
+      )
       break
     default:
       template = (

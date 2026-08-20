@@ -3,43 +3,137 @@ import {
   COLOR_DIRECTION_SWATCHES,
   TYPOGRAPHY_DIRECTION_OPTIONS,
   VISUAL_DIRECTION_OPTIONS,
+  VOICE_TRAIT_OPTIONS,
   optionLabel,
 } from "@/lib/blueprint/options"
-import type { BlueprintDraft } from "@/lib/blueprint/types"
 import type { BlueprintPresentationProfile } from "@/lib/blueprint/presentation"
+import type { BlueprintDraft, TemplateId } from "@/lib/blueprint/types"
 import { cn } from "@/lib/utils"
 
 export type BlueprintTemplateProps = {
   draft: BlueprintDraft
   fullPreview?: boolean
-  presentation?: BlueprintPresentationProfile
+  presentation: BlueprintPresentationProfile
 }
 
-export function BlueprintSections({ draft, fullPreview = false, presentation }: BlueprintTemplateProps) {
+type BlueprintSectionsProps = BlueprintTemplateProps & {
+  composition: TemplateId
+}
+
+export function BlueprintSections({
+  draft,
+  fullPreview = false,
+  presentation,
+  composition,
+}: BlueprintSectionsProps) {
+  const sections = createSemanticSections(draft, presentation, fullPreview)
+
+  if (composition === "studio") {
+    return (
+      <div
+        className="blueprint-studio-grid grid gap-3 border p-3 sm:grid-cols-2 sm:p-4"
+        data-section-layout="modular-grid"
+      >
+        <div className="sm:col-span-2">{sections.brandHeader}</div>
+        <div className="sm:col-span-2">{sections.audience}</div>
+        {sections.personality}
+        {sections.visual}
+        {sections.voice}
+        {sections.guardrail && <div>{sections.guardrail}</div>}
+      </div>
+    )
+  }
+
+  if (composition === "warm") {
+    return (
+      <div className="blueprint-warm-glow space-y-4" data-section-layout="story-flow">
+        {sections.brandHeader}
+        <div className="ml-auto max-w-[92%]">{sections.audience}</div>
+        <div className="mr-auto max-w-[92%]">{sections.personality}</div>
+        <div className="ml-auto max-w-[92%]">{sections.visual}</div>
+        <div className="mr-auto max-w-[92%]">{sections.voice}</div>
+        {sections.guardrail && <div className="ml-auto max-w-[92%]">{sections.guardrail}</div>}
+      </div>
+    )
+  }
+
+  return (
+    <div className={presentation.geometry.sectionGapClass} data-section-layout="editorial-flow">
+      {sections.brandHeader}
+      <div className="sm:ml-[12%]">{sections.audience}</div>
+      <div className="grid gap-6 sm:grid-cols-[0.8fr_1.2fr]">
+        {sections.personality}
+        {sections.visual}
+      </div>
+      <div className="grid gap-6 sm:grid-cols-[1.2fr_0.8fr]">
+        {sections.voice}
+        {sections.guardrail}
+      </div>
+    </div>
+  )
+}
+
+function createSemanticSections(
+  draft: BlueprintDraft,
+  presentation: BlueprintPresentationProfile,
+  fullPreview: boolean,
+) {
   const { answers, content } = draft.config
   const visualDirection = optionLabel(VISUAL_DIRECTION_OPTIONS, answers.visualDirection)
   const colorDirection = optionLabel(COLOR_DIRECTION_OPTIONS, answers.colorDirection)
-  const typographyDirection = optionLabel(TYPOGRAPHY_DIRECTION_OPTIONS, answers.typographyDirection)
+  const typographyDirection = optionLabel(
+    TYPOGRAPHY_DIRECTION_OPTIONS,
+    answers.typographyDirection,
+  )
+  const frameProps = { presentation }
 
-  return (
-    <div className={presentation?.geometry.sectionGapClass ?? "space-y-6"}>
-      <section
-        aria-labelledby="brand-header-heading"
-        className={sectionClasses(presentation, "space-y-2")}
+  return {
+    brandHeader: (
+      <SectionFrame
+        {...frameProps}
+        title="Brand header"
+        section="brand-header"
+        className="relative overflow-hidden"
       >
-        <h2 id="brand-header-heading" className={headingClasses(presentation)}>Brand header</h2>
-        <p className="text-lg font-medium leading-7">{content.essence}</p>
-      </section>
-      <BlueprintSection title="Audience & promise" value={content.audiencePromise} presentation={presentation} />
-      <BlueprintSection title="Personality" value={content.personality} presentation={presentation} />
-      <section
-        aria-labelledby="visual-direction-heading"
-        className={sectionClasses(presentation, "space-y-2")}
-        data-blueprint-section="visual-direction"
-      >
-        <h2 id="visual-direction-heading" className={headingClasses(presentation)}>Visual direction</h2>
+        <span
+          aria-hidden="true"
+          className={cn(
+            "absolute inset-y-0 left-0 w-1.5",
+            presentation.palette.accentClass,
+          )}
+        />
+        <p className={cn("text-xl leading-8 sm:text-2xl", presentation.typography.displayClass)}>
+          <span aria-hidden="true">“</span>
+          <span>{content.essence}</span>
+          <span aria-hidden="true">”</span>
+        </p>
+      </SectionFrame>
+    ),
+    audience: (
+      <SectionFrame {...frameProps} title="Audience & promise" section="audience-promise">
+        <p className="text-lg leading-8 sm:text-xl">{content.audiencePromise}</p>
+        {answers.offerAudience && (
+          <p className={cn("mt-4 text-xs", presentation.palette.mutedTextClass)}>
+            Built from: {answers.offerAudience}
+          </p>
+        )}
+      </SectionFrame>
+    ),
+    personality: (
+      <SectionFrame {...frameProps} title="Personality" section="personality">
+        <p className="text-sm leading-6">{content.personality}</p>
+        <PersonalityAccents presentation={presentation} />
+      </SectionFrame>
+    ),
+    visual: (
+      <SectionFrame {...frameProps} title="Visual direction" section="visual-direction">
         <p className="text-sm leading-6">{content.visualDirection}</p>
-        <div className={cn("flex flex-wrap items-center gap-2 text-sm", presentation?.palette.mutedTextClass ?? "text-current/70")}>
+        <div
+          className={cn(
+            "mt-4 flex flex-wrap items-center gap-2 text-sm",
+            presentation.palette.mutedTextClass,
+          )}
+        >
           {colorDirection && answers.colorDirection && (
             <span className="flex items-center gap-1.5">
               <span className="flex gap-1" aria-hidden="true">
@@ -53,53 +147,120 @@ export function BlueprintSections({ draft, fullPreview = false, presentation }: 
           {visualDirection && <span>• {visualDirection}</span>}
           {typographyDirection && <span>• {typographyDirection}</span>}
           {!colorDirection && !visualDirection && !typographyDirection && (
-            <span>Choose visual, color, and typography directions to see the system.</span>
+            <span>Neutral defaults are shown until the visual system is selected.</span>
           )}
         </div>
-      </section>
-      <BlueprintSection title="Voice & tone" value={content.voiceTone} presentation={presentation} />
-      {(content.guardrail || !fullPreview) && (
-        <section aria-labelledby="guardrail-heading" className={sectionClasses(presentation, "space-y-2")}>
-          <h2 id="guardrail-heading" className={headingClasses(presentation)}>Brand guardrail</h2>
-          <p className={cn("text-sm leading-6", presentation?.palette.mutedTextClass ?? "text-current/70")}>
-            {content.guardrail ?? "No guardrail yet — add one when the brand needs a clear boundary."}
+      </SectionFrame>
+    ),
+    voice: (
+      <SectionFrame {...frameProps} title="Voice & tone" section="voice-tone">
+        <p className="text-sm leading-6">{content.voiceTone}</p>
+        <div className="mt-4 flex flex-wrap gap-2" aria-label="Voice traits">
+          {answers.voiceTraits.length > 0 ? (
+            answers.voiceTraits.map((trait) => (
+              <span
+                key={trait}
+                className={cn(
+                  "border px-2.5 py-1 text-xs font-medium",
+                  presentation.palette.softSurfaceClass,
+                  presentation.palette.borderClass,
+                )}
+              >
+                {optionLabel(VOICE_TRAIT_OPTIONS, trait)}
+              </span>
+            ))
+          ) : (
+            <span className={cn("text-xs", presentation.palette.mutedTextClass)}>
+              Choose voice traits to define the delivery.
+            </span>
+          )}
+        </div>
+        <div className={cn("mt-4 border-t pt-3", presentation.palette.borderClass)}>
+          <p className={sectionLabelClasses(presentation)}>Always communicate</p>
+          <p className="mt-1 text-sm">
+            {answers.alwaysCommunicate || "Add the message the brand must consistently reinforce."}
           </p>
-        </section>
+        </div>
+      </SectionFrame>
+    ),
+    guardrail:
+      content.guardrail || !fullPreview ? (
+        <SectionFrame {...frameProps} title="Brand guardrail" section="guardrail">
+          <p className={cn("text-sm leading-6", presentation.palette.mutedTextClass)}>
+            {content.guardrail ??
+              "No guardrail yet — add one when the brand needs a clear boundary."}
+          </p>
+          {answers.avoid && (
+            <p className={cn("mt-3 text-xs", presentation.palette.mutedTextClass)}>
+              Avoid: {answers.avoid}
+            </p>
+          )}
+        </SectionFrame>
+      ) : null,
+  }
+}
+
+function SectionFrame({
+  title,
+  section,
+  presentation,
+  className,
+  children,
+}: {
+  title: string
+  section: string
+  presentation: BlueprintPresentationProfile
+  className?: string
+  children: React.ReactNode
+}) {
+  return (
+    <section
+      className={cn(
+        "h-full space-y-3",
+        presentation.geometry.sectionClass,
+        presentation.palette.surfaceClass,
+        presentation.palette.borderClass,
+        className,
+      )}
+      data-blueprint-section={section}
+    >
+      <h2 className={sectionLabelClasses(presentation)}>{title}</h2>
+      {children}
+    </section>
+  )
+}
+
+function PersonalityAccents({ presentation }: { presentation: BlueprintPresentationProfile }) {
+  return (
+    <div className="mt-4 flex flex-wrap gap-2" aria-label="Personality accents">
+      {presentation.personality.modifiers.length > 0 ? (
+        presentation.personality.modifiers.map((modifier) => (
+          <span
+            key={modifier.id}
+            data-personality={modifier.id}
+            className={cn(
+              "inline-flex border px-3 py-1 text-xs",
+              presentation.palette.softSurfaceClass,
+              presentation.palette.borderClass,
+              modifier.accentClass,
+            )}
+          >
+            {modifier.label}
+          </span>
+        ))
+      ) : (
+        <span className={cn("text-xs", presentation.palette.mutedTextClass)}>
+          Neutral accents are shown until personality traits are selected.
+        </span>
       )}
     </div>
   )
 }
 
-function BlueprintSection({
-  title,
-  value,
-  presentation,
-}: {
-  title: string
-  value: string
-  presentation?: BlueprintPresentationProfile
-}) {
-  return (
-    <section className={sectionClasses(presentation, "space-y-2")}>
-      <h2 className={headingClasses(presentation)}>{title}</h2>
-      <p className="text-sm leading-6">{value}</p>
-    </section>
-  )
-}
-
-function sectionClasses(presentation: BlueprintPresentationProfile | undefined, className: string) {
+function sectionLabelClasses(presentation: BlueprintPresentationProfile) {
   return cn(
-    className,
-    presentation?.geometry.sectionClass,
-    presentation?.palette.surfaceClass,
-    presentation?.palette.borderClass,
-  )
-}
-
-function headingClasses(presentation: BlueprintPresentationProfile | undefined) {
-  return cn(
-    "text-sm font-medium",
-    presentation?.typography.labelClass,
-    presentation?.palette.mutedTextClass ?? "text-current/70",
+    "text-xs",
+    presentation.typography.labelClass,
+    presentation.palette.mutedTextClass,
   )
 }

@@ -43,22 +43,95 @@ describe("BlueprintPreview", () => {
       expect(screen.getByText(title)).not.toBeNull()
     }
     expect(screen.getByText("Avoid empty buzzwords.")).not.toBeNull()
-    expect(screen.getByText("Earthy")).not.toBeNull()
-    expect(screen.getByText(/Editorial serif/)).not.toBeNull()
+    expect(screen.getAllByText("Earthy").length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Editorial serif/).length).toBeGreaterThan(0)
   })
 
   it("uses a distinct trusted renderer for every template while keeping the document contract", () => {
     const renderers = [
-      ["editorial", "Editorial blueprint"],
-      ["studio", "Studio blueprint"],
-      ["warm", "Warm blueprint"],
+      ["editorial", "Editorial blueprint", "editorial-narrative", "editorial-flow"],
+      ["studio", "Studio blueprint", "studio-system-board", "modular-grid"],
+      ["warm", "Warm blueprint", "warm-story-flow", "story-flow"],
     ] as const
 
-    for (const [template, label] of renderers) {
+    for (const [template, label, composition, sectionLayout] of renderers) {
       const view = render(<BlueprintPreview draft={{ ...draft, template }} />)
       expect(screen.getByText(label)).not.toBeNull()
       expect(screen.getByText("Audience & promise")).not.toBeNull()
       expect(screen.getByText("Voice & tone")).not.toBeNull()
+      expect(view.container.querySelector(`[data-composition="${composition}"]`)).not.toBeNull()
+      expect(view.container.querySelector(`[data-section-layout="${sectionLayout}"]`)).not.toBeNull()
+      expect(view.container.querySelector('[data-presentation-surface="canvas"]')?.className).toContain(
+        "bg-amber-50",
+      )
+      expect(screen.getByRole("heading", { level: 1 }).className).toContain(
+        "font-blueprint-editorial",
+      )
+      expect(view.container.querySelector('[data-personality="precise"]')).not.toBeNull()
+      expect(screen.getByText(draft.config.content.essence)).not.toBeNull()
+      expect(screen.getByText(draft.config.content.audiencePromise)).not.toBeNull()
+      expect(screen.getByText(draft.config.content.personality)).not.toBeNull()
+      expect(screen.getByText(draft.config.content.visualDirection)).not.toBeNull()
+      expect(screen.getByText(draft.config.content.voiceTone)).not.toBeNull()
+      expect(screen.getByText(draft.config.content.guardrail!)).not.toBeNull()
+      expect(screen.getByText("calm expertise")).not.toBeNull()
+      expect(screen.getByText("Avoid: empty buzzwords")).not.toBeNull()
+      expect(screen.getByText("Why this direction works")).not.toBeNull()
+      view.unmount()
+    }
+  })
+
+  it("applies visual-system changes to every composition", () => {
+    for (const template of ["editorial", "studio", "warm"] as const) {
+      const initialAnswers: BrandAnswers = {
+        ...answers,
+        colorDirection: "neutral",
+        typographyDirection: "modern-sans",
+        visualDirection: "minimal",
+      }
+      const view = render(
+        <BlueprintPreview
+          draft={{
+            ...draft,
+            template,
+            config: {
+              ...draft.config,
+              answers: initialAnswers,
+              content: buildDeterministicContent(initialAnswers),
+            },
+          }}
+        />,
+      )
+      expect(
+        view.container.querySelector('[data-presentation-surface="canvas"]')?.className,
+      ).toContain("bg-stone-100")
+      expect(screen.getByRole("heading", { level: 1 }).className).toContain("font-sans")
+
+      const changedAnswers: BrandAnswers = {
+        ...answers,
+        colorDirection: "vibrant",
+        typographyDirection: "editorial-serif",
+        visualDirection: "playful",
+      }
+      view.rerender(
+        <BlueprintPreview
+          draft={{
+            ...draft,
+            template,
+            config: {
+              ...draft.config,
+              answers: changedAnswers,
+              content: buildDeterministicContent(changedAnswers),
+            },
+          }}
+        />,
+      )
+      const canvas = view.container.querySelector('[data-presentation-surface="canvas"]')
+      expect(canvas?.className).toContain("bg-fuchsia-50")
+      expect(canvas?.className).toContain("rounded-[2rem]")
+      expect(screen.getByRole("heading", { level: 1 }).className).toContain(
+        "font-blueprint-editorial",
+      )
       view.unmount()
     }
   })
@@ -160,16 +233,24 @@ describe("BlueprintPreview", () => {
   })
 
   it("omits an empty optional guardrail from full presentation mode", () => {
-    render(
-      <BlueprintPreview
-        fullPreview
-        draft={{
-          ...draft,
-          config: { ...draft.config, answers: { ...answers, avoid: "" }, content: { ...draft.config.content, guardrail: null } },
-        }}
-      />,
-    )
+    for (const template of ["editorial", "studio", "warm"] as const) {
+      const view = render(
+        <BlueprintPreview
+          fullPreview
+          draft={{
+            ...draft,
+            template,
+            config: {
+              ...draft.config,
+              answers: { ...answers, avoid: "" },
+              content: { ...draft.config.content, guardrail: null },
+            },
+          }}
+        />,
+      )
 
-    expect(screen.queryByText("Brand guardrail")).toBeNull()
+      expect(screen.queryByText("Brand guardrail")).toBeNull()
+      view.unmount()
+    }
   })
 })

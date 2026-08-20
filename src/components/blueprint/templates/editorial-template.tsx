@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge"
+import { DesignRationale } from "@/components/blueprint/design-rationale"
 import type { BlueprintPresentationProfile } from "@/lib/blueprint/presentation"
 import { cn } from "@/lib/utils"
 
@@ -20,6 +21,7 @@ export function EditorialTemplate({
         presentation.geometry.canvasClass,
       )}
       data-presentation-surface="canvas"
+      data-composition="editorial-narrative"
     >
       <div
         className={cn(
@@ -46,26 +48,14 @@ export function EditorialTemplate({
         <p className={cn("text-sm italic", presentation.palette.mutedTextClass)}>
           A refined, typography-led point of view
         </p>
-        {presentation.personality.modifiers.length > 0 && (
-          <div className="flex flex-wrap gap-2 pt-2" aria-label="Personality accents">
-            {presentation.personality.modifiers.map((modifier) => (
-              <span
-                key={modifier.id}
-                data-personality={modifier.id}
-                className={cn(
-                  "inline-flex border px-3 py-1 text-xs",
-                  presentation.palette.softSurfaceClass,
-                  presentation.palette.borderClass,
-                  modifier.accentClass,
-                )}
-              >
-                {modifier.label}
-              </span>
-            ))}
-          </div>
-        )}
       </div>
-      <BlueprintSections draft={draft} fullPreview={fullPreview} presentation={presentation} />
+      <BlueprintSections
+        draft={draft}
+        fullPreview={fullPreview}
+        presentation={presentation}
+        composition="editorial"
+      />
+      <DesignRationale presentation={presentation} />
     </article>
   )
 }

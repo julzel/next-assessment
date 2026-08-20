@@ -146,4 +146,19 @@ body {
   .font-blueprint-rounded {
     font-family: "Arial Rounded MT Bold", "Trebuchet MS", var(--font-geist-sans), sans-serif;
   }
+
+  .blueprint-studio-grid {
+    background-image:
+      linear-gradient(to right, currentColor 1px, transparent 1px),
+      linear-gradient(to bottom, currentColor 1px, transparent 1px);
+    background-size: 2rem 2rem;
+    background-blend-mode: soft-light;
+  }
+
+  .blueprint-warm-glow {
+    background-image:
+      radial-gradient(circle at 8% 12%, currentColor 0, transparent 24%),
+      radial-gradient(circle at 92% 88%, currentColor 0, transparent 20%);
+    background-blend-mode: soft-light;
+  }
 }
