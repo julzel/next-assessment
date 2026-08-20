@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
@@ -25,11 +25,13 @@ function ControlledEditor({
   fieldErrors,
   onAnswerChange = vi.fn(),
   onReview = vi.fn(),
+  mobileImpact,
 }: {
   answers?: BrandAnswers
   fieldErrors?: BlueprintFieldErrors
   onAnswerChange?: (action: AnswerChangedAction) => void
   onReview?: () => void
+  mobileImpact?: ReactNode
 }) {
   const [currentStep, setCurrentStep] = useState<BlueprintStepId>("foundation")
 
@@ -41,6 +43,7 @@ function ControlledEditor({
       onStepChange={setCurrentStep}
       onAnswerChange={onAnswerChange}
       onReview={onReview}
+      mobileImpact={mobileImpact}
     />
   )
 }
@@ -52,6 +55,7 @@ describe("GuidedEditor", () => {
     render(<ControlledEditor />)
 
     expect(screen.getByText("0 of 4 steps complete")).not.toBeNull()
+    expect(screen.getByText("Current · Not started")).not.toBeNull()
     expect(screen.getByText("Why this matters")).not.toBeNull()
     expect(screen.getByText("You will see this change")).not.toBeNull()
     expect(screen.getByLabelText("What does the brand offer, and who is it for?")).not.toBeNull()
@@ -69,6 +73,23 @@ describe("GuidedEditor", () => {
     fireEvent.click(screen.getByRole("button", { name: /Next: Voice/ }))
     expect(screen.getByText("Choose one to three voice traits.")).not.toBeNull()
     expect(screen.getByText("One trait is required. Together, the selected traits shape the voice summary and message treatment.")).not.toBeNull()
+  })
+
+  it("renders contextual mobile impact content without replacing step status semantics", () => {
+    render(
+      <ControlledEditor
+        answers={completeAnswers}
+        mobileImpact={<aside>Current impact sample</aside>}
+      />,
+    )
+
+    expect(screen.getByText("Current impact sample")).not.toBeNull()
+    const foundation = screen.getByRole("button", { name: /1\. Foundation/ })
+    expect(foundation.getAttribute("aria-current")).toBe("step")
+    expect(foundation.textContent).toContain("Current · Complete")
+    expect(screen.getByRole("button", { name: /2\. Personality/ }).textContent).toContain(
+      "Complete",
+    )
   })
 
   it("limits personality traits to three and explains the remaining selection", () => {

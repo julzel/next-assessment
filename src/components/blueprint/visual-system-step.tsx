@@ -34,7 +34,7 @@ export function VisualSystemStep({
           The palette will control the Blueprint canvas, surfaces, text, borders, and accents.
         </p>
         <RadioGroup
-          value={colorDirection ?? undefined}
+          value={colorDirection ?? ""}
           onValueChange={(value) => onColorDirectionChange(value as ColorDirection)}
           className="gap-2"
         >
@@ -76,7 +76,7 @@ export function VisualSystemStep({
           This will control the visible headline and body type relationship in every template.
         </p>
         <RadioGroup
-          value={typographyDirection ?? undefined}
+          value={typographyDirection ?? ""}
           onValueChange={(value) => onTypographyDirectionChange(value as TypographyDirection)}
           className="gap-2"
         >

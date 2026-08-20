@@ -49,7 +49,7 @@ export function WorkspaceHeader({
           {saveMessage ?? status}
         </p>
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button ref={fullPreviewButtonRef} variant="outline" onClick={onFullPreview}>
           Full preview
         </Button>

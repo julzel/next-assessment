@@ -80,10 +80,12 @@ describe("BlueprintWorkspace", () => {
     fireEvent.click(screen.getByRole("button", { name: /^2\. Personality/ }))
     fireEvent.click(screen.getByRole("radio", { name: /Elegant/ }))
 
-    expect(screen.getByText("A distinctive, elegant brand expression.")).not.toBeNull()
+    expect(screen.getAllByText("A distinctive, elegant brand expression.").length).toBeGreaterThan(
+      0,
+    )
     fireEvent.click(screen.getByRole("button", { name: /^3\. Visual system/ }))
     fireEvent.click(screen.getByRole("radio", { name: /Earthy/ }))
-    expect(screen.getByText(/earthy-leaning color/)).not.toBeNull()
+    expect(screen.getAllByText(/earthy-leaning color/).length).toBeGreaterThan(0)
     fireEvent.click(screen.getByRole("button", { name: /^4\. Voice/ }))
     fireEvent.change(screen.getByLabelText("What should the brand avoid? (Optional)"), {
       target: { value: "empty buzzwords" },
@@ -110,6 +112,51 @@ describe("BlueprintWorkspace", () => {
     expect(screen.getByDisplayValue("Strategic support for independent founders")).not.toBeNull()
     expect(screen.getByText("Warm blueprint")).not.toBeNull()
     expect(screen.getByText("Unsaved changes")).not.toBeNull()
+  })
+
+  it("moves from mobile questions to the current preview impact without losing state", async () => {
+    const { container } = render(<BlueprintWorkspace initialDraft={draft} />)
+    fireEvent.change(screen.getByLabelText("What does the brand offer, and who is it for?"), {
+      target: { value: "Strategic support for independent founders" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: "View this change" }))
+
+    expect(screen.getByRole("tab", { name: "Preview" }).getAttribute("aria-selected")).toBe(
+      "true",
+    )
+    const audience = container.querySelector<HTMLElement>(
+      '[data-blueprint-section="audience-promise"]',
+    )
+    await waitFor(() => expect(document.activeElement).toBe(audience))
+    fireEvent.click(screen.getByRole("tab", { name: "Questions" }))
+
+    expect(screen.getByDisplayValue("Strategic support for independent founders")).not.toBeNull()
+    expect(
+      screen.getByRole("button", { name: /1\. Foundation/ }).getAttribute("aria-current"),
+    ).toBe("step")
+  })
+
+  it("updates the compact impact and full preview from the same answer change", () => {
+    render(<BlueprintWorkspace initialDraft={draft} />)
+    fireEvent.change(screen.getByLabelText("What does the brand offer, and who is it for?"), {
+      target: { value: "Tools for thoughtful founders" },
+    })
+
+    expect(screen.getAllByText(/Tools for thoughtful founders/).length).toBeGreaterThanOrEqual(2)
+    fireEvent.click(screen.getByRole("button", { name: "Full preview" }))
+    expect(screen.getAllByText(/Tools for thoughtful founders/).length).toBeGreaterThanOrEqual(3)
+  })
+
+  it("keeps IDs unique when the editor and full preview are both mounted", () => {
+    render(<BlueprintWorkspace initialDraft={completeDraft} />)
+    fireEvent.click(screen.getByRole("button", { name: /^4\. Voice/ }))
+    expect(screen.getByRole("button", { name: "Review blueprint" }).hasAttribute("disabled")).toBe(
+      false,
+    )
+    fireEvent.click(screen.getByRole("button", { name: "Full preview" }))
+    const ids = Array.from(document.querySelectorAll("[id]"), (element) => element.id)
+
+    expect(new Set(ids).size).toBe(ids.length)
   })
 
   it("shows the current unsaved draft in full preview and restores focus on Escape", async () => {

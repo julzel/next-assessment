@@ -84,7 +84,7 @@ export function PersonalityStep({
           This controls the composition&apos;s energy, spacing, borders, shapes, and decorative density.
         </p>
         <RadioGroup
-          value={visualDirection ?? undefined}
+          value={visualDirection ?? ""}
           onValueChange={(value) => onVisualDirectionChange(value as VisualDirection)}
           className="gap-2"
         >

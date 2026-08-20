@@ -2,9 +2,18 @@ import { DesignRationale } from "@/components/blueprint/design-rationale"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
-import { BlueprintSections, type BlueprintTemplateProps } from "./blueprint-sections"
+import {
+  BlueprintSections,
+  canvasFocusClasses,
+  type BlueprintTemplateProps,
+} from "./blueprint-sections"
 
-export function StudioTemplate({ draft, fullPreview, presentation }: BlueprintTemplateProps) {
+export function StudioTemplate({
+  draft,
+  fullPreview,
+  presentation,
+  activeStep,
+}: BlueprintTemplateProps) {
   return (
     <article
       className={cn(
@@ -14,9 +23,12 @@ export function StudioTemplate({ draft, fullPreview, presentation }: BlueprintTe
         presentation.palette.borderClass,
         presentation.typography.bodyClass,
         presentation.geometry.canvasClass,
+        canvasFocusClasses(activeStep),
       )}
       data-composition="studio-system-board"
       data-presentation-surface="canvas"
+      data-blueprint-section="canvas"
+      data-editing-context={activeStep === "visual" ? "true" : undefined}
     >
       <div
         className={cn(
@@ -31,14 +43,14 @@ export function StudioTemplate({ draft, fullPreview, presentation }: BlueprintTe
           <p className={cn("mb-3 text-xs", presentation.typography.labelClass)}>
             Brand system / 01
           </p>
-          <h1
+          <h2
             className={cn(
               "text-4xl leading-none sm:text-5xl",
               presentation.typography.displayClass,
             )}
           >
             {draft.brandName.trim() || "Your brand name"}
-          </h1>
+          </h2>
         </div>
         <Badge
           className={cn(
@@ -56,6 +68,7 @@ export function StudioTemplate({ draft, fullPreview, presentation }: BlueprintTe
         fullPreview={fullPreview}
         presentation={presentation}
         composition="studio"
+        activeStep={activeStep}
       />
       <DesignRationale presentation={presentation} />
     </article>

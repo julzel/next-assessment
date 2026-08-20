@@ -7,6 +7,10 @@ import {
   optionLabel,
 } from "@/lib/blueprint/options"
 import type { BlueprintPresentationProfile } from "@/lib/blueprint/presentation"
+import {
+  BLUEPRINT_STEP_PREVIEW_IMPACTS,
+  type BlueprintStepId,
+} from "@/lib/blueprint/progress"
 import type { BlueprintDraft, TemplateId } from "@/lib/blueprint/types"
 import { cn } from "@/lib/utils"
 
@@ -14,6 +18,7 @@ export type BlueprintTemplateProps = {
   draft: BlueprintDraft
   fullPreview?: boolean
   presentation: BlueprintPresentationProfile
+  activeStep?: BlueprintStepId
 }
 
 type BlueprintSectionsProps = BlueprintTemplateProps & {
@@ -25,8 +30,9 @@ export function BlueprintSections({
   fullPreview = false,
   presentation,
   composition,
+  activeStep,
 }: BlueprintSectionsProps) {
-  const sections = createSemanticSections(draft, presentation, fullPreview)
+  const sections = createSemanticSections(draft, presentation, fullPreview, activeStep)
 
   if (composition === "studio") {
     return (
@@ -77,6 +83,7 @@ function createSemanticSections(
   draft: BlueprintDraft,
   presentation: BlueprintPresentationProfile,
   fullPreview: boolean,
+  activeStep: BlueprintStepId | undefined,
 ) {
   const { answers, content } = draft.config
   const visualDirection = optionLabel(VISUAL_DIRECTION_OPTIONS, answers.visualDirection)
@@ -85,7 +92,7 @@ function createSemanticSections(
     TYPOGRAPHY_DIRECTION_OPTIONS,
     answers.typographyDirection,
   )
-  const frameProps = { presentation }
+  const frameProps = { presentation, activeStep }
 
   return {
     brandHeader: (
@@ -204,30 +211,57 @@ function SectionFrame({
   title,
   section,
   presentation,
+  activeStep,
   className,
   children,
 }: {
   title: string
   section: string
   presentation: BlueprintPresentationProfile
+  activeStep?: BlueprintStepId
   className?: string
   children: React.ReactNode
 }) {
+  const impact = activeStep ? BLUEPRINT_STEP_PREVIEW_IMPACTS[activeStep] : null
+  const isPrimary = impact?.primarySection === section
+  const isContext = (impact?.sections as readonly string[] | undefined)?.includes(section) ?? false
+
   return (
     <section
+      aria-label={title}
       className={cn(
-        "h-full space-y-3",
+        "blueprint-focus-target h-full space-y-3 transition-shadow motion-reduce:transition-none",
         presentation.geometry.sectionClass,
         presentation.palette.surfaceClass,
         presentation.palette.borderClass,
+        isPrimary && "ring-2 ring-primary ring-offset-2 ring-offset-background",
+        isContext && !isPrimary && "ring-1 ring-primary/50 ring-offset-1",
         className,
       )}
       data-blueprint-section={section}
+      data-editing-now={isPrimary ? "true" : undefined}
+      data-editing-context={isContext && !isPrimary ? "true" : undefined}
+      tabIndex={-1}
     >
-      <h2 className={sectionLabelClasses(presentation)}>{title}</h2>
+      {isPrimary && impact && (
+        <p
+          className="flex flex-wrap items-center gap-2 rounded-md bg-primary px-2.5 py-1.5 text-xs text-primary-foreground"
+          data-editing-indicator=""
+        >
+          <span className="font-semibold">Editing now</span>
+          <span>{impact.inputLabel}</span>
+        </p>
+      )}
+      <h3 className={sectionLabelClasses(presentation)}>{title}</h3>
       {children}
     </section>
   )
+}
+
+export function canvasFocusClasses(activeStep: BlueprintStepId | undefined) {
+  return activeStep === "visual"
+    ? "blueprint-focus-target ring-2 ring-primary ring-offset-2 ring-offset-background transition-shadow motion-reduce:transition-none"
+    : undefined
 }
 
 function PersonalityAccents({ presentation }: { presentation: BlueprintPresentationProfile }) {

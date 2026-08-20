@@ -126,3 +126,11 @@ Every commit runs a pre-commit hook (Husky): `tsc --noEmit`, then ESLint and any
 
 1. Push your work to a fork or a fresh repo and send us the link.
 2. Include a short note (in the README or a `NOTES.md`) covering the decisions you made, trade-offs, and what you'd do next with more time.
+
+## Brand Blueprint implementation notes
+
+- The saved `BrandBlueprintConfig` is the canonical state. Guided answers update deterministic content immediately, and save/reopen reproduces the same artifact without storing editor-only progress or focus state.
+- Presentation styling is resolved from closed answer enums through code-owned token registries. Saved or future AI-authored text can never inject CSS classes or arbitrary styles.
+- Editorial, Studio, and Warm share semantic Blueprint modules but own different macro compositions. The live rationale is derived from the same presentation profile used by the renderers, so its explanation cannot drift into a separate stored narrative.
+- Desktop keeps questions beside a focused live preview. Mobile keeps one compact impact sample in Questions mode and moves focus to the affected preview module through **View this change**; no duplicate preview content is added to the form.
+- Current limitations: the final browser matrix must be rerun in a connected browser environment, and AI-assisted refinement remains the next product slice. The assessment intentionally defers arbitrary fonts, colors, layouts, uploads, collaboration, and version history.

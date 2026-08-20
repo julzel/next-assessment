@@ -87,4 +87,16 @@ describe("blueprint workspace reducer", () => {
     })
     expect(changed.fieldIssues).toEqual([])
   })
+
+  it("opens the mobile preview for the current step without changing draft state", () => {
+    const onVisual = blueprintWorkspaceReducer(createBlueprintWorkspaceState(draft), {
+      type: "stepChanged",
+      step: "visual",
+    })
+    const previewing = blueprintWorkspaceReducer(onVisual, { type: "viewCurrentStep" })
+
+    expect(previewing.mobileMode).toBe("preview")
+    expect(previewing.currentStep).toBe("visual")
+    expect(previewing.draft).toBe(draft)
+  })
 })

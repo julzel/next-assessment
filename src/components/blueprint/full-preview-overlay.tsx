@@ -20,13 +20,13 @@ export function FullPreviewOverlay({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="h-[calc(100dvh-2rem)] max-w-[calc(100%-2rem)] overflow-y-auto p-3 sm:max-w-5xl sm:p-6" showCloseButton={false}>
-        <DialogHeader className="sticky top-0 z-10 flex-row items-center justify-between bg-popover pb-3">
-          <div>
+      <DialogContent className="h-[calc(100dvh-1rem)] max-w-[calc(100%-1rem)] overflow-x-hidden overflow-y-auto p-3 sm:h-[calc(100dvh-2rem)] sm:max-w-5xl sm:p-6" showCloseButton={false}>
+        <DialogHeader className="sticky top-0 z-10 flex-col items-start gap-3 bg-popover pb-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
             <DialogTitle>Full preview</DialogTitle>
             <DialogDescription>Review the current unsaved blueprint without leaving the editor.</DialogDescription>
           </div>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <Button type="button" variant="outline" className="shrink-0" onClick={() => onOpenChange(false)}>
             Back to editor
           </Button>
         </DialogHeader>

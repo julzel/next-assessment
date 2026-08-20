@@ -2,9 +2,18 @@ import { DesignRationale } from "@/components/blueprint/design-rationale"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
-import { BlueprintSections, type BlueprintTemplateProps } from "./blueprint-sections"
+import {
+  BlueprintSections,
+  canvasFocusClasses,
+  type BlueprintTemplateProps,
+} from "./blueprint-sections"
 
-export function WarmTemplate({ draft, fullPreview, presentation }: BlueprintTemplateProps) {
+export function WarmTemplate({
+  draft,
+  fullPreview,
+  presentation,
+  activeStep,
+}: BlueprintTemplateProps) {
   return (
     <article
       className={cn(
@@ -14,9 +23,12 @@ export function WarmTemplate({ draft, fullPreview, presentation }: BlueprintTemp
         presentation.palette.borderClass,
         presentation.typography.bodyClass,
         presentation.geometry.canvasClass,
+        canvasFocusClasses(activeStep),
       )}
       data-composition="warm-story-flow"
       data-presentation-surface="canvas"
+      data-blueprint-section="canvas"
+      data-editing-context={activeStep === "visual" ? "true" : undefined}
     >
       <div
         className={cn(
@@ -37,14 +49,14 @@ export function WarmTemplate({ draft, fullPreview, presentation }: BlueprintTemp
         >
           Warm blueprint
         </Badge>
-        <h1
+        <h2
           className={cn(
             "max-w-2xl text-4xl leading-none sm:text-5xl",
             presentation.typography.displayClass,
           )}
         >
           {draft.brandName.trim() || "Your brand name"}
-        </h1>
+        </h2>
         <p className={cn("mt-4 max-w-lg text-sm leading-6", presentation.palette.mutedTextClass)}>
           An approachable brand story designed to feel human from the first interaction.
         </p>
@@ -54,6 +66,7 @@ export function WarmTemplate({ draft, fullPreview, presentation }: BlueprintTemp
         fullPreview={fullPreview}
         presentation={presentation}
         composition="warm"
+        activeStep={activeStep}
       />
       <DesignRationale presentation={presentation} />
     </article>

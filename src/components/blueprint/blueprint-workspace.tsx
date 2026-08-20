@@ -7,6 +7,7 @@ import { saveBlueprint } from "@/app/blueprints/actions"
 import { BlueprintPreview } from "@/components/blueprint/blueprint-preview"
 import { FullPreviewOverlay } from "@/components/blueprint/full-preview-overlay"
 import { GuidedEditor } from "@/components/blueprint/guided-editor"
+import { LiveImpactSummary } from "@/components/blueprint/live-impact-summary"
 import { TemplateOptionCard } from "@/components/blueprint/template-option-card"
 import { WorkspaceHeader } from "@/components/blueprint/workspace-header"
 import { Input } from "@/components/ui/input"
@@ -15,7 +16,11 @@ import { RadioGroup } from "@/components/ui/radio-group"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 import { TEMPLATE_OPTIONS } from "@/lib/blueprint/options"
-import { getBlueprintFieldErrors, isBlueprintComplete } from "@/lib/blueprint/progress"
+import {
+  BLUEPRINT_STEP_PREVIEW_IMPACTS,
+  getBlueprintFieldErrors,
+  isBlueprintComplete,
+} from "@/lib/blueprint/progress"
 import {
   blueprintWorkspaceReducer,
   createBlueprintWorkspaceState,
@@ -31,7 +36,9 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
     createBlueprintWorkspaceState,
   )
   const fullPreviewButtonRef = useRef<HTMLButtonElement>(null)
+  const previewPanelRef = useRef<HTMLElement>(null)
   const shouldRestorePreviewFocus = useRef(false)
+  const shouldFocusStepImpact = useRef(false)
   const dirty = isBlueprintDirty(state)
   const complete = isBlueprintComplete(state.draft.config)
   const fieldErrors = getBlueprintFieldErrors(state.fieldIssues)
@@ -42,6 +49,16 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
       fullPreviewButtonRef.current?.focus()
     }
   }, [state.fullPreviewOpen])
+
+  useEffect(() => {
+    if (state.mobileMode !== "preview" || !shouldFocusStepImpact.current) return
+
+    shouldFocusStepImpact.current = false
+    const target = BLUEPRINT_STEP_PREVIEW_IMPACTS[state.currentStep].primarySection
+    previewPanelRef.current
+      ?.querySelector<HTMLElement>(`[data-blueprint-section="${target}"]`)
+      ?.focus()
+  }, [state.currentStep, state.mobileMode])
 
   async function handleSave() {
     dispatch({ type: "saveStarted" })
@@ -68,8 +85,15 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
     dispatch({ type: "fullPreviewChanged", open })
   }
 
+  function handleViewCurrentStep() {
+    shouldFocusStepImpact.current = true
+    dispatch({ type: "viewCurrentStep" })
+  }
+
+  const activeImpact = BLUEPRINT_STEP_PREVIEW_IMPACTS[state.currentStep]
+
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-6 py-8 sm:py-12">
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 overflow-x-clip px-4 py-6 sm:gap-8 sm:px-6 sm:py-12">
       <WorkspaceHeader
         brandName={state.draft.brandName}
         isDirty={dirty}
@@ -83,17 +107,24 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
       <Tabs
         value={state.mobileMode}
         onValueChange={(value) => dispatch({ type: "mobileModeChanged", mode: value as "questions" | "preview" })}
-        className="lg:hidden"
+        className="sticky top-0 z-20 bg-background py-2 lg:hidden"
       >
         <TabsList className="w-full">
           <TabsTrigger value="questions">Questions</TabsTrigger>
           <TabsTrigger value="preview">Preview</TabsTrigger>
         </TabsList>
       </Tabs>
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+      <p className="sr-only" aria-live="polite">
+        Editing {activeImpact.title}. The preview highlights {activeImpact.inputLabel.toLowerCase()}.
+      </p>
+      <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
         <section
           aria-labelledby="setup-heading"
-          className={cn("space-y-9", state.mobileMode === "questions" ? "block" : "hidden lg:block")}
+          data-workspace-panel="questions"
+          className={cn(
+            "min-w-0 space-y-9",
+            state.mobileMode === "questions" ? "block" : "hidden lg:block",
+          )}
         >
           <div className="space-y-2">
             <p className="text-sm font-medium text-primary">Setup</p>
@@ -148,17 +179,26 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
             onStepChange={(step) => dispatch({ type: "stepChanged", step })}
             onAnswerChange={(action) => dispatch(action)}
             onReview={() => handleFullPreviewChange(true)}
+            mobileImpact={
+              <LiveImpactSummary
+                draft={state.draft}
+                currentStep={state.currentStep}
+                onView={handleViewCurrentStep}
+              />
+            }
           />
         </section>
         <section
+          ref={previewPanelRef}
           aria-label="Live blueprint preview"
+          data-workspace-panel="preview"
           className={cn(
-            "lg:sticky lg:top-8 lg:self-start",
+            "min-w-0 lg:sticky lg:top-8 lg:self-start",
             state.mobileMode === "preview" ? "block" : "hidden lg:block",
           )}
         >
           <p className="mb-3 text-sm font-medium text-primary">Live preview</p>
-          <BlueprintPreview draft={state.draft} />
+          <BlueprintPreview draft={state.draft} activeStep={state.currentStep} />
         </section>
       </div>
       <FullPreviewOverlay

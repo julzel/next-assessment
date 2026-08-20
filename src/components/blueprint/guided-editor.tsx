@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, type ReactNode } from "react"
 
 import { FoundationStep } from "@/components/blueprint/foundation-step"
 import { PersonalityStep } from "@/components/blueprint/personality-step"
@@ -27,6 +27,7 @@ export function GuidedEditor({
   onStepChange,
   onAnswerChange,
   onReview,
+  mobileImpact,
   fieldErrors = {},
 }: {
   answers: BrandAnswers
@@ -34,6 +35,7 @@ export function GuidedEditor({
   onStepChange: (step: BlueprintStepId) => void
   onAnswerChange: (action: AnswerChangedAction) => void
   onReview: () => void
+  mobileImpact?: ReactNode
   fieldErrors?: BlueprintFieldErrors
 }) {
   const [reviewAttempted, setReviewAttempted] = useState(false)
@@ -100,7 +102,10 @@ export function GuidedEditor({
                 <span className="text-xs font-normal text-muted-foreground">
                   {item.description}
                 </span>
-                <span className="text-xs font-medium">{statusLabels[item.status]}</span>
+                <span className="text-xs font-medium">
+                  {item.id === currentStep ? "Current · " : ""}
+                  {statusLabels[item.status]}
+                </span>
               </span>
             </Button>
           </li>
@@ -175,6 +180,8 @@ export function GuidedEditor({
           />
         )}
       </div>
+
+      {mobileImpact}
 
       {reviewAttempted && !progress.isComplete && (
         <div role="alert" className="rounded-xl border border-destructive/30 bg-destructive/5 p-4">

@@ -22,6 +22,7 @@ export type BlueprintWorkspaceAction =
   | { type: "templateChanged"; template: TemplateId }
   | AnswerChangedAction
   | { type: "mobileModeChanged"; mode: WorkspaceMobileMode }
+  | { type: "viewCurrentStep" }
   | { type: "fullPreviewChanged"; open: boolean }
   | { type: "stepChanged"; step: BlueprintStepId }
   | { type: "saveStarted" }
@@ -83,6 +84,8 @@ export function blueprintWorkspaceReducer(
       }
     case "mobileModeChanged":
       return { ...state, mobileMode: action.mode }
+    case "viewCurrentStep":
+      return { ...state, mobileMode: "preview" }
     case "fullPreviewChanged":
       return { ...state, fullPreviewOpen: action.open }
     case "stepChanged":

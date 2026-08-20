@@ -4,6 +4,14 @@ export const BLUEPRINT_STEP_IDS = ["foundation", "personality", "visual", "voice
 
 export type BlueprintStepId = (typeof BLUEPRINT_STEP_IDS)[number]
 export type BlueprintStepStatus = "not-started" | "in-progress" | "complete"
+export type BlueprintPreviewSection =
+  | "canvas"
+  | "brand-header"
+  | "audience-promise"
+  | "personality"
+  | "visual-direction"
+  | "voice-tone"
+  | "guardrail"
 export type BlueprintRequiredField =
   | "offerAudience"
   | "personalityTraits"
@@ -52,7 +60,7 @@ export const BLUEPRINT_STEP_DEFINITIONS = [
     title: "Visual system",
     description: "Color and typography",
     purpose: "Choose the palette and type character that make the direction recognizable.",
-    impact: "Updates the visual direction now and will style the full Blueprint presentation.",
+    impact: "Recolors the canvas and changes the visible type treatment in every template.",
   },
   {
     id: "voice",
@@ -62,6 +70,40 @@ export const BLUEPRINT_STEP_DEFINITIONS = [
     impact: "Updates the voice, recurring message, and optional guardrail areas.",
   },
 ] as const satisfies readonly Omit<BlueprintStepProgress, "status" | "missing">[]
+
+export type BlueprintStepPreviewImpact = {
+  title: string
+  inputLabel: string
+  primarySection: BlueprintPreviewSection
+  sections: readonly BlueprintPreviewSection[]
+}
+
+export const BLUEPRINT_STEP_PREVIEW_IMPACTS = {
+  foundation: {
+    title: "Audience and promise",
+    inputLabel: "Offer and audience answer",
+    primarySection: "audience-promise",
+    sections: ["audience-promise"],
+  },
+  personality: {
+    title: "Brand character and emphasis",
+    inputLabel: "Personality traits and visual direction",
+    primarySection: "personality",
+    sections: ["brand-header", "personality"],
+  },
+  visual: {
+    title: "Canvas, palette, type, and geometry",
+    inputLabel: "Color and typography directions",
+    primarySection: "visual-direction",
+    sections: ["canvas", "visual-direction"],
+  },
+  voice: {
+    title: "Voice, recurring message, and guardrail",
+    inputLabel: "Voice traits, always communicate, and avoid answers",
+    primarySection: "voice-tone",
+    sections: ["voice-tone", "guardrail"],
+  },
+} as const satisfies Record<BlueprintStepId, BlueprintStepPreviewImpact>
 
 export const BLUEPRINT_REQUIRED_FIELDS: readonly BlueprintRequiredField[] = [
   "offerAudience",

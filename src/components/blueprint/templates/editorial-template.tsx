@@ -3,12 +3,17 @@ import { DesignRationale } from "@/components/blueprint/design-rationale"
 import type { BlueprintPresentationProfile } from "@/lib/blueprint/presentation"
 import { cn } from "@/lib/utils"
 
-import { BlueprintSections, type BlueprintTemplateProps } from "./blueprint-sections"
+import {
+  BlueprintSections,
+  canvasFocusClasses,
+  type BlueprintTemplateProps,
+} from "./blueprint-sections"
 
 export function EditorialTemplate({
   draft,
   fullPreview,
   presentation,
+  activeStep,
 }: BlueprintTemplateProps & { presentation: BlueprintPresentationProfile }) {
   return (
     <article
@@ -19,9 +24,12 @@ export function EditorialTemplate({
         presentation.palette.borderClass,
         presentation.typography.bodyClass,
         presentation.geometry.canvasClass,
+        canvasFocusClasses(activeStep),
       )}
       data-presentation-surface="canvas"
       data-composition="editorial-narrative"
+      data-blueprint-section="canvas"
+      data-editing-context={activeStep === "visual" ? "true" : undefined}
     >
       <div
         className={cn(
@@ -42,9 +50,9 @@ export function EditorialTemplate({
         >
           Editorial blueprint
         </Badge>
-        <h1 className={cn("text-4xl leading-none sm:text-5xl", presentation.typography.displayClass)}>
+        <h2 className={cn("text-4xl leading-none sm:text-5xl", presentation.typography.displayClass)}>
           {draft.brandName.trim() || "Your brand name"}
-        </h1>
+        </h2>
         <p className={cn("text-sm italic", presentation.palette.mutedTextClass)}>
           A refined, typography-led point of view
         </p>
@@ -54,6 +62,7 @@ export function EditorialTemplate({
         fullPreview={fullPreview}
         presentation={presentation}
         composition="editorial"
+        activeStep={activeStep}
       />
       <DesignRationale presentation={presentation} />
     </article>

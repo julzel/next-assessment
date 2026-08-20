@@ -17,9 +17,9 @@ export function DesignRationale({
       data-design-rationale=""
     >
       <p className={cn("text-xs", presentation.typography.labelClass)}>Design rationale</p>
-      <h2 className={cn("mt-2 text-2xl", presentation.typography.displayClass)}>
+      <h3 className={cn("mt-2 text-2xl", presentation.typography.displayClass)}>
         Why this direction works
-      </h2>
+      </h3>
       <ul className="mt-5 grid gap-4 sm:grid-cols-2">
         {presentation.rationale.map((item, index) => (
           <li

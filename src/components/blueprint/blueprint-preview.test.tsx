@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react"
+import { cleanup, render, screen, within } from "@testing-library/react"
 import { afterEach, describe, expect, it } from "vitest"
 
 import { buildDeterministicContent } from "@/lib/blueprint/content"
@@ -64,7 +64,7 @@ describe("BlueprintPreview", () => {
       expect(view.container.querySelector('[data-presentation-surface="canvas"]')?.className).toContain(
         "bg-amber-50",
       )
-      expect(screen.getByRole("heading", { level: 1 }).className).toContain(
+      expect(screen.getByRole("heading", { level: 2, name: "Northstar" }).className).toContain(
         "font-blueprint-editorial",
       )
       expect(view.container.querySelector('[data-personality="precise"]')).not.toBeNull()
@@ -105,7 +105,9 @@ describe("BlueprintPreview", () => {
       expect(
         view.container.querySelector('[data-presentation-surface="canvas"]')?.className,
       ).toContain("bg-stone-100")
-      expect(screen.getByRole("heading", { level: 1 }).className).toContain("font-sans")
+      expect(
+        screen.getByRole("heading", { level: 2, name: "Northstar" }).className,
+      ).toContain("font-sans")
 
       const changedAnswers: BrandAnswers = {
         ...answers,
@@ -129,7 +131,7 @@ describe("BlueprintPreview", () => {
       const canvas = view.container.querySelector('[data-presentation-surface="canvas"]')
       expect(canvas?.className).toContain("bg-fuchsia-50")
       expect(canvas?.className).toContain("rounded-[2rem]")
-      expect(screen.getByRole("heading", { level: 1 }).className).toContain(
+      expect(screen.getByRole("heading", { level: 2, name: "Northstar" }).className).toContain(
         "font-blueprint-editorial",
       )
       view.unmount()
@@ -157,7 +159,9 @@ describe("BlueprintPreview", () => {
     const neutralCanvas = container.querySelector('[data-presentation-surface="canvas"]')
     expect(neutralCanvas?.className).toContain("bg-stone-100")
     expect(neutralCanvas?.className).toContain("rounded-none")
-    expect(screen.getByRole("heading", { level: 1 }).className).toContain("font-sans")
+    expect(screen.getByRole("heading", { level: 2, name: "Northstar" }).className).toContain(
+      "font-sans",
+    )
     expect(container.querySelector('[data-personality="confident"]')?.className).toContain(
       "uppercase",
     )
@@ -183,7 +187,7 @@ describe("BlueprintPreview", () => {
     const playfulCanvas = container.querySelector('[data-presentation-surface="canvas"]')
     expect(playfulCanvas?.className).toContain("bg-fuchsia-50")
     expect(playfulCanvas?.className).toContain("rounded-[2rem]")
-    expect(screen.getByRole("heading", { level: 1 }).className).toContain(
+    expect(screen.getByRole("heading", { level: 2, name: "Northstar" }).className).toContain(
       "font-blueprint-editorial",
     )
     expect(container.querySelector('[data-personality="playful"]')?.className).toContain("rotate-1")
@@ -211,6 +215,41 @@ describe("BlueprintPreview", () => {
     expect(preview?.getAttribute("data-color-direction")).toBe("vibrant")
     expect(preview?.getAttribute("data-typography-direction")).toBe("editorial-serif")
     expect(screen.getByText(/vibrant-leaning color/)).not.toBeNull()
+  })
+
+  it("maps every guided step to a named primary preview region and supporting context", () => {
+    const mappings = [
+      ["foundation", "audience-promise", []],
+      ["personality", "personality", ["brand-header"]],
+      ["visual", "visual-direction", ["canvas"]],
+      ["voice", "voice-tone", ["guardrail"]],
+    ] as const
+
+    for (const [step, primary, context] of mappings) {
+      const view = render(<BlueprintPreview draft={draft} activeStep={step} />)
+      const primaryRegion = view.container.querySelector(
+        `[data-blueprint-section="${primary}"]`,
+      )
+      expect(primaryRegion?.getAttribute("data-editing-now")).toBe("true")
+      expect(within(primaryRegion as HTMLElement).getByText("Editing now")).not.toBeNull()
+      for (const section of context) {
+        expect(
+          view.container
+            .querySelector(`[data-blueprint-section="${section}"]`)
+            ?.getAttribute("data-editing-context"),
+        ).toBe("true")
+      }
+      expect(view.container.querySelectorAll("[data-editing-indicator]")).toHaveLength(1)
+      view.unmount()
+    }
+  })
+
+  it("removes editor-only focus treatment from full preview", () => {
+    const { container } = render(<BlueprintPreview draft={draft} activeStep="visual" fullPreview />)
+
+    expect(container.querySelector("[data-editing-indicator]")).toBeNull()
+    expect(container.querySelector("[data-editing-now]")).toBeNull()
+    expect(container.querySelector("[data-editing-context]")).toBeNull()
   })
 
   it("keeps an intentional edit-preview prompt when the optional guardrail is blank", () => {

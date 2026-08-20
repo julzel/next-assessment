@@ -161,4 +161,14 @@ body {
       radial-gradient(circle at 92% 88%, currentColor 0, transparent 20%);
     background-blend-mode: soft-light;
   }
+
+  .blueprint-focus-target {
+    scroll-margin-block: 5rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .blueprint-focus-target {
+      scroll-behavior: auto;
+    }
+  }
 }
