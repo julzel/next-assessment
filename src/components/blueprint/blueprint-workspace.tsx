@@ -1,14 +1,18 @@
 "use client"
 
-import { useReducer } from "react"
+import { useEffect, useReducer, useRef } from "react"
 import { useRouter } from "next/navigation"
 
 import { saveBlueprint } from "@/app/blueprints/actions"
 import { BlueprintPreview } from "@/components/blueprint/blueprint-preview"
+import { FullPreviewOverlay } from "@/components/blueprint/full-preview-overlay"
+import { GuidedEditor } from "@/components/blueprint/guided-editor"
 import { WorkspaceHeader } from "@/components/blueprint/workspace-header"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { cn } from "@/lib/utils"
 import {
   blueprintWorkspaceReducer,
   createBlueprintWorkspaceState,
@@ -29,7 +33,16 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
     initialDraft,
     createBlueprintWorkspaceState,
   )
+  const fullPreviewButtonRef = useRef<HTMLButtonElement>(null)
+  const shouldRestorePreviewFocus = useRef(false)
   const dirty = isBlueprintDirty(state)
+
+  useEffect(() => {
+    if (!state.fullPreviewOpen && shouldRestorePreviewFocus.current) {
+      shouldRestorePreviewFocus.current = false
+      fullPreviewButtonRef.current?.focus()
+    }
+  }, [state.fullPreviewOpen])
 
   async function handleSave() {
     dispatch({ type: "saveStarted" })
@@ -48,6 +61,14 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
     }
   }
 
+  function handleFullPreviewChange(open: boolean) {
+    if (!open) {
+      shouldRestorePreviewFocus.current = true
+    }
+
+    dispatch({ type: "fullPreviewChanged", open })
+  }
+
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-6 py-8 sm:py-12">
       <WorkspaceHeader
@@ -56,9 +77,24 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
         saveStatus={state.saveStatus}
         saveMessage={state.saveMessage}
         onSave={handleSave}
+        onFullPreview={() => handleFullPreviewChange(true)}
+        fullPreviewButtonRef={fullPreviewButtonRef}
       />
+      <Tabs
+        value={state.mobileMode}
+        onValueChange={(value) => dispatch({ type: "mobileModeChanged", mode: value as "questions" | "preview" })}
+        className="lg:hidden"
+      >
+        <TabsList className="w-full">
+          <TabsTrigger value="questions">Questions</TabsTrigger>
+          <TabsTrigger value="preview">Preview</TabsTrigger>
+        </TabsList>
+      </Tabs>
       <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
-        <section aria-labelledby="setup-heading" className="space-y-7">
+        <section
+          aria-labelledby="setup-heading"
+          className={cn("space-y-9", state.mobileMode === "questions" ? "block" : "hidden lg:block")}
+        >
           <div className="space-y-2">
             <p className="text-sm font-medium text-primary">Setup</p>
             <h2 id="setup-heading" className="text-xl font-semibold tracking-tight">
@@ -102,12 +138,27 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
               ))}
             </RadioGroup>
           </fieldset>
+          <GuidedEditor
+            answers={state.draft.config.answers}
+            onAnswerChange={(action) => dispatch(action)}
+          />
         </section>
-        <section aria-label="Live blueprint preview" className="lg:sticky lg:top-8 lg:self-start">
+        <section
+          aria-label="Live blueprint preview"
+          className={cn(
+            "lg:sticky lg:top-8 lg:self-start",
+            state.mobileMode === "preview" ? "block" : "hidden lg:block",
+          )}
+        >
           <p className="mb-3 text-sm font-medium text-primary">Live preview</p>
           <BlueprintPreview draft={state.draft} />
         </section>
       </div>
+      <FullPreviewOverlay
+        draft={state.draft}
+        open={state.fullPreviewOpen}
+        onOpenChange={handleFullPreviewChange}
+      />
     </main>
   )
 }

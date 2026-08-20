@@ -45,6 +45,14 @@ export const COLOR_DIRECTION_OPTIONS: readonly Option<ColorDirection>[] = [
   { id: "vibrant", label: "Vibrant" },
 ]
 
+export const COLOR_DIRECTION_SWATCHES: Record<ColorDirection, readonly string[]> = {
+  neutral: ["bg-stone-950", "bg-stone-500", "bg-stone-100"],
+  cool: ["bg-sky-900", "bg-sky-500", "bg-sky-100"],
+  warm: ["bg-orange-900", "bg-orange-500", "bg-orange-100"],
+  earthy: ["bg-emerald-900", "bg-amber-600", "bg-amber-100"],
+  vibrant: ["bg-fuchsia-800", "bg-pink-500", "bg-yellow-300"],
+}
+
 export const TYPOGRAPHY_DIRECTION_OPTIONS: readonly Option<TypographyDirection>[] = [
   { id: "modern-sans", label: "Modern sans" },
   { id: "editorial-serif", label: "Editorial serif" },

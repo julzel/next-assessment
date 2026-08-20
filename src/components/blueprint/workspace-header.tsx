@@ -1,4 +1,5 @@
 import Link from "next/link"
+import type { Ref } from "react"
 
 import { Button } from "@/components/ui/button"
 import type { SaveStatus } from "@/lib/blueprint/reducer"
@@ -9,6 +10,8 @@ type WorkspaceHeaderProps = {
   saveStatus: SaveStatus
   saveMessage: string | null
   onSave: () => void
+  onFullPreview: () => void
+  fullPreviewButtonRef: Ref<HTMLButtonElement>
 }
 
 export function WorkspaceHeader({
@@ -17,6 +20,8 @@ export function WorkspaceHeader({
   saveStatus,
   saveMessage,
   onSave,
+  onFullPreview,
+  fullPreviewButtonRef,
 }: WorkspaceHeaderProps) {
   const status =
     saveStatus === "saving"
@@ -40,9 +45,14 @@ export function WorkspaceHeader({
           {saveMessage ?? status}
         </p>
       </div>
-      <Button onClick={onSave} disabled={saveStatus === "saving"} size="lg">
-        {saveStatus === "saving" ? "Saving…" : "Save blueprint"}
-      </Button>
+      <div className="flex gap-2">
+        <Button ref={fullPreviewButtonRef} variant="outline" onClick={onFullPreview}>
+          Full preview
+        </Button>
+        <Button onClick={onSave} disabled={saveStatus === "saving"} size="lg">
+          {saveStatus === "saving" ? "Saving…" : "Save blueprint"}
+        </Button>
+      </div>
     </header>
   )
 }
