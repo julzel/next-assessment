@@ -13,18 +13,14 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
+import { TEMPLATE_OPTIONS } from "@/lib/blueprint/options"
+import { getBlueprintFieldErrors, isBlueprintComplete } from "@/lib/blueprint/progress"
 import {
   blueprintWorkspaceReducer,
   createBlueprintWorkspaceState,
   isBlueprintDirty,
 } from "@/lib/blueprint/reducer"
 import type { BlueprintDraft, TemplateId } from "@/lib/blueprint/types"
-
-const templates: { id: TemplateId; label: string; description: string }[] = [
-  { id: "editorial", label: "Editorial", description: "Refined and typography-led" },
-  { id: "studio", label: "Studio", description: "Clean and modular" },
-  { id: "warm", label: "Warm", description: "Approachable and expressive" },
-]
 
 export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDraft }) {
   const router = useRouter()
@@ -36,6 +32,8 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
   const fullPreviewButtonRef = useRef<HTMLButtonElement>(null)
   const shouldRestorePreviewFocus = useRef(false)
   const dirty = isBlueprintDirty(state)
+  const complete = isBlueprintComplete(state.draft.config)
+  const fieldErrors = getBlueprintFieldErrors(state.fieldIssues)
 
   useEffect(() => {
     if (!state.fullPreviewOpen && shouldRestorePreviewFocus.current) {
@@ -49,7 +47,7 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
     const result = await saveBlueprint(state.draft)
 
     if (!result.ok) {
-      dispatch({ type: "saveFailed", message: result.message })
+      dispatch({ type: "saveFailed", message: result.message, issues: result.issues })
       return
     }
 
@@ -76,6 +74,7 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
         isDirty={dirty}
         saveStatus={state.saveStatus}
         saveMessage={state.saveMessage}
+        isComplete={complete}
         onSave={handleSave}
         onFullPreview={() => handleFullPreviewChange(true)}
         fullPreviewButtonRef={fullPreviewButtonRef}
@@ -114,16 +113,29 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
               }
               placeholder="e.g. Northstar Studio"
               autoComplete="organization"
+              aria-invalid={Boolean(fieldErrors.brandName)}
+              aria-describedby={fieldErrors.brandName ? "brand-name-help brand-name-error" : "brand-name-help"}
             />
+            <p id="brand-name-help" className="text-sm text-muted-foreground">
+              This name anchors the Blueprint header and saved library card.
+            </p>
+            {fieldErrors.brandName && (
+              <p id="brand-name-error" className="text-sm text-destructive">
+                {fieldErrors.brandName}
+              </p>
+            )}
           </div>
           <fieldset className="space-y-3">
             <legend className="text-sm font-medium">Presentation template</legend>
+            <p className="text-sm text-muted-foreground">
+              The template sets the overall composition. Later choices define its visual character.
+            </p>
             <RadioGroup
               value={state.draft.template}
               onValueChange={(value) => dispatch({ type: "templateChanged", template: value as TemplateId })}
               className="gap-3"
             >
-              {templates.map((template) => (
+              {TEMPLATE_OPTIONS.map((template) => (
                 <Label
                   key={template.id}
                   htmlFor={`template-${template.id}`}
@@ -133,6 +145,7 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
                   <span className="grid gap-1">
                     <span>{template.label}</span>
                     <span className="font-normal text-muted-foreground">{template.description}</span>
+                    <span className="text-xs font-normal">{template.effect}</span>
                   </span>
                 </Label>
               ))}
@@ -140,7 +153,11 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
           </fieldset>
           <GuidedEditor
             answers={state.draft.config.answers}
+            currentStep={state.currentStep}
+            fieldErrors={fieldErrors}
+            onStepChange={(step) => dispatch({ type: "stepChanged", step })}
             onAnswerChange={(action) => dispatch(action)}
+            onReview={() => handleFullPreviewChange(true)}
           />
         </section>
         <section

@@ -9,11 +9,13 @@ export function PersonalityStep({
   visualDirection,
   onTraitsChange,
   onVisualDirectionChange,
+  errors = {},
 }: {
   personalityTraits: PersonalityTrait[]
   visualDirection: VisualDirection | null
   onTraitsChange: (traits: PersonalityTrait[]) => void
   onVisualDirectionChange: (direction: VisualDirection) => void
+  errors?: Partial<Record<"personalityTraits" | "visualDirection", string>>
 }) {
   function toggleTrait(trait: PersonalityTrait) {
     if (personalityTraits.includes(trait)) {
@@ -25,9 +27,18 @@ export function PersonalityStep({
 
   return (
     <div className="space-y-7">
-      <fieldset className="space-y-3">
+      <fieldset
+        id="personality-traits"
+        tabIndex={-1}
+        className="space-y-3 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        aria-invalid={Boolean(errors.personalityTraits)}
+        aria-describedby={errors.personalityTraits ? "personality-count personality-traits-error" : "personality-count"}
+      >
         <legend className="text-sm font-medium">Choose three traits that should define the brand.</legend>
-        <div className="flex flex-wrap gap-2">
+        <p className="text-sm text-muted-foreground">
+          These shape the brand essence and the emphasis cues used in the presentation.
+        </p>
+        <div className="grid gap-2 sm:grid-cols-2">
           {PERSONALITY_TRAIT_OPTIONS.map((trait) => {
             const selected = personalityTraits.includes(trait.id)
             const disabled = !selected && personalityTraits.length === 3
@@ -36,35 +47,67 @@ export function PersonalityStep({
                 key={trait.id}
                 type="button"
                 variant={selected ? "secondary" : "outline"}
+                className="h-auto min-h-24 w-full items-start justify-start whitespace-normal p-3 text-left"
                 aria-pressed={selected}
                 disabled={disabled}
                 onClick={() => toggleTrait(trait.id)}
               >
-                {trait.label}
+                <span className="grid gap-1">
+                  <span className="font-medium">{trait.label}</span>
+                  <span className="text-xs font-normal text-muted-foreground">{trait.description}</span>
+                  <span className="text-xs font-normal">{trait.effect}</span>
+                </span>
               </Button>
             )
           })}
         </div>
-        <p aria-live="polite" className="text-sm text-muted-foreground">
+        <p id="personality-count" aria-live="polite" className="text-sm text-muted-foreground">
           {personalityTraits.length === 3
             ? "Three traits selected."
             : `Choose ${3 - personalityTraits.length} more trait${3 - personalityTraits.length === 1 ? "" : "s"}.`}
         </p>
+        {errors.personalityTraits && (
+          <p id="personality-traits-error" className="text-sm text-destructive">
+            {errors.personalityTraits}
+          </p>
+        )}
       </fieldset>
-      <fieldset className="space-y-3">
+      <fieldset
+        id="visual-direction"
+        tabIndex={-1}
+        className="space-y-3 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        aria-invalid={Boolean(errors.visualDirection)}
+        aria-describedby={errors.visualDirection ? "visual-direction-help visual-direction-error" : "visual-direction-help"}
+      >
         <legend className="text-sm font-medium">Which visual direction feels most like the brand?</legend>
+        <p id="visual-direction-help" className="text-sm text-muted-foreground">
+          This controls the composition&apos;s energy, spacing, borders, shapes, and decorative density.
+        </p>
         <RadioGroup
           value={visualDirection ?? undefined}
           onValueChange={(value) => onVisualDirectionChange(value as VisualDirection)}
           className="gap-2"
         >
           {VISUAL_DIRECTION_OPTIONS.map((direction) => (
-            <Label key={direction.id} className="cursor-pointer gap-3 rounded-lg border p-3">
-              <RadioGroupItem value={direction.id} />
-              {direction.label}
+            <Label
+              key={direction.id}
+              htmlFor={`visual-direction-${direction.id}`}
+              className="cursor-pointer items-start gap-3 rounded-lg border p-3"
+            >
+              <RadioGroupItem id={`visual-direction-${direction.id}`} value={direction.id} />
+              <span className="grid gap-1">
+                <span>{direction.label}</span>
+                <span className="font-normal text-muted-foreground">{direction.description}</span>
+                <span className="text-xs font-normal">{direction.effect}</span>
+              </span>
             </Label>
           ))}
         </RadioGroup>
+        {errors.visualDirection && (
+          <p id="visual-direction-error" className="text-sm text-destructive">
+            {errors.visualDirection}
+          </p>
+        )}
       </fieldset>
     </div>
   )

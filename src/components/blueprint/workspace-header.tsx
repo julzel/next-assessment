@@ -9,6 +9,7 @@ type WorkspaceHeaderProps = {
   isDirty: boolean
   saveStatus: SaveStatus
   saveMessage: string | null
+  isComplete: boolean
   onSave: () => void
   onFullPreview: () => void
   fullPreviewButtonRef: Ref<HTMLButtonElement>
@@ -19,6 +20,7 @@ export function WorkspaceHeader({
   isDirty,
   saveStatus,
   saveMessage,
+  isComplete,
   onSave,
   onFullPreview,
   fullPreviewButtonRef,
@@ -31,6 +33,8 @@ export function WorkspaceHeader({
         : isDirty
           ? "Unsaved changes"
           : "Saved"
+  const saveLabel = isComplete ? "Save blueprint" : "Save draft"
+  const savingLabel = isComplete ? "Saving blueprint…" : "Saving draft…"
 
   return (
     <header className="flex flex-col gap-4 border-b pb-5 sm:flex-row sm:items-center sm:justify-between">
@@ -50,7 +54,7 @@ export function WorkspaceHeader({
           Full preview
         </Button>
         <Button onClick={onSave} disabled={saveStatus === "saving"} size="lg">
-          {saveStatus === "saving" ? "Saving…" : "Save blueprint"}
+          {saveStatus === "saving" ? savingLabel : saveLabel}
         </Button>
       </div>
     </header>

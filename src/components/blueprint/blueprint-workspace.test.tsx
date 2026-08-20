@@ -2,7 +2,8 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { createEmptyBlueprintConfig } from "@/lib/blueprint/defaults"
-import type { BlueprintDraft } from "@/lib/blueprint/types"
+import { buildDeterministicContent } from "@/lib/blueprint/content"
+import type { BlueprintDraft, BrandAnswers } from "@/lib/blueprint/types"
 
 const router = vi.hoisted(() => ({ replace: vi.fn(), refresh: vi.fn() }))
 const actions = vi.hoisted(() => ({ saveBlueprint: vi.fn() }))
@@ -19,6 +20,26 @@ const draft: BlueprintDraft = {
   config: createEmptyBlueprintConfig(),
   createdAt: null,
   updatedAt: null,
+}
+
+const completeAnswers: BrandAnswers = {
+  offerAudience: "Independent founders building thoughtful products",
+  personalityTraits: ["confident", "curious", "precise"],
+  visualDirection: "minimal",
+  colorDirection: "cool",
+  typographyDirection: "modern-sans",
+  voiceTraits: ["clear", "thoughtful"],
+  alwaysCommunicate: "calm, useful clarity",
+  avoid: "empty buzzwords",
+}
+
+const completeDraft: BlueprintDraft = {
+  ...draft,
+  config: {
+    schemaVersion: 1,
+    answers: completeAnswers,
+    content: buildDeterministicContent(completeAnswers),
+  },
 }
 
 describe("BlueprintWorkspace", () => {
@@ -107,7 +128,7 @@ describe("BlueprintWorkspace", () => {
     fireEvent.change(screen.getByLabelText("Brand or client name"), {
       target: { value: "Northstar Collective" },
     })
-    fireEvent.click(screen.getByRole("button", { name: "Save blueprint" }))
+    fireEvent.click(screen.getByRole("button", { name: "Save draft" }))
 
     await waitFor(() => {
       expect(screen.getByText("Check the highlighted blueprint details and try again.")).not.toBeNull()
@@ -128,9 +149,43 @@ describe("BlueprintWorkspace", () => {
       },
     })
     render(<BlueprintWorkspace initialDraft={draft} />)
-    fireEvent.click(screen.getByRole("button", { name: "Save blueprint" }))
+    fireEvent.click(screen.getByRole("button", { name: "Save draft" }))
 
     await waitFor(() => expect(router.replace).toHaveBeenCalledWith("/blueprints/12"))
     expect(screen.getByText("All changes saved.")).not.toBeNull()
+  })
+
+  it("labels complete work as a blueprint and reviews the current draft", () => {
+    render(<BlueprintWorkspace initialDraft={completeDraft} />)
+
+    expect(screen.getByRole("button", { name: "Save blueprint" })).not.toBeNull()
+    fireEvent.click(screen.getByRole("button", { name: /^4\. Voice/ }))
+    fireEvent.click(screen.getByRole("button", { name: "Review blueprint" }))
+
+    expect(screen.getByRole("dialog")).not.toBeNull()
+    expect(screen.getAllByText("Northstar").length).toBeGreaterThan(1)
+  })
+
+  it("renders structured save issues beside the relevant fields", async () => {
+    actions.saveBlueprint.mockResolvedValue({
+      ok: false,
+      code: "VALIDATION_ERROR",
+      message: "Check the highlighted blueprint details and try again.",
+      issues: [
+        { path: "draft.brandName", message: "Choose a valid brand name." },
+        { path: "answers.offerAudience", message: "Describe the audience." },
+      ],
+    })
+    render(<BlueprintWorkspace initialDraft={draft} />)
+    fireEvent.click(screen.getByRole("button", { name: "Save draft" }))
+
+    await waitFor(() => expect(screen.getByText("Choose a valid brand name.")).not.toBeNull())
+    expect(screen.getByText("Describe the audience.")).not.toBeNull()
+    expect(screen.getByLabelText("Brand or client name").getAttribute("aria-invalid")).toBe("true")
+    expect(
+      screen
+        .getByLabelText("What does the brand offer, and who is it for?")
+        .getAttribute("aria-invalid"),
+    ).toBe("true")
   })
 })

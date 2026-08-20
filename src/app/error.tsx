@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 
-import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
 
 export default function Error() {
   return (
@@ -11,7 +11,9 @@ export default function Error() {
       <h1 className="text-3xl font-semibold tracking-tight">We could not load this blueprint view.</h1>
       <p className="text-muted-foreground">Please return to the library and try again.</p>
       <div>
-        <Button render={<Link href="/" />}>Back to library</Button>
+        <Link href="/" className={buttonVariants()}>
+          Back to library
+        </Link>
       </div>
     </main>
   )

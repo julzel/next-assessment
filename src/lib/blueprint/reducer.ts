@@ -1,5 +1,7 @@
 import { applyManualAnswer } from "./content"
+import type { BlueprintStepId } from "./progress"
 import type { BrandAnswers, BlueprintDraft, TemplateId } from "./types"
+import type { ValidationIssue } from "./validation"
 
 export type SaveStatus = "idle" | "saving" | "saved" | "error"
 export type WorkspaceMobileMode = "questions" | "preview"
@@ -11,6 +13,8 @@ export type BlueprintWorkspaceState = {
   saveMessage: string | null
   mobileMode: WorkspaceMobileMode
   fullPreviewOpen: boolean
+  currentStep: BlueprintStepId
+  fieldIssues: ValidationIssue[]
 }
 
 export type BlueprintWorkspaceAction =
@@ -19,9 +23,10 @@ export type BlueprintWorkspaceAction =
   | AnswerChangedAction
   | { type: "mobileModeChanged"; mode: WorkspaceMobileMode }
   | { type: "fullPreviewChanged"; open: boolean }
+  | { type: "stepChanged"; step: BlueprintStepId }
   | { type: "saveStarted" }
   | { type: "saveSucceeded"; draft: BlueprintDraft }
-  | { type: "saveFailed"; message: string }
+  | { type: "saveFailed"; message: string; issues?: ValidationIssue[] }
 
 export type AnswerChangedAction = {
   [K in keyof BrandAnswers]: { type: "answerChanged"; field: K; value: BrandAnswers[K] }
@@ -35,6 +40,8 @@ export function createBlueprintWorkspaceState(draft: BlueprintDraft): BlueprintW
     saveMessage: null,
     mobileMode: "questions",
     fullPreviewOpen: false,
+    currentStep: "foundation",
+    fieldIssues: [],
   }
 }
 
@@ -53,6 +60,7 @@ export function blueprintWorkspaceReducer(
         draft: { ...state.draft, brandName: action.brandName },
         saveStatus: "idle",
         saveMessage: null,
+        fieldIssues: [],
       }
     case "templateChanged":
       return {
@@ -60,6 +68,7 @@ export function blueprintWorkspaceReducer(
         draft: { ...state.draft, template: action.template },
         saveStatus: "idle",
         saveMessage: null,
+        fieldIssues: [],
       }
     case "answerChanged":
       return {
@@ -70,13 +79,16 @@ export function blueprintWorkspaceReducer(
         },
         saveStatus: "idle",
         saveMessage: null,
+        fieldIssues: [],
       }
     case "mobileModeChanged":
       return { ...state, mobileMode: action.mode }
     case "fullPreviewChanged":
       return { ...state, fullPreviewOpen: action.open }
+    case "stepChanged":
+      return { ...state, currentStep: action.step }
     case "saveStarted":
-      return { ...state, saveStatus: "saving", saveMessage: null }
+      return { ...state, saveStatus: "saving", saveMessage: null, fieldIssues: [] }
     case "saveSucceeded":
       return {
         ...state,
@@ -84,8 +96,14 @@ export function blueprintWorkspaceReducer(
         draft: action.draft,
         saveStatus: "saved",
         saveMessage: "All changes saved.",
+        fieldIssues: [],
       }
     case "saveFailed":
-      return { ...state, saveStatus: "error", saveMessage: action.message }
+      return {
+        ...state,
+        saveStatus: "error",
+        saveMessage: action.message,
+        fieldIssues: action.issues ?? [],
+      }
   }
 }

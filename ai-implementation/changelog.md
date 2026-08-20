@@ -155,3 +155,25 @@ An implementation slice is `Complete` only after its completion check and requir
 - **Decisions/issues:** Pause the original Slice 6. The existing persisted schema remains valid: presentation tokens, progress, active-step focus, and rationale will be derived from the canonical draft and trusted code-owned metadata. The user feedback promotes explanatory microcopy, meaningful completion, and visible answer-to-design causality from optional polish to required remediation. The existing cyclic global `font-sans` token must be corrected before typography choices can be evaluated reliably.
 - **Next logical step:** Implement Slice 5A — Make guided capture understandable and finishable — from `ai-implementation/ux-improvement-plan.md`.
 - **Recommended model for next step:** GPT-5.6 Terra, medium reasoning, because Slice 5A has explicit interaction and completion rules but still spans shared domain progress, controlled client state, field-level validation feedback, accessibility, and focused component tests.
+
+## 2026-08-20 — Slice 5A: Make guided capture understandable and finishable
+
+- **Status:** Complete
+- **Model:** GPT-5.6 Terra, medium reasoning
+- **Outcome:** Replaced the disabled final-step dead end with a real Review flow. Users now see four-step progress and current/not-started/in-progress/complete states, understand why each step and option matters, save incomplete work as a draft, review complete work in the current full preview, and receive an actionable missing-requirements summary that focuses the first incomplete field. Structured save issues render beside their controls without losing local values.
+- **Files/artifacts:** Added `src/lib/blueprint/progress.ts` and `src/lib/blueprint/progress.test.ts`; updated shared option metadata, completion validation, reducer state/tests, guided editor and all four step components/tests, workspace/header/tests, the global font token, and `ai-implementation/changelog.md`.
+- **Validation:** Focused progress, validation, guided-editor, and workspace tests passed (22 tests); `npx tsc --noEmit` passed; `npm run lint` passed; `npm test` passed (45 tests); `npm run build` passed; `git diff --check` passed. The first sandboxed build attempt could not fetch the existing Geist Google Fonts; the network-enabled rerun and final post-refactor build both passed.
+- **Decisions/issues:** `progress.ts` is now the single source for per-step requirements and overall completion while `validation.ts` preserves the existing `isBlueprintComplete` export. Current step and field issues are ephemeral client state; no config, database, repository, route, or Server Action contract changed. Option descriptions state the intended visual consequences, but applying those consequences to the rendered artifact remains deliberately scoped to Slice 5B.
+- **Next logical step:** Implement Slice 5B — Establish the trusted visual resolver and prove one live path — from `ai-implementation/ux-improvement-plan.md`.
+- **Recommended model for next step:** GPT-5.6 Terra, medium reasoning, because Slice 5B has an explicit token-precedence contract but requires careful exhaustive mapping across closed enums, Tailwind-safe presentation tokens, one end-to-end renderer, and focused visual-causality tests.
+
+## 2026-08-20 — Hotfix: Preserve native link semantics for navigation actions
+
+- **Status:** Complete
+- **Model:** GPT-5.6 Terra, medium reasoning
+- **Outcome:** Removed the Base UI console error caused by rendering Next links through a Button primitive that expected a native `<button>`. Library, error, and not-found navigation actions are now native links styled with the existing button variants, preserving correct link semantics and appearance.
+- **Files/artifacts:** Updated `src/components/blueprint/blueprint-library.tsx`, `src/app/error.tsx`, `src/app/not-found.tsx`, and `src/app/blueprints/[id]/not-found.tsx`; added `src/components/blueprint/blueprint-library.test.tsx`; updated `ai-implementation/changelog.md`.
+- **Validation:** Repository search confirmed no remaining `Button` → `Link` render compositions; focused library test passed (1 test); `npx tsc --noEmit` passed; `npm run lint` passed; `npm test` passed (46 tests); `npm run build` passed; `git diff --check` passed.
+- **Decisions/issues:** Navigation remains semantically a link rather than setting `nativeButton={false}`, which would silence the warning but cause Base UI to apply button behavior and `role="button"` to an anchor. No route, data, or interaction contract changed.
+- **Next logical step:** Implement Slice 5B — Establish the trusted visual resolver and prove one live path — from `ai-implementation/ux-improvement-plan.md`.
+- **Recommended model for next step:** GPT-5.6 Terra, medium reasoning, because Slice 5B has an explicit token-precedence contract but requires careful exhaustive mapping across closed enums, Tailwind-safe presentation tokens, one end-to-end renderer, and focused visual-causality tests.

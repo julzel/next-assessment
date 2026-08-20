@@ -17,6 +17,9 @@ import {
   type VisualDirection,
   type VoiceTrait,
 } from "./types"
+import { isBlueprintComplete } from "./progress"
+
+export { isBlueprintComplete } from "./progress"
 
 export type ValidationIssue = { path: string; message: string }
 export type ValidationResult<T> =
@@ -325,22 +328,6 @@ export function validateBlueprintInstruction(input: unknown): ValidationResult<s
   const issues: ValidationIssue[] = []
   const instruction = readRequiredString(input, "instruction", LIMITS.instruction, issues)
   return issues.length === 0 ? success(instruction) : failure(issues)
-}
-
-export function isBlueprintComplete(config: BrandBlueprintConfig) {
-  const { answers } = config
-  return (
-    answers.offerAudience.trim().length > 0 &&
-    answers.personalityTraits.length === 3 &&
-    new Set(answers.personalityTraits).size === 3 &&
-    answers.visualDirection !== null &&
-    answers.colorDirection !== null &&
-    answers.typographyDirection !== null &&
-    answers.voiceTraits.length >= 1 &&
-    answers.voiceTraits.length <= 3 &&
-    new Set(answers.voiceTraits).size === answers.voiceTraits.length &&
-    answers.alwaysCommunicate.trim().length > 0
-  )
 }
 
 export function validateCompleteBlueprintDraft(input: unknown): ValidationResult<BlueprintDraft> {

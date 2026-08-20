@@ -2,7 +2,7 @@ import Link from "next/link"
 
 import { BlueprintCard } from "@/components/blueprint/blueprint-card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { BlueprintSummary } from "@/lib/blueprint/types"
 
@@ -19,9 +19,9 @@ export function BlueprintLibrary({ blueprints }: { blueprints: BlueprintSummary[
             </p>
           </div>
         </div>
-        <Button render={<Link href="/blueprints/new" />} size="lg">
+        <Link href="/blueprints/new" className={buttonVariants({ size: "lg" })}>
           New blueprint
-        </Button>
+        </Link>
       </header>
 
       {blueprints.length > 0 ? (
@@ -40,7 +40,9 @@ export function BlueprintLibrary({ blueprints }: { blueprints: BlueprintSummary[
               Capture a brand name, choose a presentation direction, and save the first version for
               your client.
             </p>
-            <Button render={<Link href="/blueprints/new" />}>Create your first blueprint</Button>
+            <Link href="/blueprints/new" className={buttonVariants()}>
+              Create your first blueprint
+            </Link>
           </CardContent>
         </Card>
       )}

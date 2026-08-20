@@ -63,4 +63,28 @@ describe("blueprint workspace reducer", () => {
     expect(isBlueprintDirty(complete)).toBe(false)
     expect(complete.saveStatus).toBe("saved")
   })
+
+  it("keeps guided step state ephemeral and exposes returned field issues", () => {
+    const onVoice = blueprintWorkspaceReducer(createBlueprintWorkspaceState(draft), {
+      type: "stepChanged",
+      step: "voice",
+    })
+    const failed = blueprintWorkspaceReducer(onVoice, {
+      type: "saveFailed",
+      message: "Check the highlighted details.",
+      issues: [{ path: "answers.offerAudience", message: "Cannot be blank." }],
+    })
+
+    expect(failed.currentStep).toBe("voice")
+    expect(failed.fieldIssues).toEqual([
+      { path: "answers.offerAudience", message: "Cannot be blank." },
+    ])
+
+    const changed = blueprintWorkspaceReducer(failed, {
+      type: "answerChanged",
+      field: "offerAudience",
+      value: "Support for independent founders",
+    })
+    expect(changed.fieldIssues).toEqual([])
+  })
 })

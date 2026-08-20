@@ -1,6 +1,6 @@
 import Link from "next/link"
 
-import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
 
 export default function BlueprintNotFound() {
   return (
@@ -8,7 +8,9 @@ export default function BlueprintNotFound() {
       <p className="text-sm font-medium text-primary">Blueprint not found</p>
       <h1 className="text-3xl font-semibold tracking-tight">This saved blueprint no longer exists.</h1>
       <div>
-        <Button render={<Link href="/" />}>Return to library</Button>
+        <Link href="/" className={buttonVariants()}>
+          Return to library
+        </Link>
       </div>
     </main>
   )
