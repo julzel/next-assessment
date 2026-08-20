@@ -7,10 +7,11 @@ import { saveBlueprint } from "@/app/blueprints/actions"
 import { BlueprintPreview } from "@/components/blueprint/blueprint-preview"
 import { FullPreviewOverlay } from "@/components/blueprint/full-preview-overlay"
 import { GuidedEditor } from "@/components/blueprint/guided-editor"
+import { TemplateOptionCard } from "@/components/blueprint/template-option-card"
 import { WorkspaceHeader } from "@/components/blueprint/workspace-header"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { RadioGroup } from "@/components/ui/radio-group"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 import { TEMPLATE_OPTIONS } from "@/lib/blueprint/options"
@@ -136,18 +137,7 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
               className="gap-3"
             >
               {TEMPLATE_OPTIONS.map((template) => (
-                <Label
-                  key={template.id}
-                  htmlFor={`template-${template.id}`}
-                  className="cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5"
-                >
-                  <RadioGroupItem id={`template-${template.id}`} value={template.id} />
-                  <span className="grid gap-1">
-                    <span>{template.label}</span>
-                    <span className="font-normal text-muted-foreground">{template.description}</span>
-                    <span className="text-xs font-normal">{template.effect}</span>
-                  </span>
-                </Label>
+                <TemplateOptionCard key={template.id} option={template} />
               ))}
             </RadioGroup>
           </fieldset>

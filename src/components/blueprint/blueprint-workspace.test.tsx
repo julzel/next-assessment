@@ -62,6 +62,18 @@ describe("BlueprintWorkspace", () => {
     expect(screen.getByText("Unsaved changes")).not.toBeNull()
   })
 
+  it("previews each template composition before selection", () => {
+    const { container } = render(<BlueprintWorkspace initialDraft={draft} />)
+
+    for (const template of ["editorial", "studio", "warm"]) {
+      expect(container.querySelector(`[data-template-thumbnail="${template}"]`)).not.toBeNull()
+    }
+    expect(screen.getByText(/Composition: Masthead, fine rule, flowing story/)).not.toBeNull()
+    expect(screen.getByRole("radio", { name: /Editorial/ }).getAttribute("aria-checked")).toBe(
+      "true",
+    )
+  })
+
   it("updates the dependent blueprint preview as guided answers change", () => {
     render(<BlueprintWorkspace initialDraft={draft} />)
 

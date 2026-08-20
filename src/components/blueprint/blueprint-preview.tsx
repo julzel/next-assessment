@@ -1,15 +1,39 @@
 import { EditorialTemplate } from "@/components/blueprint/templates/editorial-template"
 import { StudioTemplate } from "@/components/blueprint/templates/studio-template"
 import { WarmTemplate } from "@/components/blueprint/templates/warm-template"
+import { resolveBlueprintPresentation } from "@/lib/blueprint/presentation"
 import type { BlueprintDraft } from "@/lib/blueprint/types"
 
 export function BlueprintPreview({ draft, fullPreview = false }: { draft: BlueprintDraft; fullPreview?: boolean }) {
+  const presentation = resolveBlueprintPresentation(draft)
+  let template
+
   switch (draft.template) {
     case "studio":
-      return <StudioTemplate draft={draft} fullPreview={fullPreview} />
+      template = <StudioTemplate draft={draft} fullPreview={fullPreview} />
+      break
     case "warm":
-      return <WarmTemplate draft={draft} fullPreview={fullPreview} />
+      template = <WarmTemplate draft={draft} fullPreview={fullPreview} />
+      break
     default:
-      return <EditorialTemplate draft={draft} fullPreview={fullPreview} />
+      template = (
+        <EditorialTemplate
+          draft={draft}
+          fullPreview={fullPreview}
+          presentation={presentation}
+        />
+      )
   }
+
+  return (
+    <div
+      data-blueprint-preview=""
+      data-template={presentation.template.id}
+      data-visual-direction={presentation.geometry.id}
+      data-color-direction={presentation.palette.id}
+      data-typography-direction={presentation.typography.id}
+    >
+      {template}
+    </div>
+  )
 }

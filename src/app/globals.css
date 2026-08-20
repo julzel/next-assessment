@@ -137,3 +137,13 @@ body {
     @apply font-sans;
   }
 }
+
+@layer utilities {
+  .font-blueprint-editorial {
+    font-family: Georgia, "Times New Roman", serif;
+  }
+
+  .font-blueprint-rounded {
+    font-family: "Arial Rounded MT Bold", "Trebuchet MS", var(--font-geist-sans), sans-serif;
+  }
+}

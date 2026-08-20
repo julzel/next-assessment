@@ -6,30 +6,40 @@ import {
   optionLabel,
 } from "@/lib/blueprint/options"
 import type { BlueprintDraft } from "@/lib/blueprint/types"
+import type { BlueprintPresentationProfile } from "@/lib/blueprint/presentation"
+import { cn } from "@/lib/utils"
 
 export type BlueprintTemplateProps = {
   draft: BlueprintDraft
   fullPreview?: boolean
+  presentation?: BlueprintPresentationProfile
 }
 
-export function BlueprintSections({ draft, fullPreview = false }: BlueprintTemplateProps) {
+export function BlueprintSections({ draft, fullPreview = false, presentation }: BlueprintTemplateProps) {
   const { answers, content } = draft.config
   const visualDirection = optionLabel(VISUAL_DIRECTION_OPTIONS, answers.visualDirection)
   const colorDirection = optionLabel(COLOR_DIRECTION_OPTIONS, answers.colorDirection)
   const typographyDirection = optionLabel(TYPOGRAPHY_DIRECTION_OPTIONS, answers.typographyDirection)
 
   return (
-    <div className="space-y-6">
-      <section aria-labelledby="brand-header-heading" className="space-y-2">
-        <h2 id="brand-header-heading" className="text-sm font-medium text-current/70">Brand header</h2>
+    <div className={presentation?.geometry.sectionGapClass ?? "space-y-6"}>
+      <section
+        aria-labelledby="brand-header-heading"
+        className={sectionClasses(presentation, "space-y-2")}
+      >
+        <h2 id="brand-header-heading" className={headingClasses(presentation)}>Brand header</h2>
         <p className="text-lg font-medium leading-7">{content.essence}</p>
       </section>
-      <BlueprintSection title="Audience & promise" value={content.audiencePromise} />
-      <BlueprintSection title="Personality" value={content.personality} />
-      <section aria-labelledby="visual-direction-heading" className="space-y-2">
-        <h2 id="visual-direction-heading" className="text-sm font-medium text-current/70">Visual direction</h2>
+      <BlueprintSection title="Audience & promise" value={content.audiencePromise} presentation={presentation} />
+      <BlueprintSection title="Personality" value={content.personality} presentation={presentation} />
+      <section
+        aria-labelledby="visual-direction-heading"
+        className={sectionClasses(presentation, "space-y-2")}
+        data-blueprint-section="visual-direction"
+      >
+        <h2 id="visual-direction-heading" className={headingClasses(presentation)}>Visual direction</h2>
         <p className="text-sm leading-6">{content.visualDirection}</p>
-        <div className="flex flex-wrap items-center gap-2 text-sm text-current/70">
+        <div className={cn("flex flex-wrap items-center gap-2 text-sm", presentation?.palette.mutedTextClass ?? "text-current/70")}>
           {colorDirection && answers.colorDirection && (
             <span className="flex items-center gap-1.5">
               <span className="flex gap-1" aria-hidden="true">
@@ -47,11 +57,11 @@ export function BlueprintSections({ draft, fullPreview = false }: BlueprintTempl
           )}
         </div>
       </section>
-      <BlueprintSection title="Voice & tone" value={content.voiceTone} />
+      <BlueprintSection title="Voice & tone" value={content.voiceTone} presentation={presentation} />
       {(content.guardrail || !fullPreview) && (
-        <section aria-labelledby="guardrail-heading" className="space-y-2">
-          <h2 id="guardrail-heading" className="text-sm font-medium text-current/70">Brand guardrail</h2>
-          <p className="text-sm leading-6 text-current/70">
+        <section aria-labelledby="guardrail-heading" className={sectionClasses(presentation, "space-y-2")}>
+          <h2 id="guardrail-heading" className={headingClasses(presentation)}>Brand guardrail</h2>
+          <p className={cn("text-sm leading-6", presentation?.palette.mutedTextClass ?? "text-current/70")}>
             {content.guardrail ?? "No guardrail yet — add one when the brand needs a clear boundary."}
           </p>
         </section>
@@ -60,11 +70,36 @@ export function BlueprintSections({ draft, fullPreview = false }: BlueprintTempl
   )
 }
 
-function BlueprintSection({ title, value }: { title: string; value: string }) {
+function BlueprintSection({
+  title,
+  value,
+  presentation,
+}: {
+  title: string
+  value: string
+  presentation?: BlueprintPresentationProfile
+}) {
   return (
-    <section className="space-y-2">
-      <h2 className="text-sm font-medium text-current/70">{title}</h2>
+    <section className={sectionClasses(presentation, "space-y-2")}>
+      <h2 className={headingClasses(presentation)}>{title}</h2>
       <p className="text-sm leading-6">{value}</p>
     </section>
+  )
+}
+
+function sectionClasses(presentation: BlueprintPresentationProfile | undefined, className: string) {
+  return cn(
+    className,
+    presentation?.geometry.sectionClass,
+    presentation?.palette.surfaceClass,
+    presentation?.palette.borderClass,
+  )
+}
+
+function headingClasses(presentation: BlueprintPresentationProfile | undefined) {
+  return cn(
+    "text-sm font-medium",
+    presentation?.typography.labelClass,
+    presentation?.palette.mutedTextClass ?? "text-current/70",
   )
 }

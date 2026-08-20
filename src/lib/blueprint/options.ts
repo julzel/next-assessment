@@ -14,24 +14,31 @@ export type BlueprintOption<T extends string> = {
   effect: string
 }
 
-export const TEMPLATE_OPTIONS: readonly BlueprintOption<TemplateId>[] = [
+export type TemplateOption = BlueprintOption<TemplateId> & {
+  composition: string
+}
+
+export const TEMPLATE_OPTIONS: readonly TemplateOption[] = [
   {
     id: "editorial",
     label: "Editorial",
     description: "Refined and typography-led.",
     effect: "Sets a narrative composition with generous hierarchy.",
+    composition: "Masthead, fine rule, flowing story",
   },
   {
     id: "studio",
     label: "Studio",
     description: "Clean, modular, and systematic.",
     effect: "Sets a structured composition built from clear modules.",
+    composition: "System header, modular grid, compact panels",
   },
   {
     id: "warm",
     label: "Warm",
     description: "Approachable and expressive.",
     effect: "Sets a softer composition designed to invite connection.",
+    composition: "Welcoming intro, layered cards, soft flow",
   },
 ]
 
