@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useReducer, useRef } from "react"
+import type { KeyboardEvent } from "react"
 import { useRouter } from "next/navigation"
 
 import { saveBlueprint } from "@/app/blueprints/actions"
@@ -90,6 +91,21 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
     dispatch({ type: "viewCurrentStep" })
   }
 
+  function handleMobileModeKeyboardNavigation(event: KeyboardEvent<HTMLButtonElement>) {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
+
+    const mode =
+      event.key === 'ArrowLeft' || event.key === 'Home' ? 'questions' : 'preview'
+    event.preventDefault()
+    event.stopPropagation()
+    dispatch({ type: 'mobileModeChanged', mode })
+    window.requestAnimationFrame(() => {
+      Array.from(document.querySelectorAll<HTMLButtonElement>('[role="tab"]')).find(
+        (tab) => tab.textContent === (mode === 'questions' ? 'Questions' : 'Preview'),
+      )?.focus()
+    })
+  }
+
   const activeImpact = BLUEPRINT_STEP_PREVIEW_IMPACTS[state.currentStep]
 
   return (
@@ -110,8 +126,12 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
         className="sticky top-0 z-20 bg-background py-2 lg:hidden"
       >
         <TabsList className="w-full">
-          <TabsTrigger value="questions">Questions</TabsTrigger>
-          <TabsTrigger value="preview">Preview</TabsTrigger>
+          <TabsTrigger value="questions" onKeyDown={handleMobileModeKeyboardNavigation}>
+            Questions
+          </TabsTrigger>
+          <TabsTrigger value="preview" onKeyDown={handleMobileModeKeyboardNavigation}>
+            Preview
+          </TabsTrigger>
         </TabsList>
       </Tabs>
       <p className="sr-only" aria-live="polite">

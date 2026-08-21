@@ -123,6 +123,17 @@ describe("BlueprintWorkspace", () => {
     expect(screen.getByText("Unsaved changes")).not.toBeNull()
   })
 
+  it("supports arrow-key navigation between mobile edit and preview modes", () => {
+    render(<BlueprintWorkspace initialDraft={draft} />)
+
+    const questions = screen.getByRole("tab", { name: "Questions" })
+    fireEvent.keyDown(questions, { key: "ArrowRight" })
+
+    expect(screen.getByRole("tab", { name: "Preview" }).getAttribute("aria-selected")).toBe(
+      "true",
+    )
+  })
+
   it("moves from mobile questions to the current preview impact without losing state", async () => {
     const { container } = render(<BlueprintWorkspace initialDraft={draft} />)
     fireEvent.change(

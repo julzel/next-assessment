@@ -43,6 +43,21 @@ describe("blueprint content", () => {
     })
   })
 
+  it("keeps owner-entered terminal punctuation from appearing twice in generated copy", () => {
+    const content = buildDeterministicContent({
+      ...completeAnswers,
+      offerAudience: "Precision color for clients who value a calm visit.",
+      alwaysCommunicate: "Every appointment begins with listening and clear care.",
+      avoid: "Pressure or unsupported promises.",
+    })
+
+    expect(content.audiencePromise).toBe(
+      "Precision color for clients who value a calm visit. Every touchpoint should communicate Every appointment begins with listening and clear care.",
+    )
+    expect(content.voiceTone).toContain("reinforcing Every appointment begins with listening and clear care.")
+    expect(content.guardrail).toBe("Avoid Pressure or unsupported promises in client-facing communication.")
+  })
+
   it("recomputes the documented sections for every answer field", () => {
     const replacements: { [K in keyof BrandAnswers]: BrandAnswers[K] } = {
       offerAudience: "Independent studios ready to grow",
