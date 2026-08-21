@@ -7,6 +7,11 @@ import type {
   BrandBlueprintConfig,
   TemplateId,
 } from "@/lib/blueprint/types"
+import {
+  validateBlueprintConfig,
+  validateBlueprintDraft,
+  validateBlueprintSummary,
+} from "@/lib/blueprint/validation"
 
 import { db } from "."
 import { blueprints, type Blueprint } from "./schema"
@@ -31,24 +36,55 @@ function toIsoString(date: Date) {
   return date.toISOString()
 }
 
-function toDraft(row: Blueprint): PersistedBlueprintDraft {
-  return {
-    id: row.id,
-    brandName: row.brandName,
-    template: row.template,
-    config: row.config,
-    createdAt: toIsoString(row.createdAt),
-    updatedAt: toIsoString(row.updatedAt),
+export class InvalidPersistedBlueprintError extends Error {
+  constructor() {
+    super("The saved blueprint record is invalid or uses an unsupported schema version.")
+    this.name = "InvalidPersistedBlueprintError"
   }
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+}
+
+function migrateBlueprintConfig(config: unknown): BrandBlueprintConfig {
+  if (!isRecord(config)) throw new InvalidPersistedBlueprintError()
+
+  switch (config.schemaVersion) {
+    case 1: {
+      const result = validateBlueprintConfig(config)
+      if (!result.success) throw new InvalidPersistedBlueprintError()
+      return result.data
+    }
+    default:
+      throw new InvalidPersistedBlueprintError()
+  }
+}
+
+function toDraft(row: Blueprint): PersistedBlueprintDraft {
+  const persisted = {
+    id: row.id,
+    brandName: row.brandName,
+    template: row.template,
+    config: migrateBlueprintConfig(row.config),
+    createdAt: toIsoString(row.createdAt),
+    updatedAt: toIsoString(row.updatedAt),
+  }
+  const result = validateBlueprintDraft(persisted)
+  if (!result.success) throw new InvalidPersistedBlueprintError()
+
+  return { ...result.data, id: row.id, createdAt: persisted.createdAt, updatedAt: persisted.updatedAt }
+}
+
 function toSummary(row: Blueprint): BlueprintSummary {
-  return {
+  const result = validateBlueprintSummary({
     id: row.id,
     brandName: row.brandName,
     template: row.template,
     updatedAt: toIsoString(row.updatedAt),
-  }
+  })
+  if (!result.success) throw new InvalidPersistedBlueprintError()
+  return result.data
 }
 
 export function createBlueprintRepository(database: BlueprintDatabase, now: Clock = () => new Date()) {

@@ -63,10 +63,30 @@ describe("BlueprintWorkspace", () => {
   })
 
   it("identifies a new blueprint as unsaved before its first edit or save", () => {
-    render(<BlueprintWorkspace initialDraft={draft} />)
+    const { container } = render(<BlueprintWorkspace initialDraft={draft} />)
 
     expect(screen.getByText("Not saved yet")).not.toBeNull()
     expect(screen.queryByText("Saved")).toBeNull()
+    expect(screen.getByRole("button", { name: "Save draft" }).hasAttribute("disabled")).toBe(true)
+    expect(container.querySelector("[data-workspace-toolbar]")?.className).toContain("sticky")
+  })
+
+  it("keeps a clean saved blueprint from producing a meaningless update", () => {
+    render(
+      <BlueprintWorkspace
+        initialDraft={{
+          ...completeDraft,
+          id: 4,
+          createdAt: "2026-08-20T12:00:00.000Z",
+          updatedAt: "2026-08-20T12:30:00.000Z",
+        }}
+      />,
+    )
+
+    expect(screen.getByText("Saved")).not.toBeNull()
+    expect(screen.getByRole("button", { name: "Save blueprint" }).hasAttribute("disabled")).toBe(
+      true,
+    )
   })
 
   it("updates the name and template preview immediately", () => {
@@ -251,12 +271,16 @@ describe("BlueprintWorkspace", () => {
       data: {
         ...draft,
         id: 12,
+        brandName: "Northstar Studio",
         createdAt: "2026-08-20T12:00:00.000Z",
         updatedAt: "2026-08-20T12:00:00.000Z",
       },
     })
     render(<BlueprintWorkspace initialDraft={draft} />)
     expect(document.querySelectorAll("[data-brand-application]")).toHaveLength(3)
+    fireEvent.change(screen.getByLabelText("Salon name"), {
+      target: { value: "Northstar Studio" },
+    })
     fireEvent.click(screen.getByRole("button", { name: "Save draft" }))
 
     await waitFor(() => expect(router.replace).toHaveBeenCalledWith("/blueprints/12"))
@@ -286,6 +310,9 @@ describe("BlueprintWorkspace", () => {
       ],
     })
     render(<BlueprintWorkspace initialDraft={draft} />)
+    fireEvent.change(screen.getByLabelText("Salon name"), {
+      target: { value: "Northstar Studio" },
+    })
     fireEvent.click(screen.getByRole("button", { name: "Save draft" }))
 
     await waitFor(() => expect(screen.getByText("Choose a valid brand name.")).not.toBeNull())

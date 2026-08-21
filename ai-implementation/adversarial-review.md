@@ -1,5 +1,16 @@
 # Adversarial Readiness Review
 
+## Remediation status
+
+- Findings 1–3 were fixed and regression-tested in the Stage 8 remediation recorded in
+  [`changelog.md`](./changelog.md).
+- Findings 4–6 were fixed during submission preparation: persisted rows now pass an explicit
+  schema-version gate and runtime validation before rendering; save/status controls remain sticky
+  at desktop and mobile widths; clean records cannot be re-saved; and library timestamps include
+  same-day time precision.
+- The findings below remain the original evidence captured by the adversarial review, not claims
+  about the final remediated state.
+
 ## Findings
 
 ### 1. High — Late server responses overwrite newer local edits and can re-enable duplicate submissions

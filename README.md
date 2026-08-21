@@ -131,6 +131,15 @@ Every commit runs a pre-commit hook (Husky): `tsc --noEmit`, then ESLint and any
 
 ## Brand Blueprint implementation notes
 
+### Implemented features
+
+- Salon-specific four-step guided capture with immediate, deterministic preview feedback.
+- Three presentation templates with distinct composition and shared website, social, and print proofs.
+- Explicit save/revisit through SQLite, including dirty, pending, success, and failure feedback.
+- Focused full-preview mode plus responsive Questions/Preview modes for narrow screens.
+- Server-only, target-scoped AI refinement with strict output validation, safe failure recovery, and one-step local Undo.
+- Runtime validation of saved records before they reach rendering, with route-level recovery for unsupported data.
+
 ### Reviewer setup and validation
 
 The app is a local Brand Blueprint Builder for salon owners. It translates one guided direction
@@ -167,6 +176,10 @@ npm run build
   multi-user conflict handling, publishing, social posting, print-ready export, uploads, arbitrary
   layouts, arbitrary fonts/colors, collaboration, and version history. Those are the next
   production investments, along with durable ownership checks and AI abuse controls.
+
+The next production step would be authentication and record ownership, followed by durable
+rate limiting for AI requests. Those concerns are intentionally outside this local, single-user
+assessment and should be introduced together rather than implied by the current UI.
 
 - The primary user is a salon owner defining one coherent brand direction for a website, social media, and printed client touchpoints.
 - The saved `BrandBlueprintConfig` is the canonical state. Guided answers update deterministic content immediately, and save/reopen reproduces the same artifact without storing editor-only progress or focus state.

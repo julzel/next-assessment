@@ -159,32 +159,37 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 overflow-x-clip px-4 py-6 sm:gap-8 sm:px-6 sm:py-12">
-      <WorkspaceHeader
-        brandName={state.draft.brandName}
-        hasSavedRecord={state.draft.id !== null}
-        isDirty={dirty}
-        saveStatus={state.saveStatus}
-        saveMessage={state.saveMessage}
-        isComplete={complete}
-        isAiPending={state.aiStatus === "loading"}
-        onSave={handleSave}
-        onFullPreview={() => handleFullPreviewChange(true)}
-        fullPreviewButtonRef={fullPreviewButtonRef}
-      />
-      <Tabs
-        value={state.mobileMode}
-        onValueChange={(value) => dispatch({ type: "mobileModeChanged", mode: value as "questions" | "preview" })}
-        className="sticky top-0 z-20 bg-background py-2 lg:hidden"
+      <div
+        data-workspace-toolbar
+        className="sticky top-0 z-30 -mx-4 bg-background/95 px-4 backdrop-blur sm:-mx-6 sm:px-6"
       >
-        <TabsList className="w-full">
-          <TabsTrigger value="questions" onKeyDown={handleMobileModeKeyboardNavigation}>
-            Questions
-          </TabsTrigger>
-          <TabsTrigger value="preview" onKeyDown={handleMobileModeKeyboardNavigation}>
-            Preview
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+        <WorkspaceHeader
+          brandName={state.draft.brandName}
+          hasSavedRecord={state.draft.id !== null}
+          isDirty={dirty}
+          saveStatus={state.saveStatus}
+          saveMessage={state.saveMessage}
+          isComplete={complete}
+          isAiPending={state.aiStatus === "loading"}
+          onSave={handleSave}
+          onFullPreview={() => handleFullPreviewChange(true)}
+          fullPreviewButtonRef={fullPreviewButtonRef}
+        />
+        <Tabs
+          value={state.mobileMode}
+          onValueChange={(value) => dispatch({ type: "mobileModeChanged", mode: value as "questions" | "preview" })}
+          className="pb-2 lg:hidden"
+        >
+          <TabsList className="w-full">
+            <TabsTrigger value="questions" onKeyDown={handleMobileModeKeyboardNavigation}>
+              Questions
+            </TabsTrigger>
+            <TabsTrigger value="preview" onKeyDown={handleMobileModeKeyboardNavigation}>
+              Preview
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
       <p className="sr-only" aria-live="polite">
         Editing {activeImpact.title}. The preview highlights {activeImpact.inputLabel.toLowerCase()}.
       </p>

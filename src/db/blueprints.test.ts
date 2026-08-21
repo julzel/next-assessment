@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from "vitest"
 import { buildDeterministicContent } from "@/lib/blueprint/content"
 import type { BrandAnswers } from "@/lib/blueprint/types"
 
-import { createBlueprintRepository } from "./blueprints"
+import { createBlueprintRepository, InvalidPersistedBlueprintError } from "./blueprints"
 import * as schema from "./schema"
 
 const answers: BrandAnswers = {
@@ -127,5 +127,25 @@ describe("blueprint repository", () => {
         config,
       }),
     ).toBeNull()
+  })
+
+  it("rejects a persisted blueprint with an unsupported config version", () => {
+    const repository = makeRepository()
+    const sqlite = sqliteConnections.at(-1)!
+    sqlite
+      .prepare("INSERT INTO blueprints (brand_name, template, config) VALUES (?, ?, ?)")
+      .run("Future Salon", "editorial", JSON.stringify({ ...config, schemaVersion: 2 }))
+
+    expect(() => repository.getBlueprint(1)).toThrow(InvalidPersistedBlueprintError)
+  })
+
+  it("rejects invalid persisted summary fields before returning the library", () => {
+    const repository = makeRepository()
+    const sqlite = sqliteConnections.at(-1)!
+    sqlite
+      .prepare("INSERT INTO blueprints (brand_name, template, config) VALUES (?, ?, ?)")
+      .run("Broken Salon", "unsupported", JSON.stringify(config))
+
+    expect(() => repository.listBlueprints()).toThrow(InvalidPersistedBlueprintError)
   })
 })

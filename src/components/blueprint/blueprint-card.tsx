@@ -8,6 +8,8 @@ const dateFormatter = new Intl.DateTimeFormat("en", {
   month: "short",
   day: "numeric",
   year: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
 })
 
 export function BlueprintCard({ blueprint }: { blueprint: BlueprintSummary }) {
@@ -22,9 +24,9 @@ export function BlueprintCard({ blueprint }: { blueprint: BlueprintSummary }) {
         </div>
       </CardHeader>
       <CardContent className="flex items-center justify-between gap-4">
-        <p className="text-sm text-muted-foreground">
+        <time dateTime={blueprint.updatedAt} className="text-sm text-muted-foreground">
           Updated {dateFormatter.format(new Date(blueprint.updatedAt))}
-        </p>
+        </time>
         <Link
           href={`/blueprints/${blueprint.id}`}
           className="text-sm font-medium text-primary underline-offset-4 hover:underline"
