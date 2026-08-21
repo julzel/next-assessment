@@ -17,7 +17,7 @@ const draft: BlueprintDraft = {
 }
 
 const completeAnswers: BrandAnswers = {
-  offerAudience: "Independent founders building thoughtful products",
+  offerAudience: "Restorative salon care for clients who value a thoughtful consultation",
   personalityTraits: ["warm", "playful"],
   visualDirection: "organic",
   colorDirection: "vibrant",
@@ -71,5 +71,8 @@ describe("FullPreviewOverlay", () => {
     expect(screen.getAllByText("Neighborhood Welcome").length).toBeGreaterThan(0)
     expect(document.querySelector('[data-salon-module="client-care-moment"]')).not.toBeNull()
     expect(document.querySelector('[data-salon-module="booking-invitation"]')).not.toBeNull()
+    expect(screen.getByRole("heading", { level: 3, name: "Brand in use" })).not.toBeNull()
+    expect(document.querySelectorAll("[data-brand-application]")).toHaveLength(3)
+    expect(document.querySelector("[data-editing-now] [data-brand-applications]")).toBeNull()
   })
 })

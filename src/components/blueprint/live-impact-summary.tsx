@@ -112,6 +112,9 @@ export function LiveImpactSummary({
           </p>
         )}
       </div>
+      <p className="mt-3 text-xs text-muted-foreground" data-application-impact="">
+        This decision also updates the website, social, and print proofs in Brand in use.
+      </p>
       <Button type="button" variant="outline" size="sm" className="mt-3 w-full" onClick={onView}>
         View this change
       </Button>

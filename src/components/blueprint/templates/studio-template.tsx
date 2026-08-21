@@ -1,4 +1,5 @@
 import { DesignRationale } from "@/components/blueprint/design-rationale"
+import { BrandApplications } from "@/components/blueprint/brand-applications"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
@@ -12,6 +13,7 @@ export function StudioTemplate({
   draft,
   fullPreview,
   presentation,
+  applications,
   activeStep,
 }: BlueprintTemplateProps) {
   return (
@@ -150,6 +152,7 @@ export function StudioTemplate({
         composition="studio"
         activeStep={activeStep}
       />
+      <BrandApplications viewModel={applications} presentation={presentation} />
       <DesignRationale presentation={presentation} />
     </article>
   )

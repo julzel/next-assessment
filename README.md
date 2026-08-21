@@ -129,8 +129,10 @@ Every commit runs a pre-commit hook (Husky): `tsc --noEmit`, then ESLint and any
 
 ## Brand Blueprint implementation notes
 
+- The primary user is a salon owner defining one coherent brand direction for a website, social media, and printed client touchpoints.
 - The saved `BrandBlueprintConfig` is the canonical state. Guided answers update deterministic content immediately, and save/reopen reproduces the same artifact without storing editor-only progress or focus state.
 - Presentation styling is resolved from closed answer enums through code-owned token registries. Saved or future AI-authored text can never inject CSS classes or arbitrary styles.
-- Editorial, Studio, and Warm share semantic Blueprint modules but own different macro compositions. The live rationale is derived from the same presentation profile used by the renderers, so its explanation cannot drift into a separate stored narrative.
+- Editorial Luxe, Modern Studio, and Neighborhood Welcome share semantic Blueprint modules but own different macro compositions. The live rationale is derived from the same presentation profile used by the renderers, so its explanation cannot drift into a separate stored narrative.
+- **Brand in use** derives representative website, square social, and printed-card proofs from that same canonical draft and presentation profile. The proofs explain what stays consistent and what adapts by channel; they are illustrative previews, not production assets.
 - Desktop keeps questions beside a focused live preview. Mobile keeps one compact impact sample in Questions mode and moves focus to the affected preview module through **View this change**; no duplicate preview content is added to the form.
-- Current limitations: the final browser matrix must be rerun in a connected browser environment, and AI-assisted refinement remains the next product slice. The assessment intentionally defers arbitrary fonts, colors, layouts, uploads, collaboration, and version history.
+- Current limitations: the final browser matrix must be rerun in a connected browser environment, and AI-assisted refinement remains the next product slice. The assessment intentionally defers production website publishing, social posting, print-ready export/bleed files, image generation, arbitrary fonts/colors/layouts, uploads, collaboration, and version history.

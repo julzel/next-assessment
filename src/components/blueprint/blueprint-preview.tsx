@@ -1,6 +1,7 @@
 import { EditorialTemplate } from "@/components/blueprint/templates/editorial-template"
 import { StudioTemplate } from "@/components/blueprint/templates/studio-template"
 import { WarmTemplate } from "@/components/blueprint/templates/warm-template"
+import { createBrandApplicationViewModel } from "@/lib/blueprint/applications"
 import { resolveBlueprintPresentation } from "@/lib/blueprint/presentation"
 import type { BlueprintStepId } from "@/lib/blueprint/progress"
 import type { BlueprintDraft } from "@/lib/blueprint/types"
@@ -15,6 +16,7 @@ export function BlueprintPreview({
   activeStep?: BlueprintStepId
 }) {
   const presentation = resolveBlueprintPresentation(draft)
+  const applications = createBrandApplicationViewModel(draft, presentation)
   const editorStep = fullPreview ? undefined : activeStep
   let template
 
@@ -25,6 +27,7 @@ export function BlueprintPreview({
           draft={draft}
           fullPreview={fullPreview}
           presentation={presentation}
+          applications={applications}
           activeStep={editorStep}
         />
       )
@@ -35,6 +38,7 @@ export function BlueprintPreview({
           draft={draft}
           fullPreview={fullPreview}
           presentation={presentation}
+          applications={applications}
           activeStep={editorStep}
         />
       )
@@ -45,6 +49,7 @@ export function BlueprintPreview({
           draft={draft}
           fullPreview={fullPreview}
           presentation={presentation}
+          applications={applications}
           activeStep={editorStep}
         />
       )

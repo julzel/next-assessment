@@ -1,4 +1,5 @@
 import { DesignRationale } from "@/components/blueprint/design-rationale"
+import { BrandApplications } from "@/components/blueprint/brand-applications"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
@@ -12,6 +13,7 @@ export function WarmTemplate({
   draft,
   fullPreview,
   presentation,
+  applications,
   activeStep,
 }: BlueprintTemplateProps) {
   return (
@@ -111,6 +113,7 @@ export function WarmTemplate({
         composition="warm"
         activeStep={activeStep}
       />
+      <BrandApplications viewModel={applications} presentation={presentation} />
       <DesignRationale presentation={presentation} />
     </article>
   )

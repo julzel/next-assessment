@@ -225,10 +225,12 @@ describe("BlueprintWorkspace", () => {
       },
     })
     render(<BlueprintWorkspace initialDraft={draft} />)
+    expect(document.querySelectorAll("[data-brand-application]")).toHaveLength(3)
     fireEvent.click(screen.getByRole("button", { name: "Save draft" }))
 
     await waitFor(() => expect(router.replace).toHaveBeenCalledWith("/blueprints/12"))
     expect(screen.getByText("All changes saved.")).not.toBeNull()
+    expect(document.querySelectorAll("[data-brand-application]")).toHaveLength(3)
   })
 
   it("labels complete work as a blueprint and reviews the current draft", () => {

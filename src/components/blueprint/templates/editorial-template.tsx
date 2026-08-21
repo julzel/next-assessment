@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge"
+import { BrandApplications } from "@/components/blueprint/brand-applications"
 import { DesignRationale } from "@/components/blueprint/design-rationale"
 import type { BlueprintPresentationProfile } from "@/lib/blueprint/presentation"
 import { cn } from "@/lib/utils"
@@ -13,6 +14,7 @@ export function EditorialTemplate({
   draft,
   fullPreview,
   presentation,
+  applications,
   activeStep,
 }: BlueprintTemplateProps & { presentation: BlueprintPresentationProfile }) {
   return (
@@ -143,6 +145,7 @@ export function EditorialTemplate({
         composition="editorial"
         activeStep={activeStep}
       />
+      <BrandApplications viewModel={applications} presentation={presentation} />
       <DesignRationale presentation={presentation} />
     </article>
   )

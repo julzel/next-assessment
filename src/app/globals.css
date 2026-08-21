@@ -245,6 +245,14 @@ body {
     background-blend-mode: soft-light;
   }
 
+  .blueprint-application-safe-area {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 28%, transparent);
+  }
+
+  .blueprint-print-safe-area {
+    box-shadow: inset 0 0 0 0.35rem color-mix(in srgb, currentColor 7%, transparent);
+  }
+
   .blueprint-focus-target {
     scroll-margin-block: 5rem;
   }

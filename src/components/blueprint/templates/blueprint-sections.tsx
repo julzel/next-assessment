@@ -7,6 +7,7 @@ import {
   optionLabel,
 } from "@/lib/blueprint/options"
 import type { BlueprintPresentationProfile } from "@/lib/blueprint/presentation"
+import type { BrandApplicationViewModel } from "@/lib/blueprint/applications"
 import {
   BLUEPRINT_STEP_PREVIEW_IMPACTS,
   type BlueprintStepId,
@@ -18,10 +19,11 @@ export type BlueprintTemplateProps = {
   draft: BlueprintDraft
   fullPreview?: boolean
   presentation: BlueprintPresentationProfile
+  applications: BrandApplicationViewModel
   activeStep?: BlueprintStepId
 }
 
-type BlueprintSectionsProps = BlueprintTemplateProps & {
+type BlueprintSectionsProps = Omit<BlueprintTemplateProps, "applications"> & {
   composition: TemplateId
 }
 

@@ -35,6 +35,7 @@ describe("LiveImpactSummary", () => {
     )
     expect(screen.getByText("Salon positioning and client promise")).not.toBeNull()
     expect(screen.getByText(draft.config.content.audiencePromise)).not.toBeNull()
+    expect(screen.getByText(/also updates the website, social, and print proofs/)).not.toBeNull()
 
     rerender(<LiveImpactSummary draft={draft} currentStep="visual" onView={vi.fn()} />)
     expect(screen.getByText("Salon palette, type, and geometry")).not.toBeNull()

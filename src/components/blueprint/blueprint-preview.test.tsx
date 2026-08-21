@@ -71,8 +71,8 @@ describe("BlueprintPreview", () => {
         "font-blueprint-editorial",
       )
       expect(view.container.querySelector('[data-personality="precise"]')).not.toBeNull()
-      expect(screen.getByText(draft.config.content.essence)).not.toBeNull()
-      expect(screen.getByText(draft.config.content.audiencePromise)).not.toBeNull()
+      expect(screen.getAllByText(draft.config.content.essence).length).toBeGreaterThan(0)
+      expect(screen.getAllByText(draft.config.content.audiencePromise).length).toBeGreaterThan(0)
       expect(screen.getByText(draft.config.content.personality)).not.toBeNull()
       expect(screen.getByText(draft.config.content.visualDirection)).not.toBeNull()
       expect(screen.getByText(draft.config.content.voiceTone)).not.toBeNull()
@@ -80,6 +80,13 @@ describe("BlueprintPreview", () => {
       expect(screen.getAllByText("thoughtful expertise and care").length).toBeGreaterThan(0)
       expect(screen.getByText("Avoid: pressure or beauty stereotypes")).not.toBeNull()
       expect(screen.getByText("Why this direction works")).not.toBeNull()
+      expect(screen.getByRole("heading", { level: 3, name: "Brand in use" })).not.toBeNull()
+      expect(view.container.querySelectorAll("[data-brand-application]")).toHaveLength(3)
+      for (const proof of view.container.querySelectorAll("[data-brand-application]")) {
+        expect(proof.getAttribute("data-application-palette")).toBe("earthy")
+        expect(proof.getAttribute("data-application-typography")).toBe("editorial-serif")
+        expect(proof.getAttribute("data-application-geometry")).toBe("elegant")
+      }
       view.unmount()
     }
   })
@@ -264,7 +271,7 @@ describe("BlueprintPreview", () => {
       "font-blueprint-editorial",
     )
     expect(container.querySelector('[data-personality="playful"]')?.className).toContain("rotate-1")
-    expect(screen.getByText(draft.config.content.audiencePromise)).not.toBeNull()
+    expect(screen.getAllByText(draft.config.content.audiencePromise).length).toBeGreaterThan(0)
   })
 
   it("exposes stable resolved presentation semantics and updates deterministic content", () => {
