@@ -18,11 +18,12 @@ export function createEmptyBlueprintConfig(): BrandBlueprintConfig {
     schemaVersion: 1,
     answers: createEmptyBrandAnswers(),
     content: {
-      essence: "A focused brand direction will take shape here.",
-      audiencePromise: "Clarify what the brand offers and who it serves.",
-      personality: "Choose three traits to define the brand personality.",
-      visualDirection: "Choose visual, color, and typography directions.",
-      voiceTone: "Choose voice traits to define the brand tone.",
+      essence: "A focused salon brand direction will take shape here.",
+      audiencePromise:
+        "Describe the salon's signature services or experience and the clients it is designed for.",
+      personality: "Choose three traits to define the salon's character.",
+      visualDirection: "Choose visual, color, and typography directions for the salon brand.",
+      voiceTone: "Choose voice traits to guide client-facing communication.",
       guardrail: null,
     },
   }

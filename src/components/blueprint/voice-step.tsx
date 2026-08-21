@@ -38,9 +38,12 @@ export function VoiceStep({
         aria-invalid={Boolean(errors.voiceTraits)}
         aria-describedby={errors.voiceTraits ? "voice-traits-help voice-traits-error" : "voice-traits-help"}
       >
-        <legend className="text-sm font-medium">Choose one to three voice traits.</legend>
+        <legend className="text-sm font-medium">
+          Choose one to three traits for the salon&apos;s voice.
+        </legend>
         <p id="voice-traits-help" className="text-sm text-muted-foreground">
-          One trait is required. Together, the selected traits shape the voice summary and message treatment.
+          One trait is required. Together, they guide website, social, printed, and in-salon client
+          communication.
         </p>
         <div className="grid gap-2 sm:grid-cols-2">
           {VOICE_TRAIT_OPTIONS.map((trait) => {
@@ -76,16 +79,19 @@ export function VoiceStep({
         )}
       </fieldset>
       <div className="space-y-2">
-        <Label htmlFor="always-communicate">What should the brand always communicate?</Label>
+        <Label htmlFor="always-communicate">
+          What should clients always understand about your salon?
+        </Label>
         <p id="always-communicate-help" className="text-sm text-muted-foreground">
-          This becomes the recurring message in the audience promise and voice guidance.
+          This becomes the recurring promise across booking, social content, printed materials, and
+          client guidance.
         </p>
         <Textarea
           id="always-communicate"
           value={alwaysCommunicate}
           onChange={(event) => onAlwaysCommunicateChange(event.currentTarget.value)}
           maxLength={240}
-          placeholder="e.g. Calm expertise, even when the topic is complex."
+          placeholder="e.g. Thoughtful expertise and care at every step."
           aria-invalid={Boolean(errors.alwaysCommunicate)}
           aria-describedby={errors.alwaysCommunicate ? "always-communicate-help always-communicate-error" : "always-communicate-help"}
         />
@@ -96,16 +102,16 @@ export function VoiceStep({
         )}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="avoid">What should the brand avoid? (Optional)</Label>
+        <Label htmlFor="avoid">What should salon communication avoid? (Optional)</Label>
         <p id="avoid-help" className="text-sm text-muted-foreground">
-          Add a boundary only when it will help the brand stay recognizable and trustworthy.
+          Add a boundary that keeps client communication recognizable, inclusive, and trustworthy.
         </p>
         <Textarea
           id="avoid"
           value={avoid}
           onChange={(event) => onAvoidChange(event.currentTarget.value)}
           maxLength={240}
-          placeholder="e.g. Empty jargon or scare tactics."
+          placeholder="e.g. Pressure, beauty stereotypes, or unclear promises."
           aria-invalid={Boolean(errors.avoid)}
           aria-describedby={errors.avoid ? "avoid-help avoid-error" : "avoid-help"}
         />

@@ -30,4 +30,12 @@ describe("BlueprintLibrary", () => {
     expect(populatedAction.tagName).toBe("A")
     expect(populatedAction.getAttribute("href")).toBe("/blueprints/new")
   })
+
+  it("states the salon and cross-channel purpose in the empty experience", () => {
+    render(<BlueprintLibrary blueprints={[]} />)
+
+    expect(screen.getByText("Salon brand strategy workspace")).not.toBeNull()
+    expect(screen.getByText(/website, social media, and printed touchpoints/)).not.toBeNull()
+    expect(screen.getByText(/without needing design expertise/)).not.toBeNull()
+  })
 })

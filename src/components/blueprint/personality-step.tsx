@@ -34,9 +34,11 @@ export function PersonalityStep({
         aria-invalid={Boolean(errors.personalityTraits)}
         aria-describedby={errors.personalityTraits ? "personality-count personality-traits-error" : "personality-count"}
       >
-        <legend className="text-sm font-medium">Choose three traits that should define the brand.</legend>
+        <legend className="text-sm font-medium">
+          Choose three traits that should define the salon experience.
+        </legend>
         <p className="text-sm text-muted-foreground">
-          These shape the brand essence and the emphasis cues used in the presentation.
+          These shape how clients should feel across the salon, website, social content, and print.
         </p>
         <div className="grid gap-2 sm:grid-cols-2">
           {PERSONALITY_TRAIT_OPTIONS.map((trait) => {
@@ -79,9 +81,12 @@ export function PersonalityStep({
         aria-invalid={Boolean(errors.visualDirection)}
         aria-describedby={errors.visualDirection ? "visual-direction-help visual-direction-error" : "visual-direction-help"}
       >
-        <legend className="text-sm font-medium">Which visual direction feels most like the brand?</legend>
+        <legend className="text-sm font-medium">
+          Which visual direction feels most like your salon?
+        </legend>
         <p id="visual-direction-help" className="text-sm text-muted-foreground">
-          This controls the composition&apos;s energy, spacing, borders, shapes, and decorative density.
+          This controls how the salon&apos;s craft and experience appear through spacing, borders,
+          shapes, and decorative energy.
         </p>
         <RadioGroup
           value={visualDirection ?? ""}

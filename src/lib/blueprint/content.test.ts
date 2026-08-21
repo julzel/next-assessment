@@ -5,26 +5,28 @@ import { createEmptyBlueprintConfig } from "./defaults"
 import type { BrandAnswers } from "./types"
 
 const completeAnswers: BrandAnswers = {
-  offerAudience: "Independent makers who want a memorable launch",
+  offerAudience: "Dimensional color and calm care for clients with busy schedules",
   personalityTraits: ["confident", "curious", "warm"],
   visualDirection: "elegant",
   colorDirection: "earthy",
   typographyDirection: "editorial-serif",
   voiceTraits: ["clear", "thoughtful"],
-  alwaysCommunicate: "calm expertise",
-  avoid: "empty buzzwords",
+  alwaysCommunicate: "thoughtful expertise",
+  avoid: "pressure or beauty stereotypes",
 }
 
 describe("blueprint content", () => {
   it("builds a deterministic presentation snapshot", () => {
     expect(buildDeterministicContent(completeAnswers)).toEqual({
-      essence: "A confident, curious, and warm, elegant brand expression.",
+      essence: "A confident, curious, and warm, elegant salon brand expression.",
       audiencePromise:
-        "Independent makers who want a memorable launch, always communicating calm expertise.",
-      personality: "The brand feels confident, curious, and warm.",
-      visualDirection: "A visual system with elegant and earthy-leaning color and editorial serif typography.",
-      voiceTone: "Use a clear and thoughtful voice that consistently communicates calm expertise.",
-      guardrail: "Avoid empty buzzwords.",
+        "Dimensional color and calm care for clients with busy schedules. Every touchpoint should communicate thoughtful expertise.",
+      personality: "The salon brand feels confident, curious, and warm.",
+      visualDirection:
+        "A salon visual system with elegant and earthy-leaning color and editorial serif typography.",
+      voiceTone:
+        "Use a clear and thoughtful voice across booking, social, and client communication, consistently reinforcing thoughtful expertise.",
+      guardrail: "Avoid pressure or beauty stereotypes in client-facing communication.",
     })
   })
 
@@ -93,14 +95,30 @@ describe("blueprint content", () => {
       },
     }
 
-    const next = applyManualAnswer(config, "offerAudience", "Local studios ready to grow")
+    const next = applyManualAnswer(
+      config,
+      "offerAudience",
+      "Precision services for clients who value a calm visit",
+    )
 
     expect(next.content.audiencePromise).toBe(
-      "Local studios ready to grow, always communicating calm expertise.",
+      "Precision services for clients who value a calm visit. Every touchpoint should communicate thoughtful expertise.",
     )
     expect(next.content.personality).toBe("AI-authored personality copy.")
     expect(next.content.voiceTone).toBe("AI-authored voice copy.")
     expect(next.answers).not.toBe(config.answers)
     expect(next.answers.personalityTraits).not.toBe(config.answers.personalityTraits)
+  })
+
+  it("uses neutral salon guidance for an empty draft without inventing services or claims", () => {
+    expect(buildDeterministicContent(createEmptyBlueprintConfig().answers)).toEqual({
+      essence: "A focused salon brand direction will take shape here.",
+      audiencePromise:
+        "Describe the salon's signature services or experience and the clients it is designed for.",
+      personality: "Choose three traits to define the salon's character.",
+      visualDirection: "Choose visual, color, and typography directions for the salon brand.",
+      voiceTone: "Choose voice traits to guide client-facing communication.",
+      guardrail: null,
+    })
   })
 })

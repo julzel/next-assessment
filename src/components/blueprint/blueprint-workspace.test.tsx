@@ -23,14 +23,14 @@ const draft: BlueprintDraft = {
 }
 
 const completeAnswers: BrandAnswers = {
-  offerAudience: "Independent founders building thoughtful products",
+  offerAudience: "Precision services for clients who value a calm visit",
   personalityTraits: ["confident", "curious", "precise"],
   visualDirection: "minimal",
   colorDirection: "cool",
   typographyDirection: "modern-sans",
   voiceTraits: ["clear", "thoughtful"],
-  alwaysCommunicate: "calm, useful clarity",
-  avoid: "empty buzzwords",
+  alwaysCommunicate: "thoughtful expertise and care",
+  avoid: "pressure or beauty stereotypes",
 }
 
 const completeDraft: BlueprintDraft = {
@@ -52,7 +52,7 @@ describe("BlueprintWorkspace", () => {
   it("updates the name and template preview immediately", () => {
     render(<BlueprintWorkspace initialDraft={draft} />)
 
-    fireEvent.change(screen.getByLabelText("Brand or client name"), {
+    fireEvent.change(screen.getByLabelText("Salon name"), {
       target: { value: "Northstar Collective" },
     })
     fireEvent.click(screen.getByRole("radio", { name: /Warm/ }))
@@ -80,45 +80,51 @@ describe("BlueprintWorkspace", () => {
     fireEvent.click(screen.getByRole("button", { name: /^2\. Personality/ }))
     fireEvent.click(screen.getByRole("radio", { name: /Elegant/ }))
 
-    expect(screen.getAllByText("A distinctive, elegant brand expression.").length).toBeGreaterThan(
-      0,
-    )
+    expect(
+      screen.getAllByText("A distinctive, elegant salon brand expression.").length,
+    ).toBeGreaterThan(0)
     fireEvent.click(screen.getByRole("button", { name: /^3\. Visual system/ }))
     fireEvent.click(screen.getByRole("radio", { name: /Earthy/ }))
     expect(screen.getAllByText(/earthy-leaning color/).length).toBeGreaterThan(0)
     fireEvent.click(screen.getByRole("button", { name: /^4\. Voice/ }))
-    fireEvent.change(screen.getByLabelText("What should the brand avoid? (Optional)"), {
-      target: { value: "empty buzzwords" },
+    fireEvent.change(screen.getByLabelText("What should salon communication avoid? (Optional)"), {
+      target: { value: "pressure or beauty stereotypes" },
     })
-    expect(screen.getByText("Avoid empty buzzwords.")).not.toBeNull()
+    expect(
+      screen.getByText("Avoid pressure or beauty stereotypes in client-facing communication."),
+    ).not.toBeNull()
   })
 
   it("preserves unsaved values while switching templates and mobile modes", () => {
     render(<BlueprintWorkspace initialDraft={draft} />)
 
-    fireEvent.change(screen.getByLabelText("Brand or client name"), {
+    fireEvent.change(screen.getByLabelText("Salon name"), {
       target: { value: "Northstar Collective" },
     })
-    fireEvent.change(screen.getByLabelText("What does the brand offer, and who is it for?"), {
-      target: { value: "Strategic support for independent founders" },
-    })
+    fireEvent.change(
+      screen.getByLabelText("What experience does your salon offer, and who is it for?"),
+      { target: { value: "Precision services for clients who value thoughtful care" } },
+    )
     fireEvent.click(screen.getByRole("radio", { name: /Warm/ }))
     fireEvent.click(screen.getByRole("tab", { name: "Preview" }))
     fireEvent.click(screen.getByRole("tab", { name: "Questions" }))
 
-    expect((screen.getByLabelText("Brand or client name") as HTMLInputElement).value).toBe(
+    expect((screen.getByLabelText("Salon name") as HTMLInputElement).value).toBe(
       "Northstar Collective",
     )
-    expect(screen.getByDisplayValue("Strategic support for independent founders")).not.toBeNull()
+    expect(
+      screen.getByDisplayValue("Precision services for clients who value thoughtful care"),
+    ).not.toBeNull()
     expect(screen.getByText("Warm blueprint")).not.toBeNull()
     expect(screen.getByText("Unsaved changes")).not.toBeNull()
   })
 
   it("moves from mobile questions to the current preview impact without losing state", async () => {
     const { container } = render(<BlueprintWorkspace initialDraft={draft} />)
-    fireEvent.change(screen.getByLabelText("What does the brand offer, and who is it for?"), {
-      target: { value: "Strategic support for independent founders" },
-    })
+    fireEvent.change(
+      screen.getByLabelText("What experience does your salon offer, and who is it for?"),
+      { target: { value: "Precision services for clients who value thoughtful care" } },
+    )
     fireEvent.click(screen.getByRole("button", { name: "View this change" }))
 
     expect(screen.getByRole("tab", { name: "Preview" }).getAttribute("aria-selected")).toBe(
@@ -130,7 +136,9 @@ describe("BlueprintWorkspace", () => {
     await waitFor(() => expect(document.activeElement).toBe(audience))
     fireEvent.click(screen.getByRole("tab", { name: "Questions" }))
 
-    expect(screen.getByDisplayValue("Strategic support for independent founders")).not.toBeNull()
+    expect(
+      screen.getByDisplayValue("Precision services for clients who value thoughtful care"),
+    ).not.toBeNull()
     expect(
       screen.getByRole("button", { name: /1\. Foundation/ }).getAttribute("aria-current"),
     ).toBe("step")
@@ -138,13 +146,18 @@ describe("BlueprintWorkspace", () => {
 
   it("updates the compact impact and full preview from the same answer change", () => {
     render(<BlueprintWorkspace initialDraft={draft} />)
-    fireEvent.change(screen.getByLabelText("What does the brand offer, and who is it for?"), {
-      target: { value: "Tools for thoughtful founders" },
-    })
+    fireEvent.change(
+      screen.getByLabelText("What experience does your salon offer, and who is it for?"),
+      { target: { value: "Color and care for clients with busy schedules" } },
+    )
 
-    expect(screen.getAllByText(/Tools for thoughtful founders/).length).toBeGreaterThanOrEqual(2)
+    expect(
+      screen.getAllByText(/Color and care for clients with busy schedules/).length,
+    ).toBeGreaterThanOrEqual(2)
     fireEvent.click(screen.getByRole("button", { name: "Full preview" }))
-    expect(screen.getAllByText(/Tools for thoughtful founders/).length).toBeGreaterThanOrEqual(3)
+    expect(
+      screen.getAllByText(/Color and care for clients with busy schedules/).length,
+    ).toBeGreaterThanOrEqual(3)
   })
 
   it("keeps IDs unique when the editor and full preview are both mounted", () => {
@@ -161,7 +174,7 @@ describe("BlueprintWorkspace", () => {
 
   it("shows the current unsaved draft in full preview and restores focus on Escape", async () => {
     render(<BlueprintWorkspace initialDraft={draft} />)
-    fireEvent.change(screen.getByLabelText("Brand or client name"), {
+    fireEvent.change(screen.getByLabelText("Salon name"), {
       target: { value: "Northstar Collective" },
     })
     const fullPreviewButton = screen.getByRole("button", { name: "Full preview" })
@@ -172,7 +185,7 @@ describe("BlueprintWorkspace", () => {
     fireEvent.keyDown(document, { key: "Escape" })
     expect(screen.queryByRole("dialog")).toBeNull()
     await waitFor(() => expect(document.activeElement).toBe(fullPreviewButton))
-    expect((screen.getByLabelText("Brand or client name") as HTMLInputElement).value).toBe(
+    expect((screen.getByLabelText("Salon name") as HTMLInputElement).value).toBe(
       "Northstar Collective",
     )
   })
@@ -184,7 +197,7 @@ describe("BlueprintWorkspace", () => {
       message: "Check the highlighted blueprint details and try again.",
     })
     render(<BlueprintWorkspace initialDraft={draft} />)
-    fireEvent.change(screen.getByLabelText("Brand or client name"), {
+    fireEvent.change(screen.getByLabelText("Salon name"), {
       target: { value: "Northstar Collective" },
     })
     fireEvent.click(screen.getByRole("button", { name: "Save draft" }))
@@ -192,7 +205,7 @@ describe("BlueprintWorkspace", () => {
     await waitFor(() => {
       expect(screen.getByText("Check the highlighted blueprint details and try again.")).not.toBeNull()
     })
-    expect((screen.getByLabelText("Brand or client name") as HTMLInputElement).value).toBe(
+    expect((screen.getByLabelText("Salon name") as HTMLInputElement).value).toBe(
       "Northstar Collective",
     )
   })
@@ -240,10 +253,10 @@ describe("BlueprintWorkspace", () => {
 
     await waitFor(() => expect(screen.getByText("Choose a valid brand name.")).not.toBeNull())
     expect(screen.getByText("Describe the audience.")).not.toBeNull()
-    expect(screen.getByLabelText("Brand or client name").getAttribute("aria-invalid")).toBe("true")
+    expect(screen.getByLabelText("Salon name").getAttribute("aria-invalid")).toBe("true")
     expect(
       screen
-        .getByLabelText("What does the brand offer, and who is it for?")
+        .getByLabelText("What experience does your salon offer, and who is it for?")
         .getAttribute("aria-invalid"),
     ).toBe("true")
   })

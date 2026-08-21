@@ -51,7 +51,7 @@ export function EditorialTemplate({
           Editorial blueprint
         </Badge>
         <h2 className={cn("text-4xl leading-none sm:text-5xl", presentation.typography.displayClass)}>
-          {draft.brandName.trim() || "Your brand name"}
+          {draft.brandName.trim() || "Your salon name"}
         </h2>
         <p className={cn("text-sm italic", presentation.palette.mutedTextClass)}>
           A refined, typography-led point of view

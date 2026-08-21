@@ -55,7 +55,7 @@ export function WarmTemplate({
             presentation.typography.displayClass,
           )}
         >
-          {draft.brandName.trim() || "Your brand name"}
+          {draft.brandName.trim() || "Your salon name"}
         </h2>
         <p className={cn("mt-4 max-w-lg text-sm leading-6", presentation.palette.mutedTextClass)}>
           An approachable brand story designed to feel human from the first interaction.

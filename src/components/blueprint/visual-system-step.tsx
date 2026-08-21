@@ -29,9 +29,10 @@ export function VisualSystemStep({
         aria-invalid={Boolean(errors.colorDirection)}
         aria-describedby={errors.colorDirection ? "color-direction-help color-direction-error" : "color-direction-help"}
       >
-        <legend className="text-sm font-medium">Choose a color direction.</legend>
+        <legend className="text-sm font-medium">Choose a color direction for the salon.</legend>
         <p id="color-direction-help" className="text-sm text-muted-foreground">
-          The palette will control the Blueprint canvas, surfaces, text, borders, and accents.
+          The palette controls the Blueprint canvas, surfaces, text, borders, and accents that will
+          carry into website, social, and print examples.
         </p>
         <RadioGroup
           value={colorDirection ?? ""}
@@ -71,9 +72,10 @@ export function VisualSystemStep({
         aria-invalid={Boolean(errors.typographyDirection)}
         aria-describedby={errors.typographyDirection ? "typography-direction-help typography-direction-error" : "typography-direction-help"}
       >
-        <legend className="text-sm font-medium">Choose a typography direction.</legend>
+        <legend className="text-sm font-medium">Choose a typography direction for the salon.</legend>
         <p id="typography-direction-help" className="text-sm text-muted-foreground">
-          This will control the visible headline and body type relationship in every template.
+          This controls how the salon name, service headlines, and client guidance relate in every
+          template and channel.
         </p>
         <RadioGroup
           value={typographyDirection ?? ""}

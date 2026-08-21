@@ -98,7 +98,7 @@ function createSemanticSections(
     brandHeader: (
       <SectionFrame
         {...frameProps}
-        title="Brand header"
+        title="Salon positioning"
         section="brand-header"
         className="relative overflow-hidden"
       >
@@ -117,23 +117,23 @@ function createSemanticSections(
       </SectionFrame>
     ),
     audience: (
-      <SectionFrame {...frameProps} title="Audience & promise" section="audience-promise">
+      <SectionFrame {...frameProps} title="Client promise" section="audience-promise">
         <p className="text-lg leading-8 sm:text-xl">{content.audiencePromise}</p>
         {answers.offerAudience && (
           <p className={cn("mt-4 text-xs", presentation.palette.mutedTextClass)}>
-            Built from: {answers.offerAudience}
+            Owner direction: {answers.offerAudience}
           </p>
         )}
       </SectionFrame>
     ),
     personality: (
-      <SectionFrame {...frameProps} title="Personality" section="personality">
+      <SectionFrame {...frameProps} title="Salon character" section="personality">
         <p className="text-sm leading-6">{content.personality}</p>
         <PersonalityAccents presentation={presentation} />
       </SectionFrame>
     ),
     visual: (
-      <SectionFrame {...frameProps} title="Visual direction" section="visual-direction">
+      <SectionFrame {...frameProps} title="Salon visual direction" section="visual-direction">
         <p className="text-sm leading-6">{content.visualDirection}</p>
         <div
           className={cn(
@@ -160,7 +160,7 @@ function createSemanticSections(
       </SectionFrame>
     ),
     voice: (
-      <SectionFrame {...frameProps} title="Voice & tone" section="voice-tone">
+      <SectionFrame {...frameProps} title="Client-facing voice" section="voice-tone">
         <p className="text-sm leading-6">{content.voiceTone}</p>
         <div className="mt-4 flex flex-wrap gap-2" aria-label="Voice traits">
           {answers.voiceTraits.length > 0 ? (
@@ -178,24 +178,25 @@ function createSemanticSections(
             ))
           ) : (
             <span className={cn("text-xs", presentation.palette.mutedTextClass)}>
-              Choose voice traits to define the delivery.
+              Choose voice traits to guide website, social, print, and in-salon communication.
             </span>
           )}
         </div>
         <div className={cn("mt-4 border-t pt-3", presentation.palette.borderClass)}>
           <p className={sectionLabelClasses(presentation)}>Always communicate</p>
           <p className="mt-1 text-sm">
-            {answers.alwaysCommunicate || "Add the message the brand must consistently reinforce."}
+            {answers.alwaysCommunicate ||
+              "Add the message clients should recognize across every salon touchpoint."}
           </p>
         </div>
       </SectionFrame>
     ),
     guardrail:
       content.guardrail || !fullPreview ? (
-        <SectionFrame {...frameProps} title="Brand guardrail" section="guardrail">
+        <SectionFrame {...frameProps} title="Communication guardrail" section="guardrail">
           <p className={cn("text-sm leading-6", presentation.palette.mutedTextClass)}>
             {content.guardrail ??
-              "No guardrail yet — add one when the brand needs a clear boundary."}
+              "No guardrail yet — add one when client communication needs a clear boundary."}
           </p>
           {answers.avoid && (
             <p className={cn("mt-3 text-xs", presentation.palette.mutedTextClass)}>

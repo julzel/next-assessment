@@ -129,27 +129,28 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
           <div className="space-y-2">
             <p className="text-sm font-medium text-primary">Setup</p>
             <h2 id="setup-heading" className="text-xl font-semibold tracking-tight">
-              Start with the brand identity
+              Start with the salon identity
             </h2>
             <p className="text-sm text-muted-foreground">
-              You can save this early direction now, then add the detailed brand questions next.
+              Add the salon name and choose how the guide is organized. Later decisions shape its
+              look and voice across website, social, and print.
             </p>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="brand-name">Brand or client name</Label>
+            <Label htmlFor="brand-name">Salon name</Label>
             <Input
               id="brand-name"
               value={state.draft.brandName}
               onChange={(event) =>
                 dispatch({ type: "brandNameChanged", brandName: event.currentTarget.value })
               }
-              placeholder="e.g. Northstar Studio"
+              placeholder="e.g. Northstar Salon"
               autoComplete="organization"
               aria-invalid={Boolean(fieldErrors.brandName)}
               aria-describedby={fieldErrors.brandName ? "brand-name-help brand-name-error" : "brand-name-help"}
             />
             <p id="brand-name-help" className="text-sm text-muted-foreground">
-              This name anchors the Blueprint header and saved library card.
+              This name anchors the Blueprint and saved salon library card.
             </p>
             {fieldErrors.brandName && (
               <p id="brand-name-error" className="text-sm text-destructive">
@@ -160,7 +161,8 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
           <fieldset className="space-y-3">
             <legend className="text-sm font-medium">Presentation template</legend>
             <p className="text-sm text-muted-foreground">
-              The template sets the overall composition. Later choices define its visual character.
+              The template organizes the salon story. Later choices define its palette, type,
+              shapes, and voice.
             </p>
             <RadioGroup
               value={state.draft.template}

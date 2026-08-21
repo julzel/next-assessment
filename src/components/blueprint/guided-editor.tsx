@@ -74,11 +74,11 @@ export function GuidedEditor({
       <div className="space-y-2">
         <p className="text-sm font-medium text-primary">Guided capture</p>
         <h2 id="guided-editor-heading" className="text-xl font-semibold tracking-tight">
-          Shape the brand direction
+          Shape your salon brand direction
         </h2>
         <p className="text-sm text-muted-foreground">
-          Complete the four steps to review a finished Blueprint, or save an incomplete draft at
-          any point.
+          Complete four short steps to guide how the salon should look and sound across its website,
+          social media, and printed touchpoints. You can save an incomplete draft at any point.
         </p>
         <p aria-live="polite" className="text-sm font-medium">
           {progress.completedCount} of {progress.steps.length} steps complete

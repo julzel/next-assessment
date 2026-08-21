@@ -44,30 +44,30 @@ export const BLUEPRINT_STEP_DEFINITIONS = [
   {
     id: "foundation",
     title: "Foundation",
-    description: "Audience and offer",
-    purpose: "Clarify who the brand serves and the value it promises to deliver.",
-    impact: "Updates the audience and promise area of the Blueprint.",
+    description: "Salon experience and clients",
+    purpose: "Clarify the salon experience, signature services, and clients it is designed for.",
+    impact: "Updates the salon positioning and client promise in the Blueprint.",
   },
   {
     id: "personality",
     title: "Personality",
     description: "Traits and visual direction",
-    purpose: "Define how the brand should feel before choosing its visual system.",
-    impact: "Updates the brand essence, personality summary, and visual emphasis.",
+    purpose: "Define how clients should feel when they encounter the salon and its communications.",
+    impact: "Updates the salon essence, character summary, and visual emphasis.",
   },
   {
     id: "visual",
     title: "Visual system",
     description: "Color and typography",
-    purpose: "Choose the palette and type character that make the direction recognizable.",
-    impact: "Recolors the canvas and changes the visible type treatment in every template.",
+    purpose: "Choose the palette and type character that make the salon recognizable.",
+    impact: "Recolors the canvas and changes salon-name, service, and guidance typography.",
   },
   {
     id: "voice",
     title: "Voice",
     description: "Tone and guardrails",
-    purpose: "Set how the brand should sound and the communication boundary it should respect.",
-    impact: "Updates the voice, recurring message, and optional guardrail areas.",
+    purpose: "Set how the salon speaks to clients and the communication boundary it should respect.",
+    impact: "Updates client-facing voice, recurring promise, and optional guardrail areas.",
   },
 ] as const satisfies readonly Omit<BlueprintStepProgress, "status" | "missing">[]
 
@@ -80,26 +80,26 @@ export type BlueprintStepPreviewImpact = {
 
 export const BLUEPRINT_STEP_PREVIEW_IMPACTS = {
   foundation: {
-    title: "Audience and promise",
-    inputLabel: "Offer and audience answer",
+    title: "Salon positioning and client promise",
+    inputLabel: "Salon experience, services, and ideal-client answer",
     primarySection: "audience-promise",
     sections: ["audience-promise"],
   },
   personality: {
-    title: "Brand character and emphasis",
+    title: "Salon character and client experience",
     inputLabel: "Personality traits and visual direction",
     primarySection: "personality",
     sections: ["brand-header", "personality"],
   },
   visual: {
-    title: "Canvas, palette, type, and geometry",
-    inputLabel: "Color and typography directions",
+    title: "Salon palette, type, and geometry",
+    inputLabel: "Color and typography directions for every touchpoint",
     primarySection: "visual-direction",
     sections: ["canvas", "visual-direction"],
   },
   voice: {
-    title: "Voice, recurring message, and guardrail",
-    inputLabel: "Voice traits, always communicate, and avoid answers",
+    title: "Client voice, recurring promise, and guardrail",
+    inputLabel: "Salon voice traits, client promise, and avoid answers",
     primarySection: "voice-tone",
     sections: ["voice-tone", "guardrail"],
   },
@@ -122,7 +122,7 @@ function missingRequirements(answers: BrandAnswers): BlueprintMissingRequirement
     missing.push({
       field: "offerAudience",
       step: "foundation",
-      message: "Describe what the brand offers and who it serves.",
+      message: "Describe the salon experience or services and who they are for.",
       focusId: "offer-audience",
     })
   }
@@ -181,7 +181,7 @@ function missingRequirements(answers: BrandAnswers): BlueprintMissingRequirement
     missing.push({
       field: "alwaysCommunicate",
       step: "voice",
-      message: "Describe what the brand should always communicate.",
+      message: "Describe what clients should always understand about the salon.",
       focusId: "always-communicate",
     })
   }

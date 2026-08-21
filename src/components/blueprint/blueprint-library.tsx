@@ -11,11 +11,12 @@ export function BlueprintLibrary({ blueprints }: { blueprints: BlueprintSummary[
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-12 sm:py-16">
       <header className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
         <div className="space-y-3">
-          <Badge variant="secondary">Brand strategy workspace</Badge>
+          <Badge variant="secondary">Salon brand strategy workspace</Badge>
           <div className="space-y-2">
             <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Brand Blueprints</h1>
             <p className="max-w-2xl text-muted-foreground">
-              Turn a clear brand direction into a concise, presentation-ready blueprint.
+              Shape one salon brand direction for your website, social media, and printed
+              touchpoints.
             </p>
           </div>
         </div>
@@ -37,8 +38,8 @@ export function BlueprintLibrary({ blueprints }: { blueprints: BlueprintSummary[
           </CardHeader>
           <CardContent className="flex flex-col items-start gap-4">
             <p className="max-w-xl text-muted-foreground">
-              Capture a brand name, choose a presentation direction, and save the first version for
-              your client.
+              Add your salon name, choose a presentation direction, and shape a client-ready brand
+              guide without needing design expertise.
             </p>
             <Link href="/blueprints/new" className={buttonVariants()}>
               Create your first blueprint

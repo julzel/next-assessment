@@ -10,14 +10,14 @@ import type { BrandAnswers } from "@/lib/blueprint/types"
 import { GuidedEditor } from "./guided-editor"
 
 const completeAnswers: BrandAnswers = {
-  offerAudience: "Independent founders building thoughtful products",
+  offerAudience: "Precision services for clients who value a calm visit",
   personalityTraits: ["confident", "curious", "precise"],
   visualDirection: "minimal",
   colorDirection: "cool",
   typographyDirection: "modern-sans",
   voiceTraits: ["clear", "thoughtful"],
-  alwaysCommunicate: "calm, useful clarity",
-  avoid: "empty buzzwords",
+  alwaysCommunicate: "thoughtful expertise and care",
+  avoid: "pressure or beauty stereotypes",
 }
 
 function ControlledEditor({
@@ -58,21 +58,26 @@ describe("GuidedEditor", () => {
     expect(screen.getByText("Current · Not started")).not.toBeNull()
     expect(screen.getByText("Why this matters")).not.toBeNull()
     expect(screen.getByText("You will see this change")).not.toBeNull()
-    expect(screen.getByLabelText("What does the brand offer, and who is it for?")).not.toBeNull()
+    expect(
+      screen.getByLabelText("What experience does your salon offer, and who is it for?"),
+    ).not.toBeNull()
+    expect(screen.getByText(/website, social media, and printed touchpoints/)).not.toBeNull()
 
     const personalityStep = screen.getByRole("button", { name: /2\. Personality/ })
     expect(personalityStep.className).toContain("whitespace-normal")
     fireEvent.click(screen.getByRole("button", { name: /Next: Personality/ }))
-    expect(screen.getByText("Choose three traits that should define the brand.")).not.toBeNull()
-    expect(screen.getByText(/Define how the brand should feel/)).not.toBeNull()
+    expect(
+      screen.getByText("Choose three traits that should define the salon experience."),
+    ).not.toBeNull()
+    expect(screen.getByText(/Define how clients should feel/)).not.toBeNull()
 
     fireEvent.click(screen.getByRole("button", { name: /Next: Visual system/ }))
-    expect(screen.getByText("Choose a color direction.")).not.toBeNull()
-    expect(screen.getByText(/palette and type character/)).not.toBeNull()
+    expect(screen.getByText("Choose a color direction for the salon.")).not.toBeNull()
+    expect(screen.getByText(/make the salon recognizable/)).not.toBeNull()
 
     fireEvent.click(screen.getByRole("button", { name: /Next: Voice/ }))
-    expect(screen.getByText("Choose one to three voice traits.")).not.toBeNull()
-    expect(screen.getByText("One trait is required. Together, the selected traits shape the voice summary and message treatment.")).not.toBeNull()
+    expect(screen.getByText("Choose one to three traits for the salon's voice.")).not.toBeNull()
+    expect(screen.getByText(/website, social, printed, and in-salon/)).not.toBeNull()
   })
 
   it("renders contextual mobile impact content without replacing step status semantics", () => {
@@ -119,16 +124,19 @@ describe("GuidedEditor", () => {
     const onAnswerChange = vi.fn<(action: AnswerChangedAction) => void>()
     render(<ControlledEditor onAnswerChange={onAnswerChange} />)
 
-    fireEvent.change(screen.getByLabelText("What does the brand offer, and who is it for?"), {
-      target: { value: "Tools for independent founders" },
-    })
+    fireEvent.change(
+      screen.getByLabelText("What experience does your salon offer, and who is it for?"),
+      {
+        target: { value: "Precision services for clients who value thoughtful care" },
+      },
+    )
     fireEvent.click(screen.getByRole("button", { name: /^2\. Personality/ }))
     fireEvent.click(screen.getByRole("radio", { name: /Elegant/ }))
 
     expect(onAnswerChange).toHaveBeenCalledWith({
       type: "answerChanged",
       field: "offerAudience",
-      value: "Tools for independent founders",
+      value: "Precision services for clients who value thoughtful care",
     })
     expect(onAnswerChange).toHaveBeenCalledWith({
       type: "answerChanged",
@@ -144,7 +152,9 @@ describe("GuidedEditor", () => {
       />,
     )
 
-    const field = screen.getByLabelText("What does the brand offer, and who is it for?")
+    const field = screen.getByLabelText(
+      "What experience does your salon offer, and who is it for?",
+    )
     expect(field.getAttribute("aria-invalid")).toBe("true")
     expect(screen.getByText("Describe the offer before saving.")).not.toBeNull()
   })
@@ -158,7 +168,7 @@ describe("GuidedEditor", () => {
     expect(screen.getByText("Complete the required decisions before review.")).not.toBeNull()
     await waitFor(() =>
       expect(document.activeElement).toBe(
-        screen.getByLabelText("What does the brand offer, and who is it for?"),
+        screen.getByLabelText("What experience does your salon offer, and who is it for?"),
       ),
     )
   })

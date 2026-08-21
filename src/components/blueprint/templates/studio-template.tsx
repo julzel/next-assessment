@@ -49,7 +49,7 @@ export function StudioTemplate({
               presentation.typography.displayClass,
             )}
           >
-            {draft.brandName.trim() || "Your brand name"}
+            {draft.brandName.trim() || "Your salon name"}
           </h2>
         </div>
         <Badge

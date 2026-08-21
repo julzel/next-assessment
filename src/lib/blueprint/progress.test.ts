@@ -11,14 +11,14 @@ import {
 import type { BrandAnswers } from "./types"
 
 const completeAnswers: BrandAnswers = {
-  offerAudience: "Independent founders building thoughtful products",
+  offerAudience: "Precision services for clients who value a calm visit",
   personalityTraits: ["confident", "curious", "precise"],
   visualDirection: "minimal",
   colorDirection: "cool",
   typographyDirection: "modern-sans",
   voiceTraits: ["clear", "thoughtful"],
-  alwaysCommunicate: "calm, useful clarity",
-  avoid: "empty buzzwords",
+  alwaysCommunicate: "thoughtful expertise and care",
+  avoid: "pressure or beauty stereotypes",
 }
 
 describe("blueprint progress", () => {

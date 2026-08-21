@@ -2,11 +2,11 @@
 
 **Workflow stage:** 3 — Define the product scope  
 **Inputs:** [Challenge brief](./challenge-brief.md) and [codebase map](./codebase-map.md)  
-**Scope principle:** Ship one complete, polished brand-discovery loop rather than a general-purpose page builder.
+**Scope principle:** Ship one complete, polished salon-brand discovery loop rather than a general-purpose page builder.
 
 ## Product promise
 
-A client or facilitator can turn a short guided conversation into a credible, presentation-ready Brand Blueprint, see it take shape live, save and revisit it, then refine it with one plain-language AI instruction at a time.
+A salon owner—or a facilitator working with them—can turn a short guided conversation into a credible, presentation-ready Brand Blueprint, see it take shape live, save and revisit it, and understand how it guides a website, social media, and printed collateral before refining it with one plain-language AI instruction at a time.
 
 The product has two primary surfaces:
 
@@ -27,7 +27,7 @@ The empty state uses the same screen: it explains the outcome in one sentence an
 
 ### Screen 2 — New blueprint setup
 
-1. The user enters the brand/client name.
+1. The user enters the salon name.
 2. They choose one of three presentation templates:
    - **Editorial:** refined, high-contrast, typography-led presentation.
    - **Studio:** clean, modular, contemporary presentation.
@@ -35,7 +35,7 @@ The empty state uses the same screen: it explains the outcome in one sentence an
 3. Each template card includes a small visual preview; the three choices must be visibly different, not merely renamed color themes.
 4. The user selects **Start blueprint** and enters the workspace.
 
-The brand/client name and template are required. No account, client contact record, logo upload, or separate project setup is required.
+The salon name and template are required. No account, client contact record, logo upload, or separate project setup is required.
 
 ### Screen 3 — Guided workspace
 
@@ -55,10 +55,10 @@ On mobile:
 
 The guided editor has four short steps:
 
-1. **Foundation** — what the brand does and for whom.
-2. **Personality** — defining traits and visual style.
+1. **Foundation** — the salon’s signature services or experience and ideal client.
+2. **Personality** — how the salon should feel to clients and its dominant visual style.
 3. **Visual system** — color and typography direction.
-4. **Voice** — tone and communication guardrail.
+4. **Voice** — how the salon speaks to clients and the communication guardrail.
 
 The user can move forward and backward freely. Every valid input change updates the preview immediately; there is no “Generate” button and no AI dependency for the first draft. Incomplete sections display polished placeholder guidance rather than disappearing or showing raw empty fields.
 
@@ -68,8 +68,9 @@ The user can move forward and backward freely. Every valid input change updates 
 2. The editor chrome is hidden and the blueprint fills the available viewport using the selected template.
 3. The preview includes a clear **Back to editor** action.
 4. The same current unsaved state appears in full preview; entering and leaving preview does not implicitly save or discard changes.
+5. The completed Blueprint explains how the current direction translates into representative website, social, and printed applications.
 
-Full preview is an in-app presentation mode. Print, PDF, public sharing, and export are deferred.
+Full preview is an in-app presentation mode. The print application is a representative proof; downloadable print files, PDF, public sharing, publishing, and export are deferred.
 
 ### Screen 5 — Save and revisit
 
@@ -99,20 +100,20 @@ AI is a constrained editor of the existing Brand Blueprint, not a chatbot and no
 
 | Step | Question/control | Response shape | Purpose |
 | --- | --- | --- | --- |
-| Setup | What is the brand or client name? | Short text | Identifies the blueprint and presentation. |
-| Foundation | What does the brand offer, and who is it for? | One concise textarea | Supplies the audience and value context without a long intake form. |
-| Personality | Choose three traits that should define the brand. | Exactly three from a curated set | Produces a focused personality rather than an unbounded adjective list. |
-| Personality | Which visual direction feels most like the brand? | One choice: Minimal, Bold, Elegant, Playful, or Organic | Establishes the dominant aesthetic. |
+| Setup | What is the salon name? | Short text | Identifies the Blueprint and presentation. |
+| Foundation | What experience does your salon offer, and who is it for? | One concise textarea | Captures signature services or experience and ideal-client context without a long intake form. |
+| Personality | Choose three traits that should define the salon experience. | Exactly three from a curated set | Produces a focused client experience rather than an unbounded adjective list. |
+| Personality | Which visual direction feels most like your salon? | One choice: Minimal, Bold, Elegant, Playful, or Organic | Establishes the dominant aesthetic without assuming a salon stereotype. |
 | Visual system | Choose a color direction. | One curated palette direction with visible swatches: Neutral, Cool, Warm, Earthy, or Vibrant | Gives the preview usable colors without requiring design expertise. |
 | Visual system | Choose a typography direction. | One choice: Modern sans, Editorial serif, Friendly rounded, or Expressive contrast | Establishes typographic personality. |
-| Voice | Choose up to three voice traits. | One to three from a curated set | Defines how the brand should sound. |
-| Voice | What should the brand always communicate? | One concise sentence | Creates a useful messaging anchor rather than a raw tone label. |
+| Voice | Choose one to three traits for the salon’s voice. | One to three from a curated set | Defines how the salon should sound across client touchpoints. |
+| Voice | What should clients always understand about your salon? | One concise sentence | Creates a useful client promise rather than a raw tone label. |
 
 ### Optional input
 
 | Step | Question/control | Response shape | Purpose |
 | --- | --- | --- | --- |
-| Voice | What should the brand avoid? | One concise sentence | Adds a practical communication guardrail without blocking completion. |
+| Voice | What should salon communication avoid? | One concise sentence | Adds a practical, inclusive communication guardrail without blocking completion. |
 
 The curated trait sets should be intentionally small—approximately eight to twelve useful options per set. Custom trait creation, long questionnaires, per-question AI coaching, image moodboards, and competitor analysis are deferred.
 
@@ -120,12 +121,14 @@ The curated trait sets should be intentionally small—approximately eight to tw
 
 The preview presents the same six sections in every template; templates alter visual hierarchy and layout, not the information model.
 
-1. **Brand header** — brand name and a concise essence line derived deterministically from the selected personality and visual direction.
-2. **Audience & promise** — a concise presentation of what the brand offers, who it serves, and the “always communicate” statement.
-3. **Personality** — the three defining traits with short, useful interpretation rather than just chips copied from the form.
-4. **Visual direction** — dominant visual style, palette swatches with labels/values, and typography direction.
-5. **Voice & tone** — selected voice traits plus a short “sounds like” summary.
-6. **Brand guardrail** — the optional “avoid” statement; when empty, the section shows a restrained prompt in edit preview and is omitted from full presentation mode.
+1. **Salon positioning** — salon name and a concise essence line derived deterministically from personality and visual direction.
+2. **Client promise** — the owner-authored services/experience and ideal-client direction plus the recurring promise.
+3. **Salon character** — the three defining traits with useful interpretation rather than raw chips.
+4. **Salon visual direction** — dominant visual style, palette swatches with labels/values, and typography direction.
+5. **Client-facing voice** — selected voice traits plus guidance for booking, social, print, and in-salon communication.
+6. **Communication guardrail** — the optional “avoid” statement; when empty, the section shows a restrained prompt in edit preview and is omitted from full presentation mode.
+
+The completed Blueprint also includes a **Brand in use** proof showing one booking-oriented website moment, one square social campaign tile, and one printed appointment/service-card concept. These are deterministic applications of the same current content and presentation profile, not separately editable or production-ready assets.
 
 Phase 1 copy is assembled deterministically from normalized answers and concise authored sentence patterns. It must read as a curated one-pager, but it does not need generative AI to exist.
 
@@ -133,9 +136,9 @@ Phase 1 copy is assembled deterministically from normalized answers and concise 
 
 ### Manually editable
 
-- Brand/client name
+- Salon name
 - Template selection
-- Offer and audience statement
+- Salon services/experience and ideal-client statement
 - Three personality traits
 - Visual direction
 - Color direction
@@ -159,7 +162,7 @@ AI may update:
 - Optional “Avoid” statement
 - The concise derived summaries displayed in the blueprint, within the supported blueprint sections
 
-AI must not change the brand/client name. It must preserve unrelated fields unless the instruction explicitly targets them. It must return changes that fit the same supported configuration used by the manual editor; AI cannot add arbitrary sections, HTML, CSS, fonts, layouts, or media.
+AI must not change the salon name. It must preserve unrelated fields unless the instruction explicitly targets them. It must return changes that fit the same supported configuration used by the manual editor; AI cannot add arbitrary sections, HTML, CSS, fonts, layouts, or media.
 
 After a successful AI edit, the manual controls display the new canonical values. The AI result is an unsaved local change until the user selects **Save**. Full chat history, multi-turn conversation memory, tracked changes, and permanent revision history are deferred.
 
@@ -171,6 +174,8 @@ After a successful AI edit, the manual controls display the new canonical values
 - New-blueprint setup with required name and three distinct templates
 - Four-step guided editor containing the minimum required question set
 - Deterministic six-section Brand Blueprint output
+- Inclusive salon-specific prompts, examples, empty guidance, and derived copy
+- Representative website, social, and print applications using the same presentation profile
 - Immediate live preview for all supported manual changes
 - Desktop split view and a usable mobile Questions/Preview mode
 - Full-screen/focused preview and return-to-editor behavior
@@ -189,7 +194,6 @@ After a successful AI edit, the manual controls display the new canonical values
 - Small visual completion indicator for the four guided steps
 - A handful of example AI prompts as clickable suggestions
 - Polished skeletons for library/workspace loads instead of simple textual loading states
-- Friendly inline descriptions explaining why each brand question matters
 - Last-updated metadata on the saved blueprint card and workspace
 
 ### Explicitly deferred
@@ -197,7 +201,7 @@ After a successful AI edit, the manual controls display the new canonical values
 - Authentication, accounts, teams, roles, and permissions
 - Multi-user or real-time collaboration
 - Public share links, client invitations, or approvals
-- Print layout, PDF/image export, or presentation download
+- Production print layout, PDF/image export, or presentation download
 - Logo/image upload, asset library, or AI image generation
 - Drag-and-drop/freeform canvas editing
 - Arbitrary component creation, custom sections, or section reordering
@@ -207,16 +211,20 @@ After a successful AI edit, the manual controls display the new canonical values
 - Deleting, duplicating, searching, sorting, tagging, or organizing blueprints
 - AI chat history, streaming prose, multiple candidates, or autonomous redesign
 - Competitor research, website crawling, moodboard generation, and long-form strategy documents
+- Editable booking URLs, social handles, addresses, prices, logos, photography, or channel-specific copy
+- Publishable websites/posts, print-ready bleed files, and external publishing integrations
 - User analytics, telemetry, billing, or production deployment infrastructure
 
 ## 5. Acceptance criteria
 
 ### Core desktop experience
 
+- The primary language is understandable to a salon owner without design expertise and does not assume gender, service category, price point, or luxury positioning.
 - At a desktop viewport of 1280 px or wider, the guided controls and live preview are simultaneously visible without horizontal page scrolling.
 - Completing or changing any supported input updates the corresponding preview content in the same interaction cycle without a Generate action.
 - The current step, save state, Save action, and Full preview action remain discoverable while editing.
 - Each of the three templates produces a visibly different composition and typographic hierarchy while displaying the same blueprint information.
+- Website, social, and print proofs visibly share the selected palette, type, geometry, personality, and voice while adapting hierarchy to their medium.
 - Full preview hides editing controls, uses the current saved or unsaved state, and returns to the editor without losing changes.
 
 ### Mobile experience
@@ -232,6 +240,7 @@ After a successful AI edit, the manual controls display the new canonical values
 - Saving a valid new blueprint creates exactly one retrievable record and confirms success.
 - Saving an existing blueprint updates that record rather than creating a duplicate.
 - Reopening a saved record restores the brand name, all answers, selected template, derived blueprint content, and saved AI changes.
+- Reopening reproduces the same derived website, social, and print proofs without storing a second channel-specific state.
 - The displayed updated time changes after a successful save.
 - Navigating away after a failed save does not falsely report that the changes were saved.
 
@@ -245,7 +254,7 @@ After a successful AI edit, the manual controls display the new canonical values
 ### Empty and incomplete states
 
 - With no saved records, the library explains the product outcome and provides one primary create action.
-- A new blueprint cannot proceed without a non-blank brand/client name and a template choice.
+- A new blueprint cannot proceed without a non-blank salon name and a template choice.
 - Required unanswered questions show concise inline guidance.
 - The live preview displays intentional placeholders for incomplete required sections; it does not render `undefined`, empty headings, or raw field keys.
 - The optional guardrail is omitted from full presentation mode when blank.
@@ -280,15 +289,15 @@ After a successful AI edit, the manual controls display the new canonical values
 
 Cut or simplify in this order while preserving the required end-to-end loop:
 
-1. Remove all **should-have** items, starting with AI undo, example prompts, completion animation/detail, skeleton polish, and explanatory microcopy.
+1. Remove all **should-have** items, starting with AI undo, example prompts, completion animation/detail, and skeleton polish. Keep the salon-specific field guidance required for non-designers.
 2. Remove the optional “What should the brand avoid?” question and guardrail section.
 3. Reduce template-specific decoration while retaining three unmistakably different layouts and typographic hierarchies.
 4. Reduce each curated trait set to the strongest six to eight choices; do not remove any required direction category.
-5. Shorten the deterministic interpretation copy while preserving all six required information categories in a presentable hierarchy.
+5. Shorten deterministic interpretation and application copy while preserving all six required information categories and recognizable website/social/print proofs.
 6. Restrict AI to the highest-value supported intents—tone/personality, color, typography, and visual direction—while retaining validated output, safe failure, preview, and save behavior.
 7. Simplify loading visuals to accessible text/spinners and simplify library cards to name, template, updated time, and Open.
 
-Do **not** cut the three-template requirement, immediate preview, save/revisit, mobile usability, full preview, safe AI edit, or persistence of AI changes. Those are the observable core of the assessment.
+Do **not** cut salon-owner clarity, the three-template requirement, cross-channel application proof, immediate preview, save/revisit, mobile usability, full preview, safe AI edit, or persistence of AI changes. Those are the observable core of the assessment.
 
 ## 7. Rationale against the evaluation criteria
 
@@ -296,7 +305,7 @@ Do **not** cut the three-template requirement, immediate preview, save/revisit, 
 | --- | --- |
 | Speed to working software | Two primary surfaces and four guided steps create a short implementation path while still demonstrating the entire create → edit → preview → save → revisit → AI-edit loop. |
 | Decision quality | One normalized blueprint model serves manual controls, deterministic output, persistence, and AI edits. Three templates vary presentation without multiplying content models. |
-| UX polish | The scope concentrates polish on live feedback, clear progress, responsive editor/preview behavior, focused preview, and trustworthy save/AI states. |
+| UX polish | The scope concentrates polish on salon-owner guidance, live feedback, cross-channel visual confirmation, responsive editor/preview behavior, and trustworthy save/AI states. |
 | Code clarity | A finite question set, six stable output sections, three named templates, and explicit deferred features make responsibilities and tests understandable to another engineer. |
 
 The differentiating quality is not the number of builder controls. It is whether the result feels like a coherent brand artifact and whether every transition—editing, previewing, saving, reopening, and AI refinement—feels reliable.
@@ -312,6 +321,7 @@ These product choices materially constrain the later data model or architecture 
 5. **AI is server-side and constrained:** AI receives the existing supported configuration and returns validated changes within that configuration. Secrets and model calls remain outside the client boundary.
 6. **Saved records are addressable:** The library can reopen a specific blueprint and surface a clear not-found state.
 7. **No authentication or collaboration:** The product is local and single-user; the data model does not need ownership, tenancy, permissions, or merge semantics.
+8. **Application proofs are derived:** Website, social, and print modules consume the canonical draft and trusted presentation profile. Adding editable channel content, assets, publishing, or export would require a separately approved data-model and architecture change.
 
 ## Stage 3 completion check
 

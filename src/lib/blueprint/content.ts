@@ -58,24 +58,24 @@ export function buildDeterministicContent(answers: BrandAnswers): BrandBlueprint
   return {
     essence:
       personalityTraits.length > 0 || visual
-        ? `A ${sentenceList(personalityTraits) || "distinctive"}${visual ? `, ${visual}` : ""} brand expression.`
+        ? `A ${sentenceList(personalityTraits) || "distinctive"}${visual ? `, ${visual}` : ""} salon brand expression.`
         : createEmptyBlueprintConfig().content.essence,
     audiencePromise: offerAudience
-      ? `${offerAudience}${alwaysCommunicate ? `, always communicating ${alwaysCommunicate}.` : "."}`
+      ? `${offerAudience}${alwaysCommunicate ? `. Every touchpoint should communicate ${alwaysCommunicate}.` : "."}`
       : createEmptyBlueprintConfig().content.audiencePromise,
     personality:
       personalityTraits.length > 0
-        ? `The brand feels ${sentenceList(personalityTraits)}.`
+        ? `The salon brand feels ${sentenceList(personalityTraits)}.`
         : createEmptyBlueprintConfig().content.personality,
     visualDirection:
       visualParts.length > 0
-        ? `A visual system with ${visualParts.join(" and ")}.`
+        ? `A salon visual system with ${visualParts.join(" and ")}.`
         : createEmptyBlueprintConfig().content.visualDirection,
     voiceTone:
       voiceTraits.length > 0
-        ? `Use a ${sentenceList(voiceTraits)} voice${alwaysCommunicate ? ` that consistently communicates ${alwaysCommunicate}` : ""}.`
+        ? `Use a ${sentenceList(voiceTraits)} voice across booking, social, and client communication${alwaysCommunicate ? `, consistently reinforcing ${alwaysCommunicate}` : ""}.`
         : createEmptyBlueprintConfig().content.voiceTone,
-    guardrail: avoid ? `Avoid ${avoid}.` : null,
+    guardrail: avoid ? `Avoid ${avoid} in client-facing communication.` : null,
   }
 }
 

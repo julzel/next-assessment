@@ -7,14 +7,14 @@ import type { BrandAnswers, BlueprintDraft } from "@/lib/blueprint/types"
 import { LiveImpactSummary } from "./live-impact-summary"
 
 const answers: BrandAnswers = {
-  offerAudience: "Independent founders building thoughtful products",
+  offerAudience: "Precision services for clients who value a calm visit",
   personalityTraits: ["confident", "curious", "precise"],
   visualDirection: "playful",
   colorDirection: "vibrant",
   typographyDirection: "editorial-serif",
   voiceTraits: ["clear", "thoughtful"],
-  alwaysCommunicate: "calm expertise",
-  avoid: "empty buzzwords",
+  alwaysCommunicate: "thoughtful expertise and care",
+  avoid: "pressure or beauty stereotypes",
 }
 
 const draft: BlueprintDraft = {
@@ -33,18 +33,18 @@ describe("LiveImpactSummary", () => {
     const { container, rerender } = render(
       <LiveImpactSummary draft={draft} currentStep="foundation" onView={vi.fn()} />,
     )
-    expect(screen.getByText("Audience and promise")).not.toBeNull()
+    expect(screen.getByText("Salon positioning and client promise")).not.toBeNull()
     expect(screen.getByText(draft.config.content.audiencePromise)).not.toBeNull()
 
     rerender(<LiveImpactSummary draft={draft} currentStep="visual" onView={vi.fn()} />)
-    expect(screen.getByText("Canvas, palette, type, and geometry")).not.toBeNull()
+    expect(screen.getByText("Salon palette, type, and geometry")).not.toBeNull()
     expect(screen.getByText(draft.config.content.visualDirection)).not.toBeNull()
     const sample = container.querySelector("[data-impact-sample]")
     expect(sample?.className).toContain("bg-yellow-200")
     expect(sample?.className).toContain("font-blueprint-editorial")
 
     rerender(<LiveImpactSummary draft={draft} currentStep="voice" onView={vi.fn()} />)
-    expect(screen.getByText(/Always communicate: calm expertise/)).not.toBeNull()
+    expect(screen.getByText(/Always communicate: thoughtful expertise and care/)).not.toBeNull()
   })
 
   it("offers one explicit action to inspect the affected preview region", () => {

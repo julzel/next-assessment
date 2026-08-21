@@ -7,14 +7,14 @@ import type { BrandAnswers, BlueprintDraft } from "@/lib/blueprint/types"
 import { BlueprintPreview } from "./blueprint-preview"
 
 const answers: BrandAnswers = {
-  offerAudience: "Independent founders building thoughtful products",
+  offerAudience: "Precision services for clients who value a calm visit",
   personalityTraits: ["confident", "curious", "precise"],
   visualDirection: "elegant",
   colorDirection: "earthy",
   typographyDirection: "editorial-serif",
   voiceTraits: ["clear", "thoughtful"],
-  alwaysCommunicate: "calm expertise",
-  avoid: "empty buzzwords",
+  alwaysCommunicate: "thoughtful expertise and care",
+  avoid: "pressure or beauty stereotypes",
 }
 
 const draft: BlueprintDraft = {
@@ -33,16 +33,18 @@ describe("BlueprintPreview", () => {
     render(<BlueprintPreview draft={draft} />)
 
     for (const title of [
-      "Brand header",
-      "Audience & promise",
-      "Personality",
-      "Visual direction",
-      "Voice & tone",
-      "Brand guardrail",
+      "Salon positioning",
+      "Client promise",
+      "Salon character",
+      "Salon visual direction",
+      "Client-facing voice",
+      "Communication guardrail",
     ]) {
       expect(screen.getByText(title)).not.toBeNull()
     }
-    expect(screen.getByText("Avoid empty buzzwords.")).not.toBeNull()
+    expect(
+      screen.getByText("Avoid pressure or beauty stereotypes in client-facing communication."),
+    ).not.toBeNull()
     expect(screen.getAllByText("Earthy").length).toBeGreaterThan(0)
     expect(screen.getAllByText(/Editorial serif/).length).toBeGreaterThan(0)
   })
@@ -57,8 +59,8 @@ describe("BlueprintPreview", () => {
     for (const [template, label, composition, sectionLayout] of renderers) {
       const view = render(<BlueprintPreview draft={{ ...draft, template }} />)
       expect(screen.getByText(label)).not.toBeNull()
-      expect(screen.getByText("Audience & promise")).not.toBeNull()
-      expect(screen.getByText("Voice & tone")).not.toBeNull()
+      expect(screen.getByText("Client promise")).not.toBeNull()
+      expect(screen.getByText("Client-facing voice")).not.toBeNull()
       expect(view.container.querySelector(`[data-composition="${composition}"]`)).not.toBeNull()
       expect(view.container.querySelector(`[data-section-layout="${sectionLayout}"]`)).not.toBeNull()
       expect(view.container.querySelector('[data-presentation-surface="canvas"]')?.className).toContain(
@@ -74,8 +76,8 @@ describe("BlueprintPreview", () => {
       expect(screen.getByText(draft.config.content.visualDirection)).not.toBeNull()
       expect(screen.getByText(draft.config.content.voiceTone)).not.toBeNull()
       expect(screen.getByText(draft.config.content.guardrail!)).not.toBeNull()
-      expect(screen.getByText("calm expertise")).not.toBeNull()
-      expect(screen.getByText("Avoid: empty buzzwords")).not.toBeNull()
+      expect(screen.getByText("thoughtful expertise and care")).not.toBeNull()
+      expect(screen.getByText("Avoid: pressure or beauty stereotypes")).not.toBeNull()
       expect(screen.getByText("Why this direction works")).not.toBeNull()
       view.unmount()
     }
@@ -267,7 +269,9 @@ describe("BlueprintPreview", () => {
     )
 
     expect(
-      screen.getByText("No guardrail yet — add one when the brand needs a clear boundary."),
+      screen.getByText(
+        "No guardrail yet — add one when client communication needs a clear boundary.",
+      ),
     ).not.toBeNull()
   })
 
@@ -288,7 +292,7 @@ describe("BlueprintPreview", () => {
         />,
       )
 
-      expect(screen.queryByText("Brand guardrail")).toBeNull()
+      expect(screen.queryByText("Communication guardrail")).toBeNull()
       view.unmount()
     }
   })
