@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup } from "@/components/ui/radio-group"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import type { AiRefinementTarget } from "@/lib/blueprint/ai-contract"
 import { cn } from "@/lib/utils"
 import { TEMPLATE_OPTIONS } from "@/lib/blueprint/options"
 import {
@@ -41,9 +42,15 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
   const previewPanelRef = useRef<HTMLElement>(null)
   const shouldRestorePreviewFocus = useRef(false)
   const shouldFocusStepImpact = useRef(false)
+  const operationInFlightRef = useRef(false)
+  const latestDraftRef = useRef(state.draft)
   const dirty = isBlueprintDirty(state)
   const complete = isBlueprintComplete(state.draft.config)
   const fieldErrors = getBlueprintFieldErrors(state.fieldIssues)
+
+  useEffect(() => {
+    latestDraftRef.current = state.draft
+  }, [state.draft])
 
   useEffect(() => {
     if (!state.fullPreviewOpen && shouldRestorePreviewFocus.current) {
@@ -63,9 +70,12 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
   }, [state.currentStep, state.mobileMode])
 
   async function handleSave() {
+    if (operationInFlightRef.current) return
+    operationInFlightRef.current = true
+    const submittedDraft = state.draft
     dispatch({ type: "saveStarted" })
     try {
-      const result = await saveBlueprint(state.draft)
+      const result = await saveBlueprint(submittedDraft)
 
       if (!result.ok) {
         dispatch({ type: "saveFailed", message: result.message, issues: result.issues })
@@ -73,25 +83,31 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
       }
 
       dispatch({ type: "saveSucceeded", draft: result.data })
-      if (state.draft.id === null) {
-        router.replace(`/blueprints/${result.data.id}`)
-      } else {
-        router.refresh()
+      if (latestDraftRef.current === submittedDraft) {
+        if (submittedDraft.id === null) {
+          router.replace(`/blueprints/${result.data.id}`)
+        } else {
+          router.refresh()
+        }
       }
     } catch {
       dispatch({
         type: "saveFailed",
         message: "The blueprint could not be saved. Your local changes are still here; try again.",
       })
+    } finally {
+      operationInFlightRef.current = false
     }
   }
 
-  async function handleRefine(instruction: string) {
-    if (!complete || state.aiStatus === "loading") return
+  async function handleRefine(target: AiRefinementTarget, instruction: string) {
+    if (!complete || operationInFlightRef.current) return
+    operationInFlightRef.current = true
+    const submittedDraft = state.draft
     dispatch({ type: "aiStarted" })
 
     try {
-      const result = await refineBlueprint({ draft: state.draft, instruction })
+      const result = await refineBlueprint({ draft: submittedDraft, instruction, target })
       if (!result.ok) {
         dispatch({ type: "aiFailed", message: result.message })
         return
@@ -106,6 +122,8 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
         type: "aiFailed",
         message: "AI refinement could not be reached. Your Blueprint is unchanged; try again.",
       })
+    } finally {
+      operationInFlightRef.current = false
     }
   }
 
@@ -244,6 +262,7 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
           />
           <AiRefinementPanel
             isComplete={complete}
+            isSavePending={state.saveStatus === "saving"}
             status={state.aiStatus}
             message={state.aiMessage}
             canUndo={state.lastAiSnapshot !== null}

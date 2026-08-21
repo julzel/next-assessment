@@ -6,6 +6,7 @@
     "dev": "next dev",
     "docker": "sh scripts/docker-dev.sh",
     "docker:up": "docker compose up --build",
+    "docker:studio": "docker compose --profile studio up --build",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

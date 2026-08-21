@@ -360,6 +360,80 @@ describe("BlueprintWorkspace", () => {
     expect(screen.getAllByText(/clear and thoughtful voice/).length).toBeGreaterThan(0)
   })
 
+  it("keeps newer manual edits and discards a stale AI response", async () => {
+    let finishRequest: ((value: unknown) => void) | undefined
+    actions.refineBlueprint.mockReturnValue(
+      new Promise((resolve) => {
+        finishRequest = resolve
+      }),
+    )
+    render(<BlueprintWorkspace initialDraft={completeDraft} />)
+    fireEvent.change(screen.getByLabelText("What should change?"), {
+      target: { value: "Make the voice warmer" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Refine with AI" }))
+    fireEvent.change(screen.getByLabelText("Salon name"), {
+      target: { value: "Newer local name" },
+    })
+
+    expect(screen.getByRole("button", { name: "Refining…" }).hasAttribute("disabled")).toBe(true)
+    expect(actions.refineBlueprint).toHaveBeenCalledWith({
+      draft: completeDraft,
+      instruction: "Make the voice warmer",
+      target: "voice",
+    })
+    finishRequest?.({
+      ok: true,
+      data: { draft: refinedDraft, changeSummary: "Made the voice warmer." },
+    })
+
+    await waitFor(() => expect(screen.getByText(/AI edit was not applied/)).not.toBeNull())
+    expect((screen.getByLabelText("Salon name") as HTMLInputElement).value).toBe(
+      "Newer local name",
+    )
+    expect(screen.queryByRole("button", { name: "Undo AI edit" })).toBeNull()
+  })
+
+  it("keeps edits made during a first save without inserting twice or navigating away", async () => {
+    let finishSave: ((value: unknown) => void) | undefined
+    actions.saveBlueprint.mockReturnValue(
+      new Promise((resolve) => {
+        finishSave = resolve
+      }),
+    )
+    render(<BlueprintWorkspace initialDraft={draft} />)
+    fireEvent.change(screen.getByLabelText("Salon name"), {
+      target: { value: "Submitted name" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Save draft" }))
+    fireEvent.change(screen.getByLabelText("Salon name"), {
+      target: { value: "Newer local name" },
+    })
+
+    expect(screen.getByRole("button", { name: "Saving draft…" }).hasAttribute("disabled")).toBe(
+      true,
+    )
+    fireEvent.click(screen.getByRole("button", { name: "Saving draft…" }))
+    expect(actions.saveBlueprint).toHaveBeenCalledTimes(1)
+    finishSave?.({
+      ok: true,
+      data: {
+        ...draft,
+        id: 15,
+        brandName: "Submitted name",
+        createdAt: "2026-08-20T12:00:00.000Z",
+        updatedAt: "2026-08-20T12:00:00.000Z",
+      },
+    })
+
+    await waitFor(() => expect(screen.getByText(/Newer changes are still unsaved/)).not.toBeNull())
+    expect((screen.getByLabelText("Salon name") as HTMLInputElement).value).toBe(
+      "Newer local name",
+    )
+    expect(router.replace).not.toHaveBeenCalled()
+    expect(actions.saveBlueprint).toHaveBeenCalledTimes(1)
+  })
+
   it("saves an applied AI result only after explicit confirmation", async () => {
     actions.refineBlueprint.mockResolvedValue({
       ok: true,

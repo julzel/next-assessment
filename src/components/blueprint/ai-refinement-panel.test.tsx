@@ -10,6 +10,7 @@ describe("AiRefinementPanel", () => {
     render(
       <AiRefinementPanel
         isComplete={false}
+        isSavePending={false}
         status="idle"
         message={null}
         canUndo={false}
@@ -29,6 +30,7 @@ describe("AiRefinementPanel", () => {
     const { rerender } = render(
       <AiRefinementPanel
         isComplete
+        isSavePending={false}
         status="idle"
         message={null}
         canUndo={false}
@@ -41,10 +43,11 @@ describe("AiRefinementPanel", () => {
     })
     fireEvent.click(screen.getByRole("button", { name: "Refine with AI" }))
 
-    await waitFor(() => expect(onRefine).toHaveBeenCalledWith("Make the voice warmer"))
+    await waitFor(() => expect(onRefine).toHaveBeenCalledWith("voice", "Make the voice warmer"))
     rerender(
       <AiRefinementPanel
         isComplete
+        isSavePending={false}
         status="loading"
         message="Refining the current Blueprint…"
         canUndo={false}
@@ -59,6 +62,7 @@ describe("AiRefinementPanel", () => {
     const { rerender } = render(
       <AiRefinementPanel
         isComplete
+        isSavePending={false}
         status="error"
         message="AI refinement is temporarily unavailable."
         canUndo={false}
@@ -71,6 +75,7 @@ describe("AiRefinementPanel", () => {
     rerender(
       <AiRefinementPanel
         isComplete
+        isSavePending={false}
         status="applied"
         message="Made the voice warmer."
         canUndo
@@ -79,5 +84,45 @@ describe("AiRefinementPanel", () => {
       />,
     )
     expect(screen.getByRole("button", { name: "Undo AI edit" })).not.toBeNull()
+  })
+
+  it("submits the explicit target and remains unavailable while a save is pending", async () => {
+    const onRefine = vi.fn().mockResolvedValue(undefined)
+    const { rerender } = render(
+      <AiRefinementPanel
+        isComplete
+        isSavePending={false}
+        status="idle"
+        message={null}
+        canUndo={false}
+        onRefine={onRefine}
+        onUndo={vi.fn()}
+      />,
+    )
+    fireEvent.click(screen.getByRole("radio", { name: "Color" }))
+    fireEvent.change(screen.getByLabelText("What should change?"), {
+      target: { value: "Make the palette warmer" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Refine with AI" }))
+
+    await waitFor(() =>
+      expect(onRefine).toHaveBeenCalledWith("color", "Make the palette warmer"),
+    )
+
+    rerender(
+      <AiRefinementPanel
+        isComplete
+        isSavePending
+        status="idle"
+        message={null}
+        canUndo={false}
+        onRefine={onRefine}
+        onUndo={vi.fn()}
+      />,
+    )
+    expect(screen.getByText(/Wait for the current save/)).not.toBeNull()
+    expect(screen.getByRole("button", { name: "Refine with AI" }).hasAttribute("disabled")).toBe(
+      true,
+    )
   })
 })

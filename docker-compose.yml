@@ -17,7 +17,7 @@ services:
       db-init:
         condition: service_completed_successfully
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     environment:
       DATABASE_PATH: /data/local.db
       WATCHPACK_POLLING: "true"
@@ -31,6 +31,7 @@ services:
     command: npm run dev -- --hostname 0.0.0.0
 
   studio:
+    profiles: ["studio"]
     build: .
     depends_on:
       db-init:
@@ -51,11 +52,12 @@ services:
       - "4983"
 
   studio-proxy:
+    profiles: ["studio"]
     image: nginx:alpine
     depends_on:
       - studio
     ports:
-      - "4983:4983"
+      - "127.0.0.1:4983:4983"
     volumes:
       - ./docker/nginx-studio.conf:/etc/nginx/nginx.conf:ro
 

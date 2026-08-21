@@ -2,7 +2,11 @@ import "server-only"
 
 import OpenAI from "openai"
 
-import { AI_BLUEPRINT_PATCH_SCHEMA } from "@/lib/blueprint/ai-contract"
+import {
+  AI_BLUEPRINT_PATCH_SCHEMA,
+  AI_REFINEMENT_TARGET_SCOPES,
+  type AiRefinementTarget,
+} from "@/lib/blueprint/ai-contract"
 import type { BlueprintDraft } from "@/lib/blueprint/types"
 
 const DEFAULT_OPENAI_MODEL = "gpt-5.6-luna"
@@ -14,7 +18,8 @@ Preserve unrelated values and choose only the supplied enum values.
 Keep the direction inclusive and useful across website, social, and printed salon touchpoints.
 Do not invent services, prices, credentials, demographics, outcomes, addresses, handles, or booking details.
 Do not emit HTML, Markdown, CSS, URLs, scripts, class names, components, or extra fields.
-Keep presentation copy concise and client-ready.`
+Keep presentation copy concise and client-ready.
+The supplied target and allowedFields are authoritative. Return null for every field outside allowedFields.`
 
 let client: OpenAI | null = null
 
@@ -36,9 +41,11 @@ function getOpenAIClient() {
 export async function requestBlueprintRefinement({
   draft,
   instruction,
+  target,
 }: {
   draft: BlueprintDraft
   instruction: string
+  target: AiRefinementTarget
 }) {
   return getOpenAIClient().responses.create({
     model: process.env.OPENAI_MODEL?.trim() || DEFAULT_OPENAI_MODEL,
@@ -46,6 +53,8 @@ export async function requestBlueprintRefinement({
     instructions: REFINEMENT_INSTRUCTIONS,
     input: JSON.stringify({
       instruction,
+      target,
+      allowedFields: AI_REFINEMENT_TARGET_SCOPES[target],
       blueprint: {
         template: draft.template,
         answers: draft.config.answers,

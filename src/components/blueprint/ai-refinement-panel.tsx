@@ -4,20 +4,24 @@ import { useState, type FormEvent } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Textarea } from "@/components/ui/textarea"
+import type { AiRefinementTarget } from "@/lib/blueprint/ai-contract"
 import type { AiStatus } from "@/lib/blueprint/reducer"
 
 type AiRefinementPanelProps = {
   isComplete: boolean
+  isSavePending: boolean
   status: AiStatus
   message: string | null
   canUndo: boolean
-  onRefine: (instruction: string) => Promise<void>
+  onRefine: (target: AiRefinementTarget, instruction: string) => Promise<void>
   onUndo: () => void
 }
 
 export function AiRefinementPanel({
   isComplete,
+  isSavePending,
   status,
   message,
   canUndo,
@@ -25,16 +29,20 @@ export function AiRefinementPanel({
   onUndo,
 }: AiRefinementPanelProps) {
   const [instruction, setInstruction] = useState("")
+  const [target, setTarget] = useState<AiRefinementTarget>("voice")
   const pending = status === "loading"
   const unavailableReason = !isComplete
     ? "Complete all four guided steps before requesting an AI edit."
-    : null
+    : isSavePending
+      ? "Wait for the current save to finish before requesting an AI edit."
+      : null
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const normalized = instruction.trim()
     if (!isComplete || pending || normalized.length === 0) return
-    await onRefine(normalized)
+    if (isSavePending) return
+    await onRefine(target, normalized)
   }
 
   return (
@@ -53,6 +61,36 @@ export function AiRefinementPanel({
         </p>
       </div>
       <form className="space-y-3" onSubmit={handleSubmit}>
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium">What should AI refine?</legend>
+          <RadioGroup
+            value={target}
+            onValueChange={(value) => setTarget(value as AiRefinementTarget)}
+            className="grid-cols-2 gap-2 sm:grid-cols-3"
+            disabled={!isComplete || pending || isSavePending}
+          >
+            {[
+              ["voice", "Voice"],
+              ["personality", "Personality"],
+              ["visual", "Visual direction"],
+              ["color", "Color"],
+              ["typography", "Typography"],
+              ["copy", "Blueprint copy"],
+            ].map(([value, label]) => (
+              <Label
+                key={value}
+                htmlFor={`ai-target-${value}`}
+                className="cursor-pointer gap-2 rounded-lg border p-3 has-[[data-checked]]:border-primary has-[[data-checked]]:bg-primary/5"
+              >
+                <RadioGroupItem id={`ai-target-${value}`} value={value} />
+                <span>{label}</span>
+              </Label>
+            ))}
+          </RadioGroup>
+          <p className="text-sm text-muted-foreground">
+            The server rejects changes outside this selected area.
+          </p>
+        </fieldset>
         <div className="space-y-2">
           <Label htmlFor="ai-refinement-instruction">What should change?</Label>
           <Textarea
@@ -62,7 +100,7 @@ export function AiRefinementPanel({
             placeholder="e.g. Make the voice warmer and more playful while keeping booking details clear."
             maxLength={500}
             rows={4}
-            disabled={!isComplete || pending}
+            disabled={!isComplete || pending || isSavePending}
             aria-describedby="ai-refinement-help ai-refinement-status"
           />
           <p id="ai-refinement-help" className="text-sm text-muted-foreground">
@@ -73,7 +111,7 @@ export function AiRefinementPanel({
         <div className="flex flex-wrap gap-2">
           <Button
             type="submit"
-            disabled={!isComplete || pending || instruction.trim().length === 0}
+            disabled={!isComplete || pending || isSavePending || instruction.trim().length === 0}
           >
             {pending ? "Refining…" : "Refine with AI"}
           </Button>

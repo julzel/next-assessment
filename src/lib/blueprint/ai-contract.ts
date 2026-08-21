@@ -40,6 +40,17 @@ export type AiBlueprintPatch = {
   changeSummary: string
 }
 
+export const AI_REFINEMENT_TARGETS = [
+  "voice",
+  "personality",
+  "visual",
+  "color",
+  "typography",
+  "copy",
+] as const
+
+export type AiRefinementTarget = (typeof AI_REFINEMENT_TARGETS)[number]
+
 const ANSWER_KEYS = [
   "personalityTraits",
   "visualDirection",
@@ -57,6 +68,39 @@ const CONTENT_KEYS = [
   "voiceTone",
   "guardrail",
 ] as const
+
+export const AI_REFINEMENT_TARGET_SCOPES = {
+  voice: {
+    answers: ["voiceTraits", "alwaysCommunicate", "avoid"],
+    content: ["audiencePromise", "voiceTone", "guardrail"],
+  },
+  personality: {
+    answers: ["personalityTraits"],
+    content: ["essence", "personality"],
+  },
+  visual: {
+    answers: ["visualDirection"],
+    content: ["essence", "visualDirection"],
+  },
+  color: {
+    answers: ["colorDirection"],
+    content: ["visualDirection"],
+  },
+  typography: {
+    answers: ["typographyDirection"],
+    content: ["visualDirection"],
+  },
+  copy: {
+    answers: [],
+    content: [...CONTENT_KEYS],
+  },
+} as const satisfies Record<
+  AiRefinementTarget,
+  {
+    answers: readonly (typeof ANSWER_KEYS)[number][]
+    content: readonly (typeof CONTENT_KEYS)[number][]
+  }
+>
 
 export const AI_BLUEPRINT_PATCH_SCHEMA = {
   type: "object",
@@ -295,6 +339,42 @@ export function validateAiBlueprintPatch(input: unknown): ValidationResult<AiBlu
 
   if (issues.length > 0 || changeSummary === null) return { success: false, issues }
   return { success: true, data: { answers, content, changeSummary } }
+}
+
+export function validateAiRefinementTarget(input: unknown): ValidationResult<AiRefinementTarget> {
+  return typeof input === "string" && AI_REFINEMENT_TARGETS.includes(input as AiRefinementTarget)
+    ? { success: true, data: input as AiRefinementTarget }
+    : {
+        success: false,
+        issues: [{ path: "target", message: "Choose a supported refinement target." }],
+      }
+}
+
+export function validateAiBlueprintPatchScope(
+  patch: AiBlueprintPatch,
+  target: AiRefinementTarget,
+): ValidationResult<AiBlueprintPatch> {
+  const scope = AI_REFINEMENT_TARGET_SCOPES[target]
+  const issues: ValidationIssue[] = []
+
+  for (const key of ANSWER_KEYS) {
+    if (patch.answers[key] !== null && !scope.answers.includes(key as never)) {
+      issues.push({
+        path: `patch.answers.${key}`,
+        message: `Cannot change this field for the ${target} refinement target.`,
+      })
+    }
+  }
+  for (const key of CONTENT_KEYS) {
+    if (patch.content[key] !== null && !scope.content.includes(key as never)) {
+      issues.push({
+        path: `patch.content.${key}`,
+        message: `Cannot change this field for the ${target} refinement target.`,
+      })
+    }
+  }
+
+  return issues.length > 0 ? { success: false, issues } : { success: true, data: patch }
 }
 
 export function applyAiPatch(

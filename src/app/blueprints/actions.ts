@@ -3,7 +3,12 @@
 import { revalidatePath } from "next/cache"
 
 import { insertBlueprint, updateBlueprint } from "@/db/blueprints"
-import { applyAiPatch, validateAiBlueprintPatch } from "@/lib/blueprint/ai-contract"
+import {
+  applyAiPatch,
+  validateAiBlueprintPatch,
+  validateAiBlueprintPatchScope,
+  validateAiRefinementTarget,
+} from "@/lib/blueprint/ai-contract"
 import type { BlueprintDraft } from "@/lib/blueprint/types"
 import {
   validateBlueprintDraft,
@@ -83,12 +88,14 @@ export async function saveBlueprint(input: BlueprintDraft): Promise<ActionResult
 export async function refineBlueprint(input: {
   draft: unknown
   instruction: unknown
+  target: unknown
 }): Promise<ActionResult<{ draft: BlueprintDraft; changeSummary: string }>> {
   if (
     !isRecord(input) ||
-    Object.keys(input).length !== 2 ||
+    Object.keys(input).length !== 3 ||
     !("draft" in input) ||
-    !("instruction" in input)
+    !("instruction" in input) ||
+    !("target" in input)
   ) {
     return {
       ok: false,
@@ -99,15 +106,24 @@ export async function refineBlueprint(input: {
 
   const draft = validateCompleteBlueprintDraft(input.draft)
   const instruction = validateBlueprintInstruction(input.instruction)
-  if (!draft.success || !instruction.success) {
+  const target = validateAiRefinementTarget(input.target)
+  if (!draft.success || !instruction.success || !target.success) {
     const draftIsValid = draft.success
     return {
       ok: false,
       code: "VALIDATION_ERROR",
       message: draftIsValid
-        ? "Describe the salon brand change you want in 500 characters or fewer."
+        ? !target.success
+          ? "Choose which part of the salon Blueprint AI should refine."
+          : "Describe the salon brand change you want in 500 characters or fewer."
         : "Complete the salon brand direction before requesting an AI edit.",
-      issues: !draft.success ? draft.issues : !instruction.success ? instruction.issues : [],
+      issues: !draft.success
+        ? draft.issues
+        : !target.success
+          ? target.issues
+          : !instruction.success
+            ? instruction.issues
+            : [],
     }
   }
 
@@ -123,6 +139,7 @@ export async function refineBlueprint(input: {
     const response = await requestBlueprintRefinement({
       draft: draft.data,
       instruction: instruction.data,
+      target: target.data,
     })
 
     if (hasRefusal(response.output)) {
@@ -166,7 +183,15 @@ export async function refineBlueprint(input: {
         message: "AI returned an unsupported edit. No changes were applied.",
       }
     }
-    const merged = applyAiPatch(draft.data, patch.data)
+    const scopedPatch = validateAiBlueprintPatchScope(patch.data, target.data)
+    if (!scopedPatch.success) {
+      return {
+        ok: false,
+        code: "AI_INVALID_RESPONSE",
+        message: "AI tried to change details outside the selected refinement target. No changes were applied.",
+      }
+    }
+    const merged = applyAiPatch(draft.data, scopedPatch.data)
     if (!merged.success) {
       return {
         ok: false,

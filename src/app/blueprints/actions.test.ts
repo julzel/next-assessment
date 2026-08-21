@@ -124,12 +124,12 @@ describe("refineBlueprint", () => {
   })
 
   it("rejects incomplete drafts and blank instructions before an API request", async () => {
-    await expect(refineBlueprint({ draft, instruction: "make it warm" })).resolves.toMatchObject({
+    await expect(refineBlueprint({ draft, instruction: "make it warm", target: "voice" })).resolves.toMatchObject({
       ok: false,
       code: "VALIDATION_ERROR",
     })
     await expect(
-      refineBlueprint({ draft: completeDraft, instruction: " " }),
+      refineBlueprint({ draft: completeDraft, instruction: " ", target: "voice" }),
     ).resolves.toMatchObject({ ok: false, code: "VALIDATION_ERROR" })
     expect(ai.requestBlueprintRefinement).not.toHaveBeenCalled()
   })
@@ -138,7 +138,7 @@ describe("refineBlueprint", () => {
     ai.isOpenAIConfigured.mockReturnValue(false)
 
     await expect(
-      refineBlueprint({ draft: completeDraft, instruction: "make it warmer" }),
+      refineBlueprint({ draft: completeDraft, instruction: "make it warmer", target: "voice" }),
     ).resolves.toMatchObject({ ok: false, code: "AI_UNAVAILABLE" })
     expect(ai.requestBlueprintRefinement).not.toHaveBeenCalled()
   })
@@ -153,6 +153,7 @@ describe("refineBlueprint", () => {
     const result = await refineBlueprint({
       draft: completeDraft,
       instruction: "make the voice warmer",
+      target: "voice",
     })
 
     expect(result).toMatchObject({
@@ -170,6 +171,43 @@ describe("refineBlueprint", () => {
     expect(repository.insertBlueprint).not.toHaveBeenCalled()
     expect(repository.updateBlueprint).not.toHaveBeenCalled()
     expect(cache.revalidatePath).not.toHaveBeenCalled()
+    expect(ai.requestBlueprintRefinement).toHaveBeenCalledWith({
+      draft: completeDraft,
+      instruction: "make the voice warmer",
+      target: "voice",
+    })
+  })
+
+  it("rejects a structurally valid patch that changes fields outside the selected target", async () => {
+    ai.requestBlueprintRefinement.mockResolvedValue({
+      status: "completed",
+      output: [],
+      output_text: JSON.stringify({
+        ...patch,
+        answers: { ...patch.answers, colorDirection: "warm" },
+      }),
+    })
+
+    await expect(
+      refineBlueprint({
+        draft: completeDraft,
+        instruction: "make only the voice warmer",
+        target: "voice",
+      }),
+    ).resolves.toMatchObject({
+      ok: false,
+      code: "AI_INVALID_RESPONSE",
+      message: expect.stringContaining("outside the selected refinement target"),
+    })
+    expect(repository.insertBlueprint).not.toHaveBeenCalled()
+    expect(repository.updateBlueprint).not.toHaveBeenCalled()
+  })
+
+  it("rejects a missing or unsupported refinement target before an API request", async () => {
+    await expect(
+      refineBlueprint({ draft: completeDraft, instruction: "make it warmer", target: "database" }),
+    ).resolves.toMatchObject({ ok: false, code: "VALIDATION_ERROR" })
+    expect(ai.requestBlueprintRefinement).not.toHaveBeenCalled()
   })
 
   it.each([
@@ -197,7 +235,7 @@ describe("refineBlueprint", () => {
     })
 
     await expect(
-      refineBlueprint({ draft: completeDraft, instruction: "change the direction" }),
+      refineBlueprint({ draft: completeDraft, instruction: "change the direction", target: "voice" }),
     ).resolves.toMatchObject({ ok: false, code: "AI_INVALID_RESPONSE" })
     expect(repository.insertBlueprint).not.toHaveBeenCalled()
     expect(repository.updateBlueprint).not.toHaveBeenCalled()
@@ -215,18 +253,18 @@ describe("refineBlueprint", () => {
       ],
     })
     await expect(
-      refineBlueprint({ draft: completeDraft, instruction: "change it" }),
+      refineBlueprint({ draft: completeDraft, instruction: "change it", target: "voice" }),
     ).resolves.toMatchObject({ ok: false, code: "AI_REFUSED" })
 
     ai.isOpenAIRateLimitError.mockReturnValueOnce(true)
     ai.requestBlueprintRefinement.mockRejectedValueOnce(new Error("rate limited"))
     await expect(
-      refineBlueprint({ draft: completeDraft, instruction: "change it" }),
+      refineBlueprint({ draft: completeDraft, instruction: "change it", target: "voice" }),
     ).resolves.toMatchObject({ ok: false, code: "AI_RATE_LIMITED" })
 
     ai.requestBlueprintRefinement.mockRejectedValueOnce(new Error("network"))
     await expect(
-      refineBlueprint({ draft: completeDraft, instruction: "change it" }),
+      refineBlueprint({ draft: completeDraft, instruction: "change it", target: "voice" }),
     ).resolves.toMatchObject({ ok: false, code: "AI_FAILED" })
   })
 })

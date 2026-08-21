@@ -24,15 +24,17 @@ Requires [Docker](https://docs.docker.com/get-docker/) and a `.env.local` file (
 npm run docker
 ```
 
-This starts the stack in the background, waits for Drizzle Studio and the app to respond, then opens [https://local.drizzle.studio/](https://local.drizzle.studio/) and [http://localhost:3000](http://localhost:3000) in your default browser. Logs stream in the terminal until you press Ctrl+C (containers keep running).
+This starts the app in the background, waits for it to respond, and opens [http://localhost:3000](http://localhost:3000) in your default browser. The published port is bound to `127.0.0.1`, so the unauthenticated local assessment is not exposed to other network devices. Logs stream in the terminal until you press Ctrl+C (containers keep running).
 
 To start without opening browsers: `DOCKER_OPEN_BROWSER=0 npm run docker`
 
 To run in the foreground without the browser helper: `npm run docker:up`
 
+Drizzle Studio is opt-in because it can directly edit the local assessment database. Start the app and Studio together with `DOCKER_STUDIO=1 npm run docker`, or run the foreground stack with `npm run docker:studio`. Its proxy is also bound to `127.0.0.1` on port 4983.
+
 On first run, the `db-init` service creates and seeds the database if it does not exist yet.
 
-Drizzle Studio (database GUI) starts alongside the app. An nginx proxy on port 4983 forwards traffic to the studio container and adds the browser headers Docker requires.
+When enabled, an nginx proxy on port 4983 forwards local traffic to the Studio container and adds the browser headers Docker requires.
 
 - The SQLite database persists in the `sqlite_data` named volume across restarts.
 - Rebuild after dependency changes: `npm run docker`
@@ -171,6 +173,6 @@ npm run build
 - Presentation styling is resolved from closed answer enums through code-owned token registries. Saved or future AI-authored text can never inject CSS classes or arbitrary styles.
 - Editorial Luxe, Modern Studio, and Neighborhood Welcome share semantic Blueprint modules but own different macro compositions. The live rationale is derived from the same presentation profile used by the renderers, so its explanation cannot drift into a separate stored narrative.
 - **Brand in use** derives representative website, square social, and printed-card proofs from that same canonical draft and presentation profile. The proofs explain what stays consistent and what adapts by channel; they are illustrative previews, not production assets.
-- AI refinement is available only after the guided Blueprint is complete. It uses a server-only OpenAI Responses API call constrained to a strict whitelist patch, updates only the local draft, offers one-step Undo, and persists only through the existing explicit Save action. `OPENAI_MODEL` is optional and defaults to `gpt-5.6-luna`.
+- AI refinement is available only after the guided Blueprint is complete. The user selects a voice, personality, visual, color, typography, or copy target; the server rejects structurally valid patches that escape that target. The server-only OpenAI Responses API call updates only the local draft, offers one-step Undo, and persists only through the existing explicit Save action. `OPENAI_MODEL` is optional and defaults to `gpt-5.6-luna`.
 - Desktop keeps questions beside a focused live preview. Mobile keeps one compact impact sample in Questions mode and moves focus to the affected preview module through **View this change**; no duplicate preview content is added to the form.
 - Current limitations: this is a local single-user assessment without authentication, authorization, production rate limiting, or collaborative conflict handling. It intentionally defers production website publishing, social posting, print-ready export/bleed files, image generation, arbitrary fonts/colors/layouts, uploads, collaboration, and version history.

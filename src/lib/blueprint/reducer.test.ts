@@ -56,7 +56,8 @@ describe("blueprint workspace reducer", () => {
       createdAt: "2026-08-20T12:00:00.000Z",
       updatedAt: "2026-08-20T12:00:00.000Z",
     }
-    const complete = blueprintWorkspaceReducer(changed, { type: "saveSucceeded", draft: saved })
+    const saving = blueprintWorkspaceReducer(changed, { type: "saveStarted" })
+    const complete = blueprintWorkspaceReducer(saving, { type: "saveSucceeded", draft: saved })
 
     expect(complete.baseline).toEqual(saved)
     expect(complete.draft).toEqual(saved)
@@ -136,7 +137,8 @@ describe("blueprint workspace reducer", () => {
     expect(failed.draft).toBe(draft)
     expect(failed.aiStatus).toBe("error")
 
-    const applied = blueprintWorkspaceReducer(initial, {
+    const loading = blueprintWorkspaceReducer(initial, { type: "aiStarted" })
+    const applied = blueprintWorkspaceReducer(loading, {
       type: "aiSucceeded",
       draft: { ...draft, brandName: "AI should not do this" },
       changeSummary: "Applied a test edit.",
@@ -149,7 +151,8 @@ describe("blueprint workspace reducer", () => {
     expect(manuallyChanged.lastAiSnapshot).toBeNull()
     expect(manuallyChanged.aiStatus).toBe("idle")
 
-    const saved = blueprintWorkspaceReducer(applied, {
+    const saving = blueprintWorkspaceReducer(applied, { type: "saveStarted" })
+    const saved = blueprintWorkspaceReducer(saving, {
       type: "saveSucceeded",
       draft: applied.draft,
     })
@@ -163,5 +166,54 @@ describe("blueprint workspace reducer", () => {
     })
 
     expect(blueprintWorkspaceReducer(loading, { type: "aiStarted" })).toBe(loading)
+  })
+
+  it("preserves edits made during save and adopts the persisted identity without claiming they are saved", () => {
+    const changed = blueprintWorkspaceReducer(createBlueprintWorkspaceState(draft), {
+      type: "brandNameChanged",
+      brandName: "Submitted name",
+    })
+    const saving = blueprintWorkspaceReducer(changed, { type: "saveStarted" })
+    const editedWhileSaving = blueprintWorkspaceReducer(saving, {
+      type: "brandNameChanged",
+      brandName: "Newer local name",
+    })
+    const savedDraft: BlueprintDraft = {
+      ...changed.draft,
+      id: 14,
+      createdAt: "2026-08-20T12:00:00.000Z",
+      updatedAt: "2026-08-20T12:00:00.000Z",
+    }
+    const completed = blueprintWorkspaceReducer(editedWhileSaving, {
+      type: "saveSucceeded",
+      draft: savedDraft,
+    })
+
+    expect(editedWhileSaving.saveStatus).toBe("saving")
+    expect(completed.baseline).toEqual(savedDraft)
+    expect(completed.draft).toMatchObject({ id: 14, brandName: "Newer local name" })
+    expect(isBlueprintDirty(completed)).toBe(true)
+    expect(completed.saveMessage).toContain("Newer changes are still unsaved")
+  })
+
+  it("discards a late AI result when the draft changed during refinement", () => {
+    const loading = blueprintWorkspaceReducer(createBlueprintWorkspaceState(draft), {
+      type: "aiStarted",
+    })
+    const edited = blueprintWorkspaceReducer(loading, {
+      type: "brandNameChanged",
+      brandName: "Newer local name",
+    })
+    const lateResult = blueprintWorkspaceReducer(edited, {
+      type: "aiSucceeded",
+      draft: { ...draft, brandName: "Stale name" },
+      changeSummary: "Changed the voice.",
+    })
+
+    expect(edited.aiStatus).toBe("loading")
+    expect(lateResult.draft.brandName).toBe("Newer local name")
+    expect(lateResult.aiStatus).toBe("idle")
+    expect(lateResult.aiMessage).toContain("was not applied")
+    expect(lateResult.lastAiSnapshot).toBeNull()
   })
 })

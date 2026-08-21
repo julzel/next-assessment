@@ -4,6 +4,8 @@ import {
   AI_BLUEPRINT_PATCH_SCHEMA,
   type AiBlueprintPatch,
   validateAiBlueprintPatch,
+  validateAiBlueprintPatchScope,
+  validateAiRefinementTarget,
 } from "./ai-contract"
 
 export const validAiPatch: AiBlueprintPatch = {
@@ -79,5 +81,22 @@ describe("AI blueprint patch contract", () => {
     })
 
     expect(result.success).toBe(false)
+  })
+
+  it("accepts supported targets and rejects target-scoped field escapes", () => {
+    expect(validateAiRefinementTarget("voice")).toEqual({ success: true, data: "voice" })
+    expect(validateAiRefinementTarget("database").success).toBe(false)
+    expect(validateAiBlueprintPatchScope(validAiPatch, "voice").success).toBe(true)
+
+    const escapedPatch: AiBlueprintPatch = {
+      ...validAiPatch,
+      answers: { ...validAiPatch.answers, colorDirection: "warm" },
+    }
+    const result = validateAiBlueprintPatchScope(escapedPatch, "voice")
+
+    expect(result).toMatchObject({
+      success: false,
+      issues: [{ path: "patch.answers.colorDirection" }],
+    })
   })
 })
