@@ -99,4 +99,69 @@ describe("blueprint workspace reducer", () => {
     expect(previewing.currentStep).toBe("visual")
     expect(previewing.draft).toBe(draft)
   })
+
+  it("applies an AI draft locally and restores the exact prior snapshot once", () => {
+    const initial = createBlueprintWorkspaceState(draft)
+    const loading = blueprintWorkspaceReducer(initial, { type: "aiStarted" })
+    const refinedDraft = {
+      ...draft,
+      config: {
+        ...draft.config,
+        content: { ...draft.config.content, voiceTone: "A warmer salon voice." },
+      },
+    }
+    const applied = blueprintWorkspaceReducer(loading, {
+      type: "aiSucceeded",
+      draft: refinedDraft,
+      changeSummary: "Made the voice warmer.",
+    })
+
+    expect(applied.draft).toEqual(refinedDraft)
+    expect(applied.lastAiSnapshot).toBe(draft)
+    expect(applied.aiStatus).toBe("applied")
+    expect(isBlueprintDirty(applied)).toBe(true)
+
+    const reverted = blueprintWorkspaceReducer(applied, { type: "aiReverted" })
+    expect(reverted.draft).toBe(draft)
+    expect(reverted.lastAiSnapshot).toBeNull()
+    expect(blueprintWorkspaceReducer(reverted, { type: "aiReverted" })).toBe(reverted)
+  })
+
+  it("keeps the exact draft on AI failure and clears AI undo after manual edits or save", () => {
+    const initial = createBlueprintWorkspaceState(draft)
+    const failed = blueprintWorkspaceReducer(initial, {
+      type: "aiFailed",
+      message: "AI is unavailable.",
+    })
+    expect(failed.draft).toBe(draft)
+    expect(failed.aiStatus).toBe("error")
+
+    const applied = blueprintWorkspaceReducer(initial, {
+      type: "aiSucceeded",
+      draft: { ...draft, brandName: "AI should not do this" },
+      changeSummary: "Applied a test edit.",
+    })
+    const manuallyChanged = blueprintWorkspaceReducer(applied, {
+      type: "answerChanged",
+      field: "avoid",
+      value: "Pressure",
+    })
+    expect(manuallyChanged.lastAiSnapshot).toBeNull()
+    expect(manuallyChanged.aiStatus).toBe("idle")
+
+    const saved = blueprintWorkspaceReducer(applied, {
+      type: "saveSucceeded",
+      draft: applied.draft,
+    })
+    expect(saved.lastAiSnapshot).toBeNull()
+    expect(saved.aiStatus).toBe("idle")
+  })
+
+  it("ignores duplicate AI start events while a request is pending", () => {
+    const loading = blueprintWorkspaceReducer(createBlueprintWorkspaceState(draft), {
+      type: "aiStarted",
+    })
+
+    expect(blueprintWorkspaceReducer(loading, { type: "aiStarted" })).toBe(loading)
+  })
 })

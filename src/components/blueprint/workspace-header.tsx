@@ -10,6 +10,7 @@ type WorkspaceHeaderProps = {
   saveStatus: SaveStatus
   saveMessage: string | null
   isComplete: boolean
+  isAiPending: boolean
   onSave: () => void
   onFullPreview: () => void
   fullPreviewButtonRef: Ref<HTMLButtonElement>
@@ -21,6 +22,7 @@ export function WorkspaceHeader({
   saveStatus,
   saveMessage,
   isComplete,
+  isAiPending,
   onSave,
   onFullPreview,
   fullPreviewButtonRef,
@@ -53,7 +55,7 @@ export function WorkspaceHeader({
         <Button ref={fullPreviewButtonRef} variant="outline" onClick={onFullPreview}>
           Full preview
         </Button>
-        <Button onClick={onSave} disabled={saveStatus === "saving"} size="lg">
+        <Button onClick={onSave} disabled={saveStatus === "saving" || isAiPending} size="lg">
           {saveStatus === "saving" ? savingLabel : saveLabel}
         </Button>
       </div>

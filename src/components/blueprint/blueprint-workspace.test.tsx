@@ -6,7 +6,7 @@ import { buildDeterministicContent } from "@/lib/blueprint/content"
 import type { BlueprintDraft, BrandAnswers } from "@/lib/blueprint/types"
 
 const router = vi.hoisted(() => ({ replace: vi.fn(), refresh: vi.fn() }))
-const actions = vi.hoisted(() => ({ saveBlueprint: vi.fn() }))
+const actions = vi.hoisted(() => ({ saveBlueprint: vi.fn(), refineBlueprint: vi.fn() }))
 
 vi.mock("next/navigation", () => ({ useRouter: () => router }))
 vi.mock("@/app/blueprints/actions", () => actions)
@@ -39,6 +39,19 @@ const completeDraft: BlueprintDraft = {
     schemaVersion: 1,
     answers: completeAnswers,
     content: buildDeterministicContent(completeAnswers),
+  },
+}
+const refinedAnswers: BrandAnswers = {
+  ...completeAnswers,
+  voiceTraits: ["warm", "playful"],
+  alwaysCommunicate: "Every client feels heard and welcome",
+}
+const refinedDraft: BlueprintDraft = {
+  ...completeDraft,
+  config: {
+    schemaVersion: 1,
+    answers: refinedAnswers,
+    content: buildDeterministicContent(refinedAnswers),
   },
 }
 
@@ -276,5 +289,95 @@ describe("BlueprintWorkspace", () => {
         .getByLabelText("What experience does your salon offer, and who is it for?")
         .getAttribute("aria-invalid"),
     ).toBe("true")
+  })
+
+  it("gates AI refinement until the guided draft is complete", () => {
+    render(<BlueprintWorkspace initialDraft={draft} />)
+
+    expect(screen.getByRole("button", { name: "Refine with AI" }).hasAttribute("disabled")).toBe(
+      true,
+    )
+    expect(screen.getByText(/Complete all four guided steps/)).not.toBeNull()
+  })
+
+  it("applies an AI result to controls and preview, marks it unsaved, and undoes once", async () => {
+    actions.refineBlueprint.mockResolvedValue({
+      ok: true,
+      data: {
+        draft: refinedDraft,
+        changeSummary: "Made the salon voice warmer and more playful.",
+      },
+    })
+    render(<BlueprintWorkspace initialDraft={completeDraft} />)
+    fireEvent.change(screen.getByLabelText("What should change?"), {
+      target: { value: "Make the voice warmer and more playful" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Refine with AI" }))
+
+    await waitFor(() =>
+      expect(screen.getByText(/Made the salon voice warmer and more playful/)).not.toBeNull(),
+    )
+    expect(screen.getByText("Unsaved changes")).not.toBeNull()
+    expect(screen.getAllByText(/warm and playful voice/).length).toBeGreaterThan(0)
+
+    fireEvent.click(screen.getByRole("button", { name: "Undo AI edit" }))
+    expect(screen.queryByRole("button", { name: "Undo AI edit" })).toBeNull()
+    expect(screen.getAllByText(/clear and thoughtful voice/).length).toBeGreaterThan(0)
+  })
+
+  it("prevents duplicate refinement and keeps the prior draft on a safe failure", async () => {
+    let finishRequest: ((value: unknown) => void) | undefined
+    actions.refineBlueprint.mockReturnValue(
+      new Promise((resolve) => {
+        finishRequest = resolve
+      }),
+    )
+    render(<BlueprintWorkspace initialDraft={completeDraft} />)
+    fireEvent.change(screen.getByLabelText("What should change?"), {
+      target: { value: "Make the voice warmer" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Refine with AI" }))
+
+    expect(screen.getByRole("button", { name: "Refining…" }).hasAttribute("disabled")).toBe(true)
+    fireEvent.click(screen.getByRole("button", { name: "Refining…" }))
+    expect(actions.refineBlueprint).toHaveBeenCalledTimes(1)
+
+    finishRequest?.({
+      ok: false,
+      code: "AI_FAILED",
+      message: "AI refinement is temporarily unavailable. Your blueprint was not changed.",
+    })
+    await waitFor(() =>
+      expect(screen.getByRole("alert").textContent).toContain("temporarily unavailable"),
+    )
+    expect(screen.getAllByText(/clear and thoughtful voice/).length).toBeGreaterThan(0)
+  })
+
+  it("saves an applied AI result only after explicit confirmation", async () => {
+    actions.refineBlueprint.mockResolvedValue({
+      ok: true,
+      data: { draft: refinedDraft, changeSummary: "Made the voice warmer." },
+    })
+    actions.saveBlueprint.mockImplementation(async (input: BlueprintDraft) => ({
+      ok: true,
+      data: {
+        ...input,
+        id: 18,
+        createdAt: "2026-08-20T12:00:00.000Z",
+        updatedAt: "2026-08-20T12:00:00.000Z",
+      },
+    }))
+    render(<BlueprintWorkspace initialDraft={completeDraft} />)
+    fireEvent.change(screen.getByLabelText("What should change?"), {
+      target: { value: "Make the voice warmer" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Refine with AI" }))
+    await waitFor(() => expect(screen.getByRole("button", { name: "Undo AI edit" })).not.toBeNull())
+
+    expect(actions.saveBlueprint).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole("button", { name: "Save blueprint" }))
+    await waitFor(() => expect(actions.saveBlueprint).toHaveBeenCalledWith(refinedDraft))
+    expect(screen.getByText("All changes saved.")).not.toBeNull()
+    expect(screen.queryByRole("button", { name: "Undo AI edit" })).toBeNull()
   })
 })

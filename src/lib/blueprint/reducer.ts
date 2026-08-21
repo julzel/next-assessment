@@ -4,6 +4,7 @@ import type { BrandAnswers, BlueprintDraft, TemplateId } from "./types"
 import type { ValidationIssue } from "./validation"
 
 export type SaveStatus = "idle" | "saving" | "saved" | "error"
+export type AiStatus = "idle" | "loading" | "applied" | "error"
 export type WorkspaceMobileMode = "questions" | "preview"
 
 export type BlueprintWorkspaceState = {
@@ -15,6 +16,9 @@ export type BlueprintWorkspaceState = {
   fullPreviewOpen: boolean
   currentStep: BlueprintStepId
   fieldIssues: ValidationIssue[]
+  aiStatus: AiStatus
+  aiMessage: string | null
+  lastAiSnapshot: BlueprintDraft | null
 }
 
 export type BlueprintWorkspaceAction =
@@ -28,6 +32,10 @@ export type BlueprintWorkspaceAction =
   | { type: "saveStarted" }
   | { type: "saveSucceeded"; draft: BlueprintDraft }
   | { type: "saveFailed"; message: string; issues?: ValidationIssue[] }
+  | { type: "aiStarted" }
+  | { type: "aiSucceeded"; draft: BlueprintDraft; changeSummary: string }
+  | { type: "aiFailed"; message: string }
+  | { type: "aiReverted" }
 
 export type AnswerChangedAction = {
   [K in keyof BrandAnswers]: { type: "answerChanged"; field: K; value: BrandAnswers[K] }
@@ -43,6 +51,25 @@ export function createBlueprintWorkspaceState(draft: BlueprintDraft): BlueprintW
     fullPreviewOpen: false,
     currentStep: "foundation",
     fieldIssues: [],
+    aiStatus: "idle",
+    aiMessage: null,
+    lastAiSnapshot: null,
+  }
+}
+
+function withManualChange(
+  state: BlueprintWorkspaceState,
+  draft: BlueprintDraft,
+): BlueprintWorkspaceState {
+  return {
+    ...state,
+    draft,
+    saveStatus: "idle",
+    saveMessage: null,
+    fieldIssues: [],
+    aiStatus: "idle",
+    aiMessage: null,
+    lastAiSnapshot: null,
   }
 }
 
@@ -56,32 +83,14 @@ export function blueprintWorkspaceReducer(
 ): BlueprintWorkspaceState {
   switch (action.type) {
     case "brandNameChanged":
-      return {
-        ...state,
-        draft: { ...state.draft, brandName: action.brandName },
-        saveStatus: "idle",
-        saveMessage: null,
-        fieldIssues: [],
-      }
+      return withManualChange(state, { ...state.draft, brandName: action.brandName })
     case "templateChanged":
-      return {
-        ...state,
-        draft: { ...state.draft, template: action.template },
-        saveStatus: "idle",
-        saveMessage: null,
-        fieldIssues: [],
-      }
+      return withManualChange(state, { ...state.draft, template: action.template })
     case "answerChanged":
-      return {
-        ...state,
-        draft: {
-          ...state.draft,
-          config: applyManualAnswer(state.draft.config, action.field, action.value),
-        },
-        saveStatus: "idle",
-        saveMessage: null,
-        fieldIssues: [],
-      }
+      return withManualChange(state, {
+        ...state.draft,
+        config: applyManualAnswer(state.draft.config, action.field, action.value),
+      })
     case "mobileModeChanged":
       return { ...state, mobileMode: action.mode }
     case "viewCurrentStep":
@@ -100,6 +109,9 @@ export function blueprintWorkspaceReducer(
         saveStatus: "saved",
         saveMessage: "All changes saved.",
         fieldIssues: [],
+        aiStatus: "idle",
+        aiMessage: null,
+        lastAiSnapshot: null,
       }
     case "saveFailed":
       return {
@@ -107,6 +119,41 @@ export function blueprintWorkspaceReducer(
         saveStatus: "error",
         saveMessage: action.message,
         fieldIssues: action.issues ?? [],
+      }
+    case "aiStarted":
+      if (state.aiStatus === "loading") return state
+      return {
+        ...state,
+        aiStatus: "loading",
+        aiMessage: "Refining the current Blueprint…",
+      }
+    case "aiSucceeded":
+      return {
+        ...state,
+        draft: action.draft,
+        saveStatus: "idle",
+        saveMessage: null,
+        fieldIssues: [],
+        aiStatus: "applied",
+        aiMessage: `${action.changeSummary} Review the result, undo it, or save when ready.`,
+        lastAiSnapshot: state.draft,
+      }
+    case "aiFailed":
+      return {
+        ...state,
+        aiStatus: "error",
+        aiMessage: action.message,
+      }
+    case "aiReverted":
+      if (!state.lastAiSnapshot) return state
+      return {
+        ...state,
+        draft: state.lastAiSnapshot,
+        saveStatus: "idle",
+        saveMessage: null,
+        aiStatus: "idle",
+        aiMessage: "AI edit undone. The previous local draft is restored.",
+        lastAiSnapshot: null,
       }
   }
 }

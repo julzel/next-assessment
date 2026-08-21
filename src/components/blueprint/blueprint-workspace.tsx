@@ -4,7 +4,8 @@ import { useEffect, useReducer, useRef } from "react"
 import type { KeyboardEvent } from "react"
 import { useRouter } from "next/navigation"
 
-import { saveBlueprint } from "@/app/blueprints/actions"
+import { refineBlueprint, saveBlueprint } from "@/app/blueprints/actions"
+import { AiRefinementPanel } from "@/components/blueprint/ai-refinement-panel"
 import { BlueprintPreview } from "@/components/blueprint/blueprint-preview"
 import { FullPreviewOverlay } from "@/components/blueprint/full-preview-overlay"
 import { GuidedEditor } from "@/components/blueprint/guided-editor"
@@ -63,18 +64,48 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
 
   async function handleSave() {
     dispatch({ type: "saveStarted" })
-    const result = await saveBlueprint(state.draft)
+    try {
+      const result = await saveBlueprint(state.draft)
 
-    if (!result.ok) {
-      dispatch({ type: "saveFailed", message: result.message, issues: result.issues })
-      return
+      if (!result.ok) {
+        dispatch({ type: "saveFailed", message: result.message, issues: result.issues })
+        return
+      }
+
+      dispatch({ type: "saveSucceeded", draft: result.data })
+      if (state.draft.id === null) {
+        router.replace(`/blueprints/${result.data.id}`)
+      } else {
+        router.refresh()
+      }
+    } catch {
+      dispatch({
+        type: "saveFailed",
+        message: "The blueprint could not be saved. Your local changes are still here; try again.",
+      })
     }
+  }
 
-    dispatch({ type: "saveSucceeded", draft: result.data })
-    if (state.draft.id === null) {
-      router.replace(`/blueprints/${result.data.id}`)
-    } else {
-      router.refresh()
+  async function handleRefine(instruction: string) {
+    if (!complete || state.aiStatus === "loading") return
+    dispatch({ type: "aiStarted" })
+
+    try {
+      const result = await refineBlueprint({ draft: state.draft, instruction })
+      if (!result.ok) {
+        dispatch({ type: "aiFailed", message: result.message })
+        return
+      }
+      dispatch({
+        type: "aiSucceeded",
+        draft: result.data.draft,
+        changeSummary: result.data.changeSummary,
+      })
+    } catch {
+      dispatch({
+        type: "aiFailed",
+        message: "AI refinement could not be reached. Your Blueprint is unchanged; try again.",
+      })
     }
   }
 
@@ -116,6 +147,7 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
         saveStatus={state.saveStatus}
         saveMessage={state.saveMessage}
         isComplete={complete}
+        isAiPending={state.aiStatus === "loading"}
         onSave={handleSave}
         onFullPreview={() => handleFullPreviewChange(true)}
         fullPreviewButtonRef={fullPreviewButtonRef}
@@ -208,6 +240,14 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
                 onView={handleViewCurrentStep}
               />
             }
+          />
+          <AiRefinementPanel
+            isComplete={complete}
+            status={state.aiStatus}
+            message={state.aiMessage}
+            canUndo={state.lastAiSnapshot !== null}
+            onRefine={handleRefine}
+            onUndo={() => dispatch({ type: "aiReverted" })}
           />
         </section>
         <section
