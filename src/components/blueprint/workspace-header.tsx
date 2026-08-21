@@ -6,6 +6,7 @@ import type { SaveStatus } from "@/lib/blueprint/reducer"
 
 type WorkspaceHeaderProps = {
   brandName: string
+  hasSavedRecord: boolean
   isDirty: boolean
   saveStatus: SaveStatus
   saveMessage: string | null
@@ -18,6 +19,7 @@ type WorkspaceHeaderProps = {
 
 export function WorkspaceHeader({
   brandName,
+  hasSavedRecord,
   isDirty,
   saveStatus,
   saveMessage,
@@ -34,7 +36,9 @@ export function WorkspaceHeader({
         ? "Save failed"
         : isDirty
           ? "Unsaved changes"
-          : "Saved"
+          : hasSavedRecord
+            ? "Saved"
+            : "Not saved yet"
   const saveLabel = isComplete ? "Save blueprint" : "Save draft"
   const savingLabel = isComplete ? "Saving blueprint…" : "Saving draft…"
 

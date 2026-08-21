@@ -129,6 +129,43 @@ Every commit runs a pre-commit hook (Husky): `tsc --noEmit`, then ESLint and any
 
 ## Brand Blueprint implementation notes
 
+### Reviewer setup and validation
+
+The app is a local Brand Blueprint Builder for salon owners. It translates one guided direction
+into representative website, social, and printed-touchpoint applications.
+
+```bash
+npm install
+npm run db:reset   # creates a salon-specific Marigold Salon example
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). To demonstrate the full AI path, add an
+`OPENAI_API_KEY` to `.env.local`; it is optional for the deterministic capture, preview, save, and
+reopen loop. `OPENAI_MODEL` is optional and defaults to `gpt-5.6-luna`.
+
+Before submission, run:
+
+```bash
+npx tsc --noEmit
+npm run lint
+npm test
+npm run build
+```
+
+### Decisions, trade-offs, and next steps
+
+- The persisted, serializable `BrandBlueprintConfig` is the single source of truth. Guided inputs,
+  deterministic copy, all three templates, cross-channel proofs, and validated AI patches use it.
+- Styling is resolved exclusively from closed enums and code-owned presentation tokens. This keeps
+  user and AI-authored content out of CSS and layout decisions.
+- AI is a constrained local refinement step, not a chat or publishing agent: it has no tools,
+  returns a strict whitelist patch, supports one-session Undo, and never persists until **Save**.
+- The assessment intentionally omits authentication, authorization, production rate limiting,
+  multi-user conflict handling, publishing, social posting, print-ready export, uploads, arbitrary
+  layouts, arbitrary fonts/colors, collaboration, and version history. Those are the next
+  production investments, along with durable ownership checks and AI abuse controls.
+
 - The primary user is a salon owner defining one coherent brand direction for a website, social media, and printed client touchpoints.
 - The saved `BrandBlueprintConfig` is the canonical state. Guided answers update deterministic content immediately, and save/reopen reproduces the same artifact without storing editor-only progress or focus state.
 - Presentation styling is resolved from closed answer enums through code-owned token registries. Saved or future AI-authored text can never inject CSS classes or arbitrary styles.

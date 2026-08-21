@@ -143,6 +143,7 @@ export function BlueprintWorkspace({ initialDraft }: { initialDraft: BlueprintDr
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 overflow-x-clip px-4 py-6 sm:gap-8 sm:px-6 sm:py-12">
       <WorkspaceHeader
         brandName={state.draft.brandName}
+        hasSavedRecord={state.draft.id !== null}
         isDirty={dirty}
         saveStatus={state.saveStatus}
         saveMessage={state.saveMessage}

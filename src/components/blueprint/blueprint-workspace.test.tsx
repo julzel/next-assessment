@@ -62,6 +62,13 @@ describe("BlueprintWorkspace", () => {
     vi.clearAllMocks()
   })
 
+  it("identifies a new blueprint as unsaved before its first edit or save", () => {
+    render(<BlueprintWorkspace initialDraft={draft} />)
+
+    expect(screen.getByText("Not saved yet")).not.toBeNull()
+    expect(screen.queryByText("Saved")).toBeNull()
+  })
+
   it("updates the name and template preview immediately", () => {
     render(<BlueprintWorkspace initialDraft={draft} />)
 
