@@ -68,5 +68,8 @@ describe("FullPreviewOverlay", () => {
     expect(preview?.getAttribute("data-typography-direction")).toBe("friendly-rounded")
     expect(screen.getByText("Why this direction works")).not.toBeNull()
     expect(screen.getByText("Message priority: useful optimism")).not.toBeNull()
+    expect(screen.getAllByText("Neighborhood Welcome").length).toBeGreaterThan(0)
+    expect(document.querySelector('[data-salon-module="client-care-moment"]')).not.toBeNull()
+    expect(document.querySelector('[data-salon-module="booking-invitation"]')).not.toBeNull()
   })
 })

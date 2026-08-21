@@ -31,39 +31,61 @@ function TemplateThumbnail({ template }: { template: TemplateId }) {
       aria-hidden="true"
       data-template-thumbnail={template}
       className={cn(
-        "block h-16 overflow-hidden border bg-background p-2 text-foreground transition-colors group-has-[[data-checked]]:border-primary",
-        template === "warm" && "rounded-2xl bg-orange-50",
-        template === "studio" && "rounded-sm bg-slate-950 text-slate-50",
+        "block h-20 overflow-hidden border bg-background p-2 text-foreground transition-colors group-has-[[data-checked]]:border-primary",
+        template === "editorial" && "rounded-sm",
+        template === "studio" && "rounded-md",
+        template === "warm" && "rounded-2xl",
       )}
     >
       {template === "editorial" && (
-        <span className="grid h-full grid-rows-[auto_1fr] gap-1 border-y-2 border-current py-1">
-          <span className="mx-auto h-1.5 w-2/5 bg-current" />
-          <span className="grid grid-cols-[1.25fr_0.75fr] gap-1">
-            <span className="border-t border-current" />
-            <span className="space-y-1 border-l border-current pl-1">
-              <span className="block h-1 bg-current" />
-              <span className="block h-1 w-2/3 bg-current/40" />
+        <span className="grid h-full grid-cols-[1.2fr_0.8fr] gap-1.5 border-y-2 border-current py-1.5">
+          <span className="grid min-w-0 content-between">
+            <span className="h-1 w-1/3 bg-current" />
+            <span className="space-y-1">
+              <span className="block h-2 w-4/5 bg-current" />
+              <span className="block h-1 w-1/2 bg-current/40" />
             </span>
+          </span>
+          <span className="relative border border-current bg-current/10">
+            <span className="absolute right-1 bottom-1 left-1 h-px bg-current" />
           </span>
         </span>
       )}
       {template === "studio" && (
-        <span className="grid h-full grid-cols-2 grid-rows-[auto_1fr] gap-1">
-          <span className="col-span-2 h-2 border-b border-cyan-300" />
-          <span className="border border-slate-600 bg-slate-900" />
-          <span className="grid grid-rows-2 gap-1">
-            <span className="bg-cyan-300" />
-            <span className="border border-slate-600" />
+        <span className="grid h-full grid-cols-[0.8fr_1.2fr] grid-rows-[auto_1fr] gap-1">
+          <span className="col-span-2 flex items-center justify-between border-b-2 border-current pb-1">
+            <span className="h-1.5 w-1/3 bg-current" />
+            <span className="size-2 bg-current" />
+          </span>
+          <span className="grid content-between border border-current p-1">
+            <span className="h-1 w-1/2 bg-current/40" />
+            <span className="space-y-1">
+              <span className="block h-px bg-current" />
+              <span className="block h-px bg-current" />
+              <span className="block h-px bg-current" />
+            </span>
+          </span>
+          <span className="grid grid-cols-2 gap-1">
+            <span className="border border-current bg-current/10" />
+            <span className="grid grid-rows-2 gap-1">
+              <span className="bg-current" />
+              <span className="border border-current" />
+            </span>
           </span>
         </span>
       )}
       {template === "warm" && (
-        <span className="grid h-full grid-rows-[1.15fr_0.85fr] gap-1">
-          <span className="rounded-xl bg-orange-400" />
-          <span className="grid grid-cols-2 gap-1">
-            <span className="rounded-lg bg-white" />
-            <span className="rounded-lg bg-orange-200" />
+        <span className="grid h-full grid-rows-[1.15fr_0.85fr] gap-1.5">
+          <span className="grid grid-cols-[auto_1fr] items-center gap-2 rounded-xl border border-current p-1.5">
+            <span className="size-5 rounded-full bg-current/20" />
+            <span className="space-y-1">
+              <span className="block h-1.5 w-3/4 bg-current" />
+              <span className="block h-1 w-full bg-current/40" />
+            </span>
+          </span>
+          <span className="grid grid-cols-[1fr_0.8fr] gap-1.5">
+            <span className="rounded-xl border border-current bg-current/10" />
+            <span className="rounded-full bg-current" />
           </span>
         </span>
       )}

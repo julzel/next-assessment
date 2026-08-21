@@ -43,6 +43,53 @@ export function LiveImpactSummary({
         data-impact-sample=""
       >
         <p>{summary}</p>
+        {currentStep === "visual" && (
+          <div className="mt-3 grid grid-cols-[3.5rem_1fr] items-stretch gap-3" data-impact-visual-proof="">
+            <div
+              aria-hidden="true"
+              className={cn(
+                "relative overflow-hidden",
+                presentation.geometry.mediaFrameClass,
+                presentation.palette.surfaceClass,
+                presentation.palette.borderClass,
+              )}
+            >
+              <span
+                className={cn(
+                  "absolute top-2 right-2 scale-50",
+                  presentation.geometry.accentShapeClass,
+                  presentation.palette.borderClass,
+                )}
+              />
+            </div>
+            <div
+              className={cn(
+                "min-w-0",
+                presentation.geometry.serviceCardClass,
+                presentation.palette.surfaceClass,
+                presentation.palette.borderClass,
+              )}
+            >
+              <p className={cn("text-[0.65rem]", presentation.typography.labelClass)}>
+                Service moment
+              </p>
+              <p className={cn("mt-1 truncate", presentation.typography.serviceClass)}>
+                Signature care
+              </p>
+              <span
+                className={cn(
+                  "mt-2 inline-flex",
+                  presentation.geometry.actionClass,
+                  presentation.palette.accentClass,
+                  presentation.palette.accentTextClass,
+                  presentation.typography.actionClass,
+                )}
+              >
+                Book
+              </span>
+            </div>
+          </div>
+        )}
         {currentStep === "personality" && presentation.personality.modifiers.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2" aria-label="Personality impact sample">
             {presentation.personality.modifiers.map((modifier) => (

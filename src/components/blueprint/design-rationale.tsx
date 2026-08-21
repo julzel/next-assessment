@@ -1,5 +1,17 @@
-import type { BlueprintPresentationProfile } from "@/lib/blueprint/presentation"
+import type {
+  BlueprintPresentationProfile,
+  PresentationRationaleItem,
+} from "@/lib/blueprint/presentation"
 import { cn } from "@/lib/utils"
+
+const dimensionLabels: Record<PresentationRationaleItem["dimension"], string> = {
+  template: "Composition",
+  visual: "Shape and rhythm",
+  color: "Palette",
+  typography: "Type system",
+  personality: "Character cue",
+  voice: "Client communication",
+}
 
 export function DesignRationale({
   presentation,
@@ -20,6 +32,10 @@ export function DesignRationale({
       <h3 className={cn("mt-2 text-2xl", presentation.typography.displayClass)}>
         Why this direction works
       </h3>
+      <p className={cn("mt-2 max-w-2xl text-sm leading-6", presentation.palette.mutedTextClass)}>
+        Each choice below names the treatment applied to the salon campaign frame, service story,
+        booking cue, and client-facing guidance.
+      </p>
       <ul className="mt-5 grid gap-4 sm:grid-cols-2">
         {presentation.rationale.map((item, index) => (
           <li
@@ -32,6 +48,9 @@ export function DesignRationale({
             data-rationale-dimension={item.dimension}
             data-rationale-fallback={item.fallback ? "true" : "false"}
           >
+            <p className={cn("text-[0.65rem]", presentation.typography.labelClass)}>
+              {dimensionLabels[item.dimension]}
+            </p>
             <p className="text-sm font-semibold">
               {item.fallback ? `Default while undecided: ${item.label}` : item.label}
             </p>

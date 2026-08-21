@@ -5,7 +5,9 @@ import {
   COLOR_DIRECTION_SWATCHES,
   TYPOGRAPHY_DIRECTION_OPTIONS,
 } from "@/lib/blueprint/options"
+import { getTypographyPreviewClasses } from "@/lib/blueprint/presentation"
 import type { ColorDirection, TypographyDirection } from "@/lib/blueprint/types"
+import { cn } from "@/lib/utils"
 
 export function VisualSystemStep({
   colorDirection,
@@ -46,9 +48,17 @@ export function VisualSystemStep({
               className="cursor-pointer items-start gap-3 rounded-lg border p-3"
             >
               <RadioGroupItem id={`color-direction-${direction.id}`} value={direction.id} />
-              <span className="flex gap-1" aria-hidden="true">
-                {COLOR_DIRECTION_SWATCHES[direction.id].map((color) => (
-                  <span key={color} className={`size-4 rounded-full ${color}`} />
+              <span
+                className="flex h-10 w-16 shrink-0 overflow-hidden rounded-md border"
+                aria-label={`${direction.label} palette sample`}
+                role="img"
+              >
+                {COLOR_DIRECTION_SWATCHES[direction.id].map((color, index) => (
+                  <span
+                    key={color}
+                    className={`${index === 0 ? "w-1/2" : "w-1/4"} ${color}`}
+                    aria-hidden="true"
+                  />
                 ))}
               </span>
               <span className="grid gap-1">
@@ -82,20 +92,36 @@ export function VisualSystemStep({
           onValueChange={(value) => onTypographyDirectionChange(value as TypographyDirection)}
           className="gap-2"
         >
-          {TYPOGRAPHY_DIRECTION_OPTIONS.map((direction) => (
-            <Label
-              key={direction.id}
-              htmlFor={`typography-direction-${direction.id}`}
-              className="cursor-pointer items-start gap-3 rounded-lg border p-3"
-            >
-              <RadioGroupItem id={`typography-direction-${direction.id}`} value={direction.id} />
-              <span className="grid gap-1">
-                <span>{direction.label}</span>
-                <span className="font-normal text-muted-foreground">{direction.description}</span>
-                <span className="text-xs font-normal">{direction.effect}</span>
-              </span>
-            </Label>
-          ))}
+          {TYPOGRAPHY_DIRECTION_OPTIONS.map((direction) => {
+            const preview = getTypographyPreviewClasses(direction.id)
+
+            return (
+              <Label
+                key={direction.id}
+                htmlFor={`typography-direction-${direction.id}`}
+                className="cursor-pointer items-start gap-3 rounded-lg border p-3"
+              >
+                <RadioGroupItem id={`typography-direction-${direction.id}`} value={direction.id} />
+                <span className="grid min-w-0 flex-1 gap-2">
+                  <span>{direction.label}</span>
+                  <span
+                    className="grid gap-1 rounded-md bg-muted/50 p-3"
+                    aria-label={`${direction.label} type sample`}
+                  >
+                    <span className={cn("text-xl leading-none", preview.displayClass)}>
+                      Salon name
+                    </span>
+                    <span className={cn("text-xs", preview.serviceClass)}>Signature service</span>
+                    <span className={cn("text-[0.65rem]", preview.actionClass)}>Book your visit</span>
+                  </span>
+                  <span className="font-normal text-muted-foreground">
+                    {direction.description}
+                  </span>
+                  <span className="text-xs font-normal">{direction.effect}</span>
+                </span>
+              </Label>
+            )
+          })}
         </RadioGroup>
         {errors.typographyDirection && (
           <p id="typography-direction-error" className="text-sm text-destructive">

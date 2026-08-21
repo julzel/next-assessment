@@ -9,14 +9,14 @@ import type { BrandAnswers, BlueprintDraft } from "@/lib/blueprint/types"
 import { DesignRationale } from "./design-rationale"
 
 const answers: BrandAnswers = {
-  offerAudience: "Independent founders building thoughtful products",
+  offerAudience: "Precision services for clients who value a calm visit",
   personalityTraits: ["confident", "precise"],
   visualDirection: "elegant",
   colorDirection: "earthy",
   typographyDirection: "editorial-serif",
   voiceTraits: ["clear", "thoughtful"],
-  alwaysCommunicate: "calm expertise",
-  avoid: "empty buzzwords",
+  alwaysCommunicate: "thoughtful expertise and care",
+  avoid: "pressure or beauty stereotypes",
 }
 
 function draft(config = { schemaVersion: 1 as const, answers, content: buildDeterministicContent(answers) }): BlueprintDraft {
@@ -38,7 +38,7 @@ describe("DesignRationale", () => {
     const rationale = screen.getByText("Why this direction works").closest("section")!
 
     for (const label of [
-      "Editorial",
+      "Editorial Luxe",
       "Elegant",
       "Earthy",
       "Editorial serif",
@@ -46,10 +46,23 @@ describe("DesignRationale", () => {
       "Precise",
       "Clear",
       "Thoughtful",
-      "Message priority: calm expertise",
-      "Guardrail: avoid empty buzzwords",
+      "Message priority: thoughtful expertise and care",
+      "Guardrail: avoid pressure or beauty stereotypes",
     ]) {
       expect(within(rationale).getByText(label)).not.toBeNull()
+    }
+    expect(
+      within(rationale).getByText(/salon campaign frame, service story, booking cue/),
+    ).not.toBeNull()
+    for (const dimension of [
+      "Composition",
+      "Shape and rhythm",
+      "Palette",
+      "Type system",
+      "Character cue",
+      "Client communication",
+    ]) {
+      expect(within(rationale).getAllByText(dimension).length).toBeGreaterThan(0)
     }
     expect(rationale.querySelectorAll('[data-rationale-fallback="true"]')).toHaveLength(0)
   })

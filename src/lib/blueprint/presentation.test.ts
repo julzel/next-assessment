@@ -14,14 +14,32 @@ import {
 } from "./types"
 
 const answers: BrandAnswers = {
-  offerAudience: "Independent founders building thoughtful products",
+  offerAudience: "Precision services for clients who value a calm visit",
   personalityTraits: ["confident"],
   visualDirection: "minimal",
   colorDirection: "neutral",
   typographyDirection: "modern-sans",
   voiceTraits: ["clear"],
-  alwaysCommunicate: "calm expertise",
+  alwaysCommunicate: "thoughtful expertise and care",
   avoid: "",
+}
+
+function relativeLuminance(hex: string) {
+  const channels = hex
+    .slice(1)
+    .match(/.{2}/g)!
+    .map((channel) => Number.parseInt(channel, 16) / 255)
+    .map((channel) =>
+      channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4,
+    )
+
+  return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2]
+}
+
+function contrastRatio(first: string, second: string) {
+  const lighter = Math.max(relativeLuminance(first), relativeLuminance(second))
+  const darker = Math.min(relativeLuminance(first), relativeLuminance(second))
+  return (lighter + 0.05) / (darker + 0.05)
 }
 
 function createDraft(answerOverrides: Partial<BrandAnswers> = {}): BlueprintDraft {
@@ -50,6 +68,13 @@ describe("resolveBlueprintPresentation", () => {
       const profile = resolveBlueprintPresentation(createDraft({ visualDirection }))
       expect(profile.geometry.id).toBe(visualDirection)
       expect(profile.geometry.fallback).toBe(false)
+      expect(profile.geometry).toMatchObject({
+        mediaFrameClass: expect.any(String),
+        serviceCardClass: expect.any(String),
+        actionClass: expect.any(String),
+        dividerClass: expect.any(String),
+        accentShapeClass: expect.any(String),
+      })
     }
     for (const colorDirection of COLOR_DIRECTIONS) {
       const profile = resolveBlueprintPresentation(createDraft({ colorDirection }))
@@ -60,6 +85,13 @@ describe("resolveBlueprintPresentation", () => {
       const profile = resolveBlueprintPresentation(createDraft({ typographyDirection }))
       expect(profile.typography.id).toBe(typographyDirection)
       expect(profile.typography.fallback).toBe(false)
+      expect(profile.typography).toMatchObject({
+        displayClass: expect.any(String),
+        bodyClass: expect.any(String),
+        labelClass: expect.any(String),
+        serviceClass: expect.any(String),
+        actionClass: expect.any(String),
+      })
     }
     for (const personalityTrait of PERSONALITY_TRAITS) {
       const profile = resolveBlueprintPresentation(
@@ -67,6 +99,21 @@ describe("resolveBlueprintPresentation", () => {
       )
       expect(profile.personality.modifiers[0]?.id).toBe(personalityTrait)
       expect(profile.personality.fallback).toBe(false)
+    }
+  })
+
+  it("keeps stable persisted IDs while resolving salon-specific compositions", () => {
+    const expected = {
+      editorial: "Campaign masthead",
+      studio: "Service index",
+      warm: "Human introduction",
+    } as const
+
+    for (const template of TEMPLATE_IDS) {
+      const resolved = resolveBlueprintPresentation({ ...createDraft(), template }).template
+      expect(resolved.id).toBe(template)
+      expect(resolved.composition).toContain(expected[template])
+      expect(resolved.effect).toMatch(/salon/i)
     }
   })
 
@@ -107,5 +154,71 @@ describe("resolveBlueprintPresentation", () => {
     expect(bold.personality.modifiers[0]?.accentClass).not.toBe(
       base.personality.modifiers[0]?.accentClass,
     )
+  })
+
+  it("gives every salon palette accessible primary and action contrast", () => {
+    for (const colorDirection of COLOR_DIRECTIONS) {
+      const { contrastColors } = resolveBlueprintPresentation(
+        createDraft({ colorDirection }),
+      ).palette
+
+      expect(
+        contrastRatio(contrastColors.surface, contrastColors.text),
+        `${colorDirection} text on surface`,
+      ).toBeGreaterThanOrEqual(4.5)
+      expect(
+        contrastRatio(contrastColors.accent, contrastColors.accentText),
+        `${colorDirection} action text on accent`,
+      ).toBeGreaterThanOrEqual(4.5)
+    }
+  })
+
+  it("uses an inclusive cobalt-and-lime vibrant system instead of a pink default", () => {
+    const vibrant = resolveBlueprintPresentation(createDraft({ colorDirection: "vibrant" }))
+      .palette
+    const trustedClasses = [
+      vibrant.canvasClass,
+      vibrant.surfaceClass,
+      vibrant.softSurfaceClass,
+      vibrant.textClass,
+      vibrant.mutedTextClass,
+      vibrant.borderClass,
+      vibrant.accentClass,
+      vibrant.accentTextClass,
+    ].join(" ")
+
+    expect(trustedClasses).toMatch(/indigo/)
+    expect(trustedClasses).toMatch(/lime/)
+    expect(trustedClasses).not.toMatch(/pink|fuchsia|rose/)
+  })
+
+  it("changes five salon treatment categories for every visual direction", () => {
+    const profiles = VISUAL_DIRECTIONS.map((visualDirection) =>
+      resolveBlueprintPresentation(createDraft({ visualDirection })),
+    )
+
+    for (const field of [
+      "mediaFrameClass",
+      "serviceCardClass",
+      "actionClass",
+      "dividerClass",
+      "accentShapeClass",
+    ] as const) {
+      expect(new Set(profiles.map((profile) => profile.geometry[field])).size, field).toBe(
+        VISUAL_DIRECTIONS.length,
+      )
+    }
+  })
+
+  it("changes display, service, and booking type roles for every typography direction", () => {
+    const profiles = TYPOGRAPHY_DIRECTIONS.map((typographyDirection) =>
+      resolveBlueprintPresentation(createDraft({ typographyDirection })),
+    )
+
+    for (const field of ["displayClass", "serviceClass", "actionClass"] as const) {
+      expect(new Set(profiles.map((profile) => profile.typography[field])).size, field).toBe(
+        TYPOGRAPHY_DIRECTIONS.length,
+      )
+    }
   })
 })

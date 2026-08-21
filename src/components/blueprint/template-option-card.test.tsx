@@ -22,12 +22,14 @@ describe("TemplateOptionCard", () => {
     expect(container.querySelector('[data-template-thumbnail="editorial"]')).not.toBeNull()
     expect(container.querySelector('[data-template-thumbnail="studio"]')).not.toBeNull()
     expect(container.querySelector('[data-template-thumbnail="warm"]')).not.toBeNull()
-    expect(screen.getByText("Refined and typography-led.")).not.toBeNull()
+    expect(screen.getByText("Modern Studio")).not.toBeNull()
+    expect(screen.getByText("Neighborhood Welcome")).not.toBeNull()
+    expect(screen.getByText("Craft-led, campaign-minded, and typography-forward.")).not.toBeNull()
     expect(screen.getByRole("radio", { name: /Editorial/ }).getAttribute("aria-checked")).toBe(
       "true",
     )
 
-    fireEvent.click(screen.getByRole("radio", { name: /Studio/ }))
+    fireEvent.click(screen.getByRole("radio", { name: /Modern Studio/ }))
     expect(onValueChange).toHaveBeenCalledWith("studio", expect.anything())
   })
 
@@ -40,11 +42,25 @@ describe("TemplateOptionCard", () => {
       </RadioGroup>,
     )
     const editorial = screen.getByRole("radio", { name: /Editorial/ })
-    const studio = screen.getByRole("radio", { name: /Studio/ })
+    const studio = screen.getByRole("radio", { name: /Modern Studio/ })
 
     expect(editorial.getAttribute("tabindex")).toBe("0")
     expect(studio.getAttribute("tabindex")).toBe("-1")
     editorial.focus()
     expect(document.activeElement).toBe(editorial)
+  })
+
+  it("uses neutral structural thumbnails rather than template-owned color direction", () => {
+    const { container } = render(
+      <RadioGroup defaultValue="editorial">
+        {TEMPLATE_OPTIONS.map((option) => (
+          <TemplateOptionCard key={option.id} option={option} />
+        ))}
+      </RadioGroup>,
+    )
+
+    for (const thumbnail of container.querySelectorAll("[data-template-thumbnail]")) {
+      expect(thumbnail.className).not.toMatch(/orange|pink|rose|cyan|slate-950/)
+    }
   })
 })

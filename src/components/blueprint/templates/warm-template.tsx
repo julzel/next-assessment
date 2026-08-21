@@ -26,6 +26,7 @@ export function WarmTemplate({
         canvasFocusClasses(activeStep),
       )}
       data-composition="warm-story-flow"
+      data-salon-direction="neighborhood-welcome"
       data-presentation-surface="canvas"
       data-blueprint-section="canvas"
       data-editing-context={activeStep === "visual" ? "true" : undefined}
@@ -47,19 +48,61 @@ export function WarmTemplate({
             presentation.typography.labelClass,
           )}
         >
-          Warm blueprint
+          Neighborhood Welcome
         </Badge>
         <h2
           className={cn(
             "max-w-2xl text-4xl leading-none sm:text-5xl",
             presentation.typography.displayClass,
           )}
+          data-typography-role="display"
         >
           {draft.brandName.trim() || "Your salon name"}
         </h2>
         <p className={cn("mt-4 max-w-lg text-sm leading-6", presentation.palette.mutedTextClass)}>
-          An approachable brand story designed to feel human from the first interaction.
+          A human salon introduction designed to make care recognizable before the first visit.
         </p>
+        <div className="mt-6 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+          <div
+            className={cn(
+              "min-w-0 border p-5",
+              presentation.palette.surfaceClass,
+              presentation.palette.borderClass,
+              presentation.geometry.serviceCardClass,
+            )}
+            data-salon-module="client-care-moment"
+          >
+            <p className={cn("text-xs", presentation.typography.labelClass)}>
+              Client-care promise
+            </p>
+            <p
+              className={cn(
+                "mt-3 break-words text-xl leading-7",
+                presentation.typography.serviceClass,
+              )}
+              data-typography-role="service"
+            >
+              <span aria-hidden="true">“</span>
+              {draft.config.answers.alwaysCommunicate ||
+                "Add the message every client should feel across the salon experience."}
+              <span aria-hidden="true">”</span>
+            </p>
+          </div>
+          <span
+            className={cn(
+              "inline-flex w-fit items-center justify-center",
+              presentation.geometry.actionClass,
+              presentation.palette.accentClass,
+              presentation.palette.accentTextClass,
+              presentation.palette.borderClass,
+              presentation.typography.actionClass,
+            )}
+            data-salon-module="booking-invitation"
+            data-typography-role="action"
+          >
+            Find your next visit
+          </span>
+        </div>
       </div>
       <BlueprintSections
         draft={draft}

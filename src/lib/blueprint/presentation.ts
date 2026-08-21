@@ -25,6 +25,12 @@ type PaletteTokens = {
   borderClass: string
   accentClass: string
   accentTextClass: string
+  contrastColors: {
+    surface: string
+    text: string
+    accent: string
+    accentText: string
+  }
   effect: string
 }
 
@@ -32,6 +38,8 @@ type TypographyTokens = {
   displayClass: string
   bodyClass: string
   labelClass: string
+  serviceClass: string
+  actionClass: string
   effect: string
 }
 
@@ -40,6 +48,11 @@ type GeometryTokens = {
   heroClass: string
   sectionClass: string
   sectionGapClass: string
+  mediaFrameClass: string
+  serviceCardClass: string
+  actionClass: string
+  dividerClass: string
+  accentShapeClass: string
   effect: string
 }
 
@@ -80,74 +93,112 @@ export type BlueprintPresentationProfile = {
 
 const TEMPLATE_TOKENS = {
   editorial: {
-    composition: "Narrative masthead, fine rules, and flowing sections.",
-    effect: "Creates a publication-inspired hierarchy with a strong point of view.",
+    composition: "Campaign masthead, crafted service story, and editorial salon details.",
+    effect:
+      "Frames the salon like a considered beauty or wellness publication, with a campaign image treatment, signature-service emphasis, and a refined booking cue.",
   },
   studio: {
-    composition: "System header, modular grid, and compact information panels.",
-    effect: "Creates a structured brand board designed for systematic scanning.",
+    composition: "Service index, modular proof grid, and a direct appointment path.",
+    effect:
+      "Organizes the salon as a contemporary working studio, making services, expertise, and the next appointment step precise and easy to scan.",
   },
   warm: {
-    composition: "Welcoming introduction, layered cards, and conversational flow.",
-    effect: "Creates a softer brand story designed to invite connection.",
+    composition: "Human introduction, client-care moment, and approachable service flow.",
+    effect:
+      "Introduces the salon through human care, a recognizable client promise, and an inviting path from discovery to booking.",
   },
 } satisfies Record<TemplateId, TemplateTokens>
 
 const PALETTE_TOKENS = {
   neutral: {
     canvasClass: "bg-stone-100",
-    surfaceClass: "bg-white",
+    surfaceClass: "bg-stone-50",
     softSurfaceClass: "bg-stone-200",
     textClass: "text-stone-950",
-    mutedTextClass: "text-stone-600",
-    borderClass: "border-stone-300",
-    accentClass: "bg-stone-950",
-    accentTextClass: "text-stone-50",
-    effect: "Uses a calm stone canvas, white surfaces, and a restrained black accent.",
+    mutedTextClass: "text-stone-700",
+    borderClass: "border-stone-400",
+    accentClass: "bg-stone-900",
+    accentTextClass: "text-white",
+    contrastColors: {
+      surface: "#fafaf9",
+      text: "#0c0a09",
+      accent: "#1c1917",
+      accentText: "#ffffff",
+    },
+    effect:
+      "Uses warm stone surfaces, near-black text, and a restrained ink accent so salon craft and client information stay central.",
   },
   cool: {
-    canvasClass: "bg-sky-50",
+    canvasClass: "bg-slate-100",
     surfaceClass: "bg-white",
-    softSurfaceClass: "bg-sky-100",
+    softSurfaceClass: "bg-cyan-100",
     textClass: "text-slate-950",
-    mutedTextClass: "text-sky-800",
-    borderClass: "border-sky-300",
-    accentClass: "bg-sky-800",
+    mutedTextClass: "text-slate-700",
+    borderClass: "border-teal-700",
+    accentClass: "bg-teal-900",
     accentTextClass: "text-white",
-    effect: "Uses a clear blue canvas, cool surfaces, and a composed blue accent.",
+    contrastColors: {
+      surface: "#ffffff",
+      text: "#020617",
+      accent: "#134e4a",
+      accentText: "#ffffff",
+    },
+    effect:
+      "Uses clean slate, mineral cyan, and deep teal to give services and booking guidance a precise, contemporary calm.",
   },
   warm: {
-    canvasClass: "bg-orange-50",
-    surfaceClass: "bg-white",
-    softSurfaceClass: "bg-orange-100",
-    textClass: "text-orange-950",
-    mutedTextClass: "text-orange-800",
-    borderClass: "border-orange-300",
-    accentClass: "bg-orange-700",
+    canvasClass: "bg-amber-50",
+    surfaceClass: "bg-orange-50",
+    softSurfaceClass: "bg-amber-100",
+    textClass: "text-stone-950",
+    mutedTextClass: "text-stone-700",
+    borderClass: "border-orange-400",
+    accentClass: "bg-orange-900",
     accentTextClass: "text-white",
-    effect: "Uses a sunlit cream canvas, warm surfaces, and a welcoming orange accent.",
+    contrastColors: {
+      surface: "#fff7ed",
+      text: "#0c0a09",
+      accent: "#7c2d12",
+      accentText: "#ffffff",
+    },
+    effect:
+      "Uses sunlit cream, soft amber, and deep terracotta to make client-care moments feel warm without becoming overly decorative.",
   },
   earthy: {
-    canvasClass: "bg-amber-50",
-    surfaceClass: "bg-white",
-    softSurfaceClass: "bg-emerald-100",
+    canvasClass: "bg-stone-100",
+    surfaceClass: "bg-amber-50",
+    softSurfaceClass: "bg-lime-100",
     textClass: "text-stone-950",
-    mutedTextClass: "text-emerald-900",
-    borderClass: "border-amber-400",
-    accentClass: "bg-emerald-900",
-    accentTextClass: "text-amber-50",
-    effect: "Uses sand and green surfaces with a grounded forest accent.",
+    mutedTextClass: "text-green-900",
+    borderClass: "border-lime-700",
+    accentClass: "bg-green-900",
+    accentTextClass: "text-lime-50",
+    contrastColors: {
+      surface: "#fffbeb",
+      text: "#0c0a09",
+      accent: "#14532d",
+      accentText: "#f7fee7",
+    },
+    effect:
+      "Uses sand, botanical lime, and forest green to support a grounded, tactile salon experience with clear service contrast.",
   },
   vibrant: {
-    canvasClass: "bg-fuchsia-50",
+    canvasClass: "bg-indigo-50",
     surfaceClass: "bg-white",
-    softSurfaceClass: "bg-yellow-200",
-    textClass: "text-fuchsia-950",
-    mutedTextClass: "text-fuchsia-800",
-    borderClass: "border-fuchsia-300",
-    accentClass: "bg-fuchsia-700",
-    accentTextClass: "text-white",
-    effect: "Uses an energetic pink canvas, bright yellow surfaces, and a saturated accent.",
+    softSurfaceClass: "bg-lime-200",
+    textClass: "text-slate-950",
+    mutedTextClass: "text-indigo-900",
+    borderClass: "border-indigo-500",
+    accentClass: "bg-indigo-900",
+    accentTextClass: "text-lime-200",
+    contrastColors: {
+      surface: "#ffffff",
+      text: "#020617",
+      accent: "#312e81",
+      accentText: "#d9f99d",
+    },
+    effect:
+      "Uses electric lime against deep cobalt and clean white for energetic salon campaigns without defaulting to stereotyped pink.",
   },
 } satisfies Record<ColorDirection, PaletteTokens>
 
@@ -156,63 +207,115 @@ const TYPOGRAPHY_TOKENS = {
     displayClass: "font-sans font-bold tracking-tight",
     bodyClass: "font-sans",
     labelClass: "font-sans font-semibold tracking-wide uppercase",
-    effect: "Uses a crisp sans-serif hierarchy with direct, compact labels.",
+    serviceClass: "font-sans font-semibold tracking-tight",
+    actionClass: "font-sans text-xs font-bold tracking-[0.14em] uppercase",
+    effect:
+      "Uses crisp sans-serif display and body type, compact service headings, and direct uppercase booking cues.",
   },
   "editorial-serif": {
     displayClass: "font-blueprint-editorial font-medium tracking-tight",
     bodyClass: "font-blueprint-editorial",
     labelClass: "font-sans font-semibold tracking-[0.16em] uppercase",
-    effect: "Uses expressive serif headlines and body copy with publication-style labels.",
+    serviceClass: "font-blueprint-editorial text-lg italic",
+    actionClass: "font-sans text-xs font-semibold tracking-[0.18em] uppercase",
+    effect:
+      "Uses expressive serif display and service type with precise sans-serif labels and booking cues, creating a crafted editorial rhythm.",
   },
   "friendly-rounded": {
     displayClass: "font-blueprint-rounded font-semibold tracking-tight",
     bodyClass: "font-blueprint-rounded",
     labelClass: "font-blueprint-rounded font-bold tracking-wide",
-    effect: "Uses soft, open letterforms and friendly supporting labels.",
+    serviceClass: "font-blueprint-rounded font-semibold",
+    actionClass: "font-blueprint-rounded text-xs font-bold tracking-wide",
+    effect:
+      "Uses soft rounded display, body, service, and action type so client guidance feels conversational and approachable.",
   },
   "expressive-contrast": {
     displayClass: "font-blueprint-editorial font-black tracking-[-0.04em]",
     bodyClass: "font-sans",
     labelClass: "font-mono font-semibold tracking-[0.14em] uppercase",
-    effect: "Pairs a dramatic serif display with restrained sans-serif body copy.",
+    serviceClass: "font-sans font-bold tracking-tight",
+    actionClass: "font-mono text-xs font-bold tracking-[0.16em] uppercase",
+    effect:
+      "Pairs dramatic serif display type with restrained sans-serif copy, strong service headings, and precise mono booking cues.",
   },
 } satisfies Record<TypographyDirection, TypographyTokens>
+
+export function getTypographyPreviewClasses(direction: TypographyDirection) {
+  const { displayClass, bodyClass, labelClass, serviceClass, actionClass } =
+    TYPOGRAPHY_TOKENS[direction]
+
+  return { displayClass, bodyClass, labelClass, serviceClass, actionClass }
+}
 
 const GEOMETRY_TOKENS = {
   minimal: {
     canvasClass: "rounded-none border",
-    heroClass: "border-b py-8 text-left",
-    sectionClass: "rounded-none border-l-2 px-5 py-4",
-    sectionGapClass: "space-y-8",
-    effect: "Uses open space, square edges, and restrained rules.",
+    heroClass: "border-b py-10 text-left",
+    sectionClass: "rounded-none border-0 border-t px-0 py-6",
+    sectionGapClass: "space-y-10",
+    mediaFrameClass: "blueprint-media-minimal aspect-[4/5] rounded-none border",
+    serviceCardClass: "rounded-none border-y px-0 py-4",
+    actionClass: "rounded-none border px-4 py-2",
+    dividerClass: "h-px w-full bg-current opacity-30",
+    accentShapeClass: "size-9 rounded-none border",
+    effect:
+      "Uses generous whitespace, square campaign crops, restrained rules, open service rows, and a quiet outlined booking cue.",
   },
   bold: {
     canvasClass: "rounded-none border-4",
     heroClass: "border-b-4 py-7 text-left",
     sectionClass: "rounded-none border-2 px-5 py-5 shadow-[5px_5px_0_currentColor]",
     sectionGapClass: "space-y-7",
-    effect: "Uses heavy borders, assertive scale, and high-impact section blocks.",
+    mediaFrameClass:
+      "blueprint-media-bold aspect-square rounded-none border-4 shadow-[8px_8px_0_currentColor]",
+    serviceCardClass: "rounded-none border-2 p-4 shadow-[4px_4px_0_currentColor]",
+    actionClass: "rounded-none border-2 px-4 py-2 shadow-[3px_3px_0_currentColor]",
+    dividerClass: "h-1 w-full bg-current",
+    accentShapeClass: "size-10 rotate-6 rounded-none border-4",
+    effect:
+      "Uses heavy campaign frames, assertive scale, block-like service cards, thick dividers, and a high-impact booking cue.",
   },
   elegant: {
-    canvasClass: "rounded-sm border",
-    heroClass: "border-b py-10 text-center",
-    sectionClass: "rounded-sm border px-6 py-5",
-    sectionGapClass: "space-y-9",
-    effect: "Uses fine details, centered balance, and measured spacing.",
+    canvasClass: "rounded-[1.5rem] border",
+    heroClass: "border-b py-12 text-center",
+    sectionClass: "rounded-xl border px-6 py-6",
+    sectionGapClass: "space-y-10",
+    mediaFrameClass: "blueprint-media-elegant aspect-[3/4] rounded-t-full border",
+    serviceCardClass: "rounded-sm border px-5 py-5",
+    actionClass: "rounded-full border px-5 py-2",
+    dividerClass: "mx-auto h-px w-20 bg-current opacity-40",
+    accentShapeClass: "size-10 rotate-45 rounded-sm border",
+    effect:
+      "Uses arched campaign framing, centered balance, fine dividers, measured service cards, and a polished pill-shaped booking cue.",
   },
   playful: {
     canvasClass: "rounded-[2rem] border-2",
     heroClass: "rounded-t-[1.85rem] border-b-2 py-8 text-left",
     sectionClass: "rounded-2xl border-2 px-5 py-5 shadow-sm",
     sectionGapClass: "space-y-6",
-    effect: "Uses rounded shapes, lively offsets, and energetic section cards.",
+    mediaFrameClass:
+      "blueprint-media-playful aspect-square rotate-1 rounded-[2rem_0.75rem_2rem_0.75rem] border-2",
+    serviceCardClass: "rounded-2xl border-2 p-4 shadow-sm",
+    actionClass: "-rotate-1 rounded-full border-2 px-5 py-2",
+    dividerClass: "h-2 w-20 rounded-full bg-current",
+    accentShapeClass: "size-11 -rotate-6 rounded-full border-2",
+    effect:
+      "Uses lively campaign shapes, rounded service cards, energetic dividers, friendly offsets, and a playful booking pill.",
   },
   organic: {
     canvasClass: "rounded-[3rem_1rem_3rem_1rem] border",
     heroClass: "rounded-t-[2.9rem] border-b py-10 text-left",
     sectionClass: "rounded-[2rem_0.75rem_2rem_0.75rem] border px-6 py-5",
     sectionGapClass: "space-y-7",
-    effect: "Uses flowing curves, softer edges, and layered natural surfaces.",
+    mediaFrameClass:
+      "blueprint-media-organic aspect-[4/5] rounded-[48%_48%_30%_30%] border",
+    serviceCardClass: "rounded-[2rem_0.75rem_2rem_0.75rem] border p-5",
+    actionClass: "rounded-[999px_1rem_999px_999px] border px-5 py-2",
+    dividerClass: "blueprint-organic-divider h-3 w-full",
+    accentShapeClass: "blueprint-organic-mark size-11 rounded-[60%_40%_65%_35%] border",
+    effect:
+      "Uses botanical campaign curves, flowing dividers, layered service surfaces, leaf-like accents, and a soft rounded booking cue.",
   },
 } satisfies Record<VisualDirection, GeometryTokens>
 

@@ -37,7 +37,10 @@ export function BlueprintSections({
   if (composition === "studio") {
     return (
       <div
-        className="blueprint-studio-grid grid gap-3 border p-3 sm:grid-cols-2 sm:p-4"
+        className={cn(
+          "blueprint-studio-grid grid gap-3 border p-3 sm:grid-cols-2 sm:p-4",
+          presentation.palette.borderClass,
+        )}
         data-section-layout="modular-grid"
       >
         <div className="sm:col-span-2">{sections.brandHeader}</div>
@@ -52,7 +55,10 @@ export function BlueprintSections({
 
   if (composition === "warm") {
     return (
-      <div className="blueprint-warm-glow space-y-4" data-section-layout="story-flow">
+      <div
+        className={cn("blueprint-warm-glow space-y-4", presentation.geometry.sectionGapClass)}
+        data-section-layout="story-flow"
+      >
         {sections.brandHeader}
         <div className="ml-auto max-w-[92%]">{sections.audience}</div>
         <div className="mr-auto max-w-[92%]">{sections.personality}</div>
@@ -119,11 +125,24 @@ function createSemanticSections(
     audience: (
       <SectionFrame {...frameProps} title="Client promise" section="audience-promise">
         <p className="text-lg leading-8 sm:text-xl">{content.audiencePromise}</p>
-        {answers.offerAudience && (
-          <p className={cn("mt-4 text-xs", presentation.palette.mutedTextClass)}>
-            Owner direction: {answers.offerAudience}
+        <div
+          className={cn(
+            "mt-5",
+            presentation.geometry.serviceCardClass,
+            presentation.palette.softSurfaceClass,
+            presentation.palette.borderClass,
+          )}
+          data-salon-module="service-card"
+        >
+          <p className={sectionLabelClasses(presentation)}>Signature experience</p>
+          <p
+            className={cn("mt-2 leading-6", presentation.typography.serviceClass)}
+            data-typography-role="service"
+          >
+            {answers.offerAudience ||
+              "Your signature service or salon experience will be framed here."}
           </p>
-        )}
+        </div>
       </SectionFrame>
     ),
     personality: (
@@ -253,7 +272,9 @@ function SectionFrame({
           <span>{impact.inputLabel}</span>
         </p>
       )}
-      <h3 className={sectionLabelClasses(presentation)}>{title}</h3>
+      <h3 className={sectionLabelClasses(presentation)} data-typography-role="label">
+        {title}
+      </h3>
       {children}
     </section>
   )

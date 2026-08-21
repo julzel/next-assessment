@@ -40,8 +40,11 @@ describe("LiveImpactSummary", () => {
     expect(screen.getByText("Salon palette, type, and geometry")).not.toBeNull()
     expect(screen.getByText(draft.config.content.visualDirection)).not.toBeNull()
     const sample = container.querySelector("[data-impact-sample]")
-    expect(sample?.className).toContain("bg-yellow-200")
+    expect(sample?.className).toContain("bg-lime-200")
     expect(sample?.className).toContain("font-blueprint-editorial")
+    expect(container.querySelector("[data-impact-visual-proof]")).not.toBeNull()
+    expect(screen.getByText("Signature care").className).toContain("font-blueprint-editorial")
+    expect(screen.getByText("Book").className).toContain("tracking-[0.18em]")
 
     rerender(<LiveImpactSummary draft={draft} currentStep="voice" onView={vi.fn()} />)
     expect(screen.getByText(/Always communicate: thoughtful expertise and care/)).not.toBeNull()

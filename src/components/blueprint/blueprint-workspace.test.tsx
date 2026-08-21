@@ -55,10 +55,10 @@ describe("BlueprintWorkspace", () => {
     fireEvent.change(screen.getByLabelText("Salon name"), {
       target: { value: "Northstar Collective" },
     })
-    fireEvent.click(screen.getByRole("radio", { name: /Warm/ }))
+    fireEvent.click(screen.getByRole("radio", { name: /Neighborhood Welcome/ }))
 
     expect(screen.getAllByText("Northstar Collective").length).toBeGreaterThan(0)
-    expect(screen.getByText("Warm blueprint")).not.toBeNull()
+    expect(screen.getAllByText("Neighborhood Welcome").length).toBeGreaterThan(1)
     expect(screen.getByText("Unsaved changes")).not.toBeNull()
   })
 
@@ -68,7 +68,11 @@ describe("BlueprintWorkspace", () => {
     for (const template of ["editorial", "studio", "warm"]) {
       expect(container.querySelector(`[data-template-thumbnail="${template}"]`)).not.toBeNull()
     }
-    expect(screen.getByText(/Composition: Masthead, fine rule, flowing story/)).not.toBeNull()
+    expect(
+      screen.getByText(
+        /Composition: Campaign masthead, crafted service story, refined booking cue/,
+      ),
+    ).not.toBeNull()
     expect(screen.getByRole("radio", { name: /Editorial/ }).getAttribute("aria-checked")).toBe(
       "true",
     )
@@ -105,7 +109,7 @@ describe("BlueprintWorkspace", () => {
       screen.getByLabelText("What experience does your salon offer, and who is it for?"),
       { target: { value: "Precision services for clients who value thoughtful care" } },
     )
-    fireEvent.click(screen.getByRole("radio", { name: /Warm/ }))
+    fireEvent.click(screen.getByRole("radio", { name: /Neighborhood Welcome/ }))
     fireEvent.click(screen.getByRole("tab", { name: "Preview" }))
     fireEvent.click(screen.getByRole("tab", { name: "Questions" }))
 
@@ -115,7 +119,7 @@ describe("BlueprintWorkspace", () => {
     expect(
       screen.getByDisplayValue("Precision services for clients who value thoughtful care"),
     ).not.toBeNull()
-    expect(screen.getByText("Warm blueprint")).not.toBeNull()
+    expect(screen.getAllByText("Neighborhood Welcome").length).toBeGreaterThan(1)
     expect(screen.getByText("Unsaved changes")).not.toBeNull()
   })
 
