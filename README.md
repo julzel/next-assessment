@@ -24,15 +24,17 @@ Requires [Docker](https://docs.docker.com/get-docker/) and a `.env.local` file (
 npm run docker
 ```
 
-This starts the stack in the background, waits for Drizzle Studio and the app to respond, then opens [https://local.drizzle.studio/](https://local.drizzle.studio/) and [http://localhost:3000](http://localhost:3000) in your default browser. Logs stream in the terminal until you press Ctrl+C (containers keep running).
+This starts the app in the background, waits for it to respond, and opens [http://localhost:3000](http://localhost:3000) in your default browser. The published port is bound to `127.0.0.1`, so the unauthenticated local assessment is not exposed to other network devices. Logs stream in the terminal until you press Ctrl+C (containers keep running).
 
 To start without opening browsers: `DOCKER_OPEN_BROWSER=0 npm run docker`
 
 To run in the foreground without the browser helper: `npm run docker:up`
 
+Drizzle Studio is opt-in because it can directly edit the local assessment database. Start the app and Studio together with `DOCKER_STUDIO=1 npm run docker`, or run the foreground stack with `npm run docker:studio`. Its proxy is also bound to `127.0.0.1` on port 4983.
+
 On first run, the `db-init` service creates and seeds the database if it does not exist yet.
 
-Drizzle Studio (database GUI) starts alongside the app. An nginx proxy on port 4983 forwards traffic to the studio container and adds the browser headers Docker requires.
+When enabled, an nginx proxy on port 4983 forwards local traffic to the Studio container and adds the browser headers Docker requires.
 
 - The SQLite database persists in the `sqlite_data` named volume across restarts.
 - Rebuild after dependency changes: `npm run docker`
@@ -126,3 +128,64 @@ Every commit runs a pre-commit hook (Husky): `tsc --noEmit`, then ESLint and any
 
 1. Push your work to a fork or a fresh repo and send us the link.
 2. Include a short note (in the README or a `NOTES.md`) covering the decisions you made, trade-offs, and what you'd do next with more time.
+
+## Brand Blueprint implementation notes
+
+### Implemented features
+
+- Salon-specific four-step guided capture with immediate, deterministic preview feedback.
+- Three presentation templates with distinct composition and shared website, social, and print proofs.
+- Explicit save/revisit through SQLite, including dirty, pending, success, and failure feedback.
+- Focused full-preview mode plus responsive Questions/Preview modes for narrow screens.
+- Server-only, target-scoped AI refinement with strict output validation, safe failure recovery, and one-step local Undo.
+- Runtime validation of saved records before they reach rendering, with route-level recovery for unsupported data.
+
+### Reviewer setup and validation
+
+The app is a local Brand Blueprint Builder for salon owners. It translates one guided direction
+into representative website, social, and printed-touchpoint applications.
+
+```bash
+npm install
+npm run db:reset   # creates a salon-specific Marigold Salon example
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). To demonstrate the full AI path, add an
+`OPENAI_API_KEY` to `.env.local`; it is optional for the deterministic capture, preview, save, and
+reopen loop. `OPENAI_MODEL` is optional and defaults to `gpt-5.6-luna`.
+
+Before submission, run:
+
+```bash
+npx tsc --noEmit
+npm run lint
+npm test
+npm run build
+```
+
+### Decisions, trade-offs, and next steps
+
+- The persisted, serializable `BrandBlueprintConfig` is the single source of truth. Guided inputs,
+  deterministic copy, all three templates, cross-channel proofs, and validated AI patches use it.
+- Styling is resolved exclusively from closed enums and code-owned presentation tokens. This keeps
+  user and AI-authored content out of CSS and layout decisions.
+- AI is a constrained local refinement step, not a chat or publishing agent: it has no tools,
+  returns a strict whitelist patch, supports one-session Undo, and never persists until **Save**.
+- The assessment intentionally omits authentication, authorization, production rate limiting,
+  multi-user conflict handling, publishing, social posting, print-ready export, uploads, arbitrary
+  layouts, arbitrary fonts/colors, collaboration, and version history. Those are the next
+  production investments, along with durable ownership checks and AI abuse controls.
+
+The next production step would be authentication and record ownership, followed by durable
+rate limiting for AI requests. Those concerns are intentionally outside this local, single-user
+assessment and should be introduced together rather than implied by the current UI.
+
+- The primary user is a salon owner defining one coherent brand direction for a website, social media, and printed client touchpoints.
+- The saved `BrandBlueprintConfig` is the canonical state. Guided answers update deterministic content immediately, and save/reopen reproduces the same artifact without storing editor-only progress or focus state.
+- Presentation styling is resolved from closed answer enums through code-owned token registries. Saved or future AI-authored text can never inject CSS classes or arbitrary styles.
+- Editorial Luxe, Modern Studio, and Neighborhood Welcome share semantic Blueprint modules but own different macro compositions. The live rationale is derived from the same presentation profile used by the renderers, so its explanation cannot drift into a separate stored narrative.
+- **Brand in use** derives representative website, square social, and printed-card proofs from that same canonical draft and presentation profile. The proofs explain what stays consistent and what adapts by channel; they are illustrative previews, not production assets.
+- AI refinement is available only after the guided Blueprint is complete. The user selects a voice, personality, visual, color, typography, or copy target; the server rejects structurally valid patches that escape that target. The server-only OpenAI Responses API call updates only the local draft, offers one-step Undo, and persists only through the existing explicit Save action. `OPENAI_MODEL` is optional and defaults to `gpt-5.6-luna`.
+- Desktop keeps questions beside a focused live preview. Mobile keeps one compact impact sample in Questions mode and moves focus to the affected preview module through **View this change**; no duplicate preview content is added to the form.
+- Current limitations: this is a local single-user assessment without authentication, authorization, production rate limiting, or collaborative conflict handling. It intentionally defers production website publishing, social posting, print-ready export/bleed files, image generation, arbitrary fonts/colors/layouts, uploads, collaboration, and version history.

@@ -38,12 +38,18 @@ wait_for_http() {
   return 1
 }
 
-docker compose up --build -d
+if [ "${DOCKER_STUDIO:-0}" = "1" ]; then
+  docker compose --profile studio up --build -d
+else
+  docker compose up --build -d app
+fi
 
 if [ "${DOCKER_OPEN_BROWSER:-1}" != "0" ]; then
-  wait_for_http "http://localhost:4983"
   wait_for_http "http://localhost:3000"
-  open_url "https://local.drizzle.studio/"
+  if [ "${DOCKER_STUDIO:-0}" = "1" ]; then
+    wait_for_http "http://localhost:4983"
+    open_url "https://local.drizzle.studio/"
+  fi
   open_url "http://localhost:3000"
 fi
 
